@@ -1,0 +1,181 @@
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ================= BODY ================= */
+body {
+  min-height: 100vh;
+  font-family: "Inter", "Poppins", sans-serif;
+  background: radial-gradient(
+      circle at top,
+      rgba(99, 102, 241, 0.35),
+      transparent 40%
+    ),
+    linear-gradient(135deg, #0f172a, #1e1b4b, #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e5e7eb;
+}
+
+/* ================= CARD ================= */
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 36px 32px;
+  border-radius: 22px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+  animation: slideFade 0.6s ease;
+}
+
+/* ================= TITLE ================= */
+.auth-container h2 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  letter-spacing: 0.3px;
+  color: #f8fafc;
+}
+
+/* ================= INPUTS ================= */
+.auth-container input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  background: rgba(15, 23, 42, 0.7);
+  color: #f8fafc;
+  font-size: 14px;
+
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.auth-container input::placeholder {
+  color: #94a3b8;
+}
+
+.auth-container input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+/* ================= PRIMARY BUTTON ================= */
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+
+  border-radius: 16px;
+  border: none;
+
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  color: white;
+
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 45px rgba(79, 70, 229, 0.55);
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= SECONDARY BUTTON ================= */
+.google-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+
+  border-radius: 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.google-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+/* ================= TEXT ================= */
+.auth-container p {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 14px;
+  color: #cbd5f5;
+}
+
+.auth-container span {
+  color: #38bdf8;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-container span:hover {
+  text-decoration: underline;
+}
+
+/* ================= INDICATOR ================= */
+.indicator {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 28px 22px;
+    border-radius: 18px;
+  }
+
+  .auth-container h2 {
+    font-size: 23px;
+  }
+}
