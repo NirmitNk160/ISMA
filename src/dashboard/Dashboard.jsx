@@ -1,81 +1,53 @@
-import Sidebar from "../dashboard/Sidedar";
-import Topbar from "../dashboard/Topbar";
-import "./dashboard.css";
+import React from "react";
+import "./Dashboard.css";
+
+import Topbar from "./Topbar";
+import Sidebar from "./Sidebar";
+import StatCard from "./StatCard";
+import Progress from "./Progress";
 
 export default function Dashboard() {
   return (
-    <div className="dashboard-layout">
-      <Sidebar />
+    <div className="dashboard-root">
 
-      <div className="dashboard-main">
-        <Topbar />
+      <Topbar />
 
-        <div className="dashboard-content">
-          <h2>Dashboard</h2>
+      <div className="dashboard-body">
 
-          {/* STAT CARDS */}
-          <div className="stats-grid">
-            <div className="stat-card">
-              <p>EARNINGS (MONTHLY)</p>
-              <h3>$40,000</h3>
-              <span className="green">↑ 3.48%</span>
-            </div>
+        <Sidebar />
 
-            <div className="stat-card">
-              <p>SALES</p>
-              <h3>650</h3>
-              <span className="green">↑ 12%</span>
-            </div>
+        <main className="content">
 
-            <div className="stat-card">
-              <p>NEW USERS</p>
-              <h3>366</h3>
-              <span className="green">↑ 20.4%</span>
-            </div>
+          <section className="stats">
+            <StatCard title="Monthly Earnings" value="₹40,000" change="+3.48%" />
+            <StatCard title="Sales" value="650" change="+12%" />
+            <StatCard title="New Users" value="366" change="+20.4%" />
+            <StatCard
+              title="Pending Requests"
+              value="18"
+              change="-1.1%"
+              danger
+            />
+          </section>
 
-            <div className="stat-card">
-              <p>PENDING REQUESTS</p>
-              <h3>18</h3>
-              <span className="red">↓ 1.10%</span>
-            </div>
-          </div>
-
-          {/* CHART + PRODUCTS */}
-          <div className="dashboard-grid">
-            <div className="chart-card">
-              <h4>Monthly Recap Report</h4>
-              <div className="fake-chart">
-                📈 Chart goes here (Chart.js / Recharts)
+          <section className="grid">
+            <div className="card chart">
+              <h3>Monthly Recap Report</h3>
+              <div className="chart-placeholder">
+                📈 Chart goes here
               </div>
             </div>
 
-            <div className="products-card">
-              <h4>Products Sold</h4>
-
+            <div className="card">
+              <h3>Products Sold</h3>
               <Progress label="Oblong T-Shirt" value={75} />
-              <Progress label="Gundam 90’s" value={62} />
-              <Progress label="Rounded Hat" value={56} />
+              <Progress label="Gundam Editions" value={62} />
+              <Progress label="Rounded Hat" value={57} />
               <Progress label="Indomie Goreng" value={50} />
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+          </section>
 
-function Progress({ label, value }) {
-  return (
-    <div className="progress-item">
-      <div className="progress-label">
-        <span>{label}</span>
-        <span>{value}%</span>
-      </div>
-      <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${value}%` }}
-        />
+        </main>
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
+import React from "react";
+
 export default function Topbar() {
   return (
     <header className="topbar">
-      <input type="text" placeholder="Search..." />
-
-      <div className="topbar-right">
-        🔔
-        ✉️
-        <span className="profile">Admin</span>
+      <h1>ISMA Dashboard</h1>
+      <div className="user-info">
+        <span>Welcome, NK 👋</span>
+        <div className="avatar">NK</div>
       </div>
     </header>
   );
