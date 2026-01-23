@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 
-export default function Login({ setPage, setUser }) {
+export default function Login({ setUser }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -20,9 +22,7 @@ export default function Login({ setPage, setUser }) {
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -31,13 +31,11 @@ export default function Login({ setPage, setUser }) {
       if (!res.ok) {
         setMessage(data.message || "❌ Login failed");
       } else {
-        // ✅ SAVE USER DATA
+        localStorage.setItem("isma_user", JSON.stringify(data.user));
         setUser(data.user);
-
-        // ✅ REDIRECT TO HOME
-        setPage("home");
+        navigate("/");
       }
-    } catch (error) {
+    } catch {
       setMessage("❌ Backend not reachable");
     } finally {
       setLoading(false);
@@ -62,11 +60,7 @@ export default function Login({ setPage, setUser }) {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button
-        className="primary-btn"
-        onClick={handleLogin}
-        disabled={loading}
-      >
+      <button className="primary-btn" onClick={handleLogin} disabled={loading}>
         {loading ? "Logging in..." : "Login"}
       </button>
 
@@ -74,9 +68,7 @@ export default function Login({ setPage, setUser }) {
 
       <p>
         New shop?
-        <span onClick={() => setPage("register")}>
-          {" "}Register your shop
-        </span>
+        <span onClick={() => navigate("/register")}> Register your shop</span>
       </p>
     </div>
   );

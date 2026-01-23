@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../styles/home.css";
 
-export default function Home({ setPage, user }) {
+export default function Home({ user }) {
+  const navigate = useNavigate();
+
   // Logout handler
   const handleLogout = () => {
     localStorage.removeItem("isma_user");
-    window.location.reload();
+    navigate("/login", { replace: true });
   };
 
   // Typing animation logic
@@ -30,15 +33,10 @@ export default function Home({ setPage, user }) {
   return (
     <>
       {/* NAVBAR */}
-      <Navbar
-        setPage={setPage}
-        user={user}
-        onLogout={handleLogout}
-      />
+      <Navbar user={user} onLogout={handleLogout} />
 
       {/* HERO SECTION */}
       <section className="hero">
-        {/* Typing title */}
         <h2 className="typing-text">{typedText}</h2>
 
         <p className="hero-sub">
@@ -51,14 +49,14 @@ export default function Home({ setPage, user }) {
           <div className="hero-buttons">
             <button
               className="primary"
-              onClick={() => setPage("register")}
+              onClick={() => navigate("/register")}
             >
               Create Your Store
             </button>
 
             <button
               className="secondary"
-              onClick={() => setPage("login")}
+              onClick={() => navigate("/login")}
             >
               Login
             </button>
@@ -79,14 +77,14 @@ export default function Home({ setPage, user }) {
             <div className="dashboard-actions">
               <button
                 className="primary"
-                onClick={() => setPage("dashboard")}
+                onClick={() => navigate("/dashboard")}
               >
                 Go to Dashboard
               </button>
 
               <button
                 className="secondary"
-                onClick={() => setPage("dashboard")}
+                onClick={() => navigate("/dashboard")}
               >
                 Manage Inventory
               </button>

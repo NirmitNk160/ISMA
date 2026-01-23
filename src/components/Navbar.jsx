@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./../styles/home.css";
 
 export default function Navbar({ setPage, user, onLogout }) {
+  const navigate = useNavigate();
   return (
     <nav className="navbar">
       <h1 className="logo">ISMA</h1>
@@ -8,8 +11,8 @@ export default function Navbar({ setPage, user, onLogout }) {
       <div className="nav-links">
         {!user ? (
           <>
-            <button onClick={() => setPage("login")}>Login</button>
-            <button className="nav-btn" onClick={() => setPage("register")}>
+            <button onClick={() => navigate("/login")}>Login</button>
+            <button className="nav-btn" onClick={() => navigate("/register")}>
               Get Started
             </button>
           </>

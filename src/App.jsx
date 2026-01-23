@@ -1,38 +1,35 @@
-import { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./dashboard/Dashboard"; // ✅ ADD THIS
+import Dashboard from "./dashboard/Dashboard";
+
+import { NavigationHandler } from "./utils/navigation";
 
 export default function App() {
-  const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
 
-  // 🔥 Restore login on refresh
   useEffect(() => {
     const savedUser = localStorage.getItem("isma_user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
   return (
     <>
-      {page === "home" && <Home setPage={setPage} user={user} />}
+      <NavigationHandler />
 
-      {page === "login" && (
-        <Login setPage={setPage} setUser={setUser} />
-      )}
+      <Routes>
+        <Route path="/" element={<Home user={user} />} />
+        <Route path="/login" element={<Login setUser={setUser} />} />
+        <Route path="/register" element={<Register />} />
 
-      {page === "register" && (
-        <Register setPage={setPage} />
-      )}
-
-      {/* ✅ DASHBOARD PAGE */}
-      {page === "dashboard" && user && (
-        <Dashboard />
-      )}
+        <Route
+          path="/dashboard"
+          element={user ? <Dashboard /> : <Navigate to="/login" replace />}
+        />
+      </Routes>
     </>
   );
 }
