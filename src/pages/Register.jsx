@@ -5,24 +5,32 @@ import "../styles/auth.css";
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    Shop_Name: "",
-    Username: "",
-    Email: "",
-    Mobile: "",
-    Password: "",
-    Confirm_Password: "",
+    shop_name: "",
+    owner_name: "",
+    email: "",
+    mobile: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async () => {
     setMessage("");
 
-    if (Object.values(form).some((v) => !v)) {
+    if (
+      !form.shop_name ||
+      !form.owner_name ||
+      !form.email ||
+      !form.mobile ||
+      !form.password ||
+      !form.confirmPassword
+    ) {
       setMessage("❌ All fields are required");
       return;
     }
@@ -32,23 +40,41 @@ export default function Register() {
       return;
     }
 
+    if (!/^\d{10}$/.test(form.mobile)) {
+      setMessage("❌ Invalid mobile number format");
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      setMessage("❌ Invalid email format");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          shop_name: form.shop_name,
+          owner_name: form.owner_name,
+          email: form.email,
+          mobile: form.mobile,
+          password: form.password,
+        }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) setMessage(data.message || "❌ Registration failed");
-      else {
+      if (!res.ok) {
+        setMessage(data.message || "❌ Registration failed");
+      } else {
         setMessage("✅ Registration successful");
-        setTimeout(() => navigate("/login"), 1000);
       }
-    } catch {
+    } catch (err) {
       setMessage("❌ Backend not reachable");
     } finally {
       setLoading(false);
@@ -59,15 +85,41 @@ export default function Register() {
     <div className="auth-container">
       <h2>Register Your Shop</h2>
 
-      {Object.keys(form).map((key) => (
-        <input
-          key={key}
-          name={key}
-          type={key.includes("password") ? "password" : "text"}
-          placeholder={key.replace("_", " ")}
-          onChange={handleChange}
-        />
-      ))}
+      <input name="shop_name" placeholder="Shop Name" onChange={handleChange} />
+
+      <input
+        name="owner_name"
+        placeholder="Owner Name"
+        onChange={handleChange}
+      />
+
+      <input
+        name="mobile"
+        placeholder="Mobile Number"
+        type="tel"
+        onChange={handleChange}
+      />
+
+      <input
+        name="email"
+        placeholder="Gmail"
+        type="email"
+        onChange={handleChange}
+      />
+
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        onChange={handleChange}
+      />
+
+      <input
+        type="password"
+        name="confirmPassword"
+        placeholder="Confirm Password"
+        onChange={handleChange}
+      />
 
       <button className="primary-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? "Registering..." : "Register"}
@@ -77,9 +129,11 @@ export default function Register() {
 
       <p>
         Already have an account?
-        <span onClick={() => navigate("/login")}> Login</span>
+        <span className="link" onClick={() => navigate("/login")}>
+          {" "}
+          Login here
+        </span>
       </p>
-
     </div>
   );
 }

@@ -48,6 +48,12 @@ body {
   color: white;
 }
 
+.profile_icon {
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  color: white;
+  
+}
+
 .nav-links button:hover {
   transform: translateY(-2px);
   opacity: 0.9;
@@ -285,7 +291,7 @@ body {
 }
 
 /* Logout button styling */
-.welcome-box .nav-btn {
+.welcome-box .nav-btn .profile_icon {
   padding: 10px 18px;
   border-radius: 10px;
   border: none;
@@ -301,7 +307,7 @@ body {
   box-shadow: 0 8px 24px rgba(239, 68, 68, 0.35);
 }
 
-.welcome-box .nav-btn:hover {
+.welcome-box .nav-btn .profile_icon:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(239, 68, 68, 0.55);
 }
@@ -321,8 +327,7 @@ body {
   overflow: hidden;
   border-right: 3px solid #38bdf8;
   width: 0;
-  animation: typing 4s steps(50, end) forwards,
-             blink 0.7s infinite;
+  animation: typing 4s steps(50, end) forwards, blink 0.7s infinite;
   margin: auto;
 }
 

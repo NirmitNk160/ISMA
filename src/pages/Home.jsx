@@ -12,6 +12,10 @@ export default function Home({ user }) {
     navigate("/login", { replace: true });
   };
 
+  const handleProfile = () => {
+    navigate("/profile");
+  };
+
   // Typing animation logic
   const fullText = "Inventory, Store Management & Analysis..";
   const [typedText, setTypedText] = useState("");
@@ -33,31 +37,25 @@ export default function Home({ user }) {
   return (
     <>
       {/* NAVBAR */}
-      <Navbar user={user} onLogout={handleLogout} />
+      <Navbar user={user} onLogout={handleLogout} profile={handleProfile} />
 
       {/* HERO SECTION */}
       <section className="hero">
         <h2 className="typing-text">{typedText}</h2>
 
         <p className="hero-sub">
-          Smart, simple and powerful inventory management system
-          designed for modern shops.
+          Smart, simple and powerful inventory management system designed for
+          modern shops.
         </p>
 
         {!user ? (
           /* NOT LOGGED IN */
           <div className="hero-buttons">
-            <button
-              className="primary"
-              onClick={() => navigate("/register")}
-            >
+            <button className="primary" onClick={() => navigate("/register")}>
               Create Your Store
             </button>
 
-            <button
-              className="secondary"
-              onClick={() => navigate("/login")}
-            >
+            <button className="secondary" onClick={() => navigate("/login")}>
               Login
             </button>
           </div>
@@ -70,24 +68,26 @@ export default function Home({ user }) {
               <strong>{user.shop_name || user.name}</strong>
             </p>
 
-            {user.email && (
-              <p className="user-email">{user.email}</p>
-            )}
+            {user.email && <p className="user-email">{user.email}</p>}
 
             <div className="dashboard-actions">
               <button
                 className="primary"
-                onClick={() => navigate("/dashboard")}
+                onClick={() =>
+                  navigate("/dashboard", {
+                    state: { from: "/" },
+                  })
+                }
               >
                 Go to Dashboard
               </button>
 
-              <button
+              {/* <button
                 className="secondary"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/inventory")}
               >
                 Manage Inventory
-              </button>
+              </button> */}
             </div>
           </div>
         )}
@@ -101,30 +101,24 @@ export default function Home({ user }) {
           <div className="feature-card">
             <h4>📦 Inventory Tracking</h4>
             <p>
-              Track stock levels in real time and avoid over-stocking
-              or shortages.
+              Track stock levels in real time and avoid over-stocking or
+              shortages.
             </p>
           </div>
 
           <div className="feature-card">
             <h4>📊 Smart Analysis</h4>
-            <p>
-              Get insights into fast-moving and slow-moving products.
-            </p>
+            <p>Get insights into fast-moving and slow-moving products.</p>
           </div>
 
           <div className="feature-card">
             <h4>🏪 Multi-Category Support</h4>
-            <p>
-              Organize products into categories with capacity alerts.
-            </p>
+            <p>Organize products into categories with capacity alerts.</p>
           </div>
 
           <div className="feature-card">
             <h4>🔐 Secure Access</h4>
-            <p>
-              Your store data is protected with secure authentication.
-            </p>
+            <p>Your store data is protected with secure authentication.</p>
           </div>
         </div>
       </section>

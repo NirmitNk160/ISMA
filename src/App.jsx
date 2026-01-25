@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./dashboard/Dashboard";
+import Profile from "./pages/Profile/Profile";
 
 import { NavigationHandler } from "./utils/navigation";
 
@@ -25,10 +26,8 @@ export default function App() {
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/dashboard"
-          element={user ? <Dashboard /> : <Navigate to="/login" replace />}
-        />
+        <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
       </Routes>
     </>
   );
