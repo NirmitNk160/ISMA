@@ -22,7 +22,7 @@ export default function Dashboard() {
           {/* PAGE HEADER (Back + Title) */}
           <div className="page-header">
             <BackButton />
-            <h2 className="page-title">Inventory</h2>
+            <h2 className="page-title">Analytics</h2>
           </div>
 
           {/* STATS */}
