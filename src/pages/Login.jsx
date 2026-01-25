@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "../styles/auth.css";
 
-export default function Login({ setUser }) {
+export default function Login() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -30,12 +33,15 @@ export default function Login({ setUser }) {
 
       if (!res.ok) {
         setMessage(data.message || "❌ Login failed");
-      } else {
-        localStorage.setItem("isma_user", JSON.stringify(data.user));
-        setUser(data.user);
-        navigate("/");
+        return;
       }
-    } catch {
+
+      // ✅ Correct modern auth flow
+      setUser(data.user);
+      localStorage.setItem("token", data.token);
+
+      navigate("/dashboard");
+    } catch (err) {
       setMessage("❌ Backend not reachable");
     } finally {
       setLoading(false);
@@ -60,7 +66,11 @@ export default function Login({ setUser }) {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button className="primary-btn" onClick={handleLogin} disabled={loading}>
+      <button
+        className="primary-btn"
+        onClick={handleLogin}
+        disabled={loading}
+      >
         {loading ? "Logging in..." : "Login"}
       </button>
 
@@ -68,7 +78,10 @@ export default function Login({ setUser }) {
 
       <p>
         New shop?
-        <span onClick={() => navigate("/register")}> Register your shop</span>
+        <span onClick={() => navigate("/register")}>
+          {" "}
+          Register your shop
+        </span>
       </p>
     </div>
   );

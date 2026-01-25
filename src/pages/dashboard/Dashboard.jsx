@@ -1,7 +1,7 @@
 import React from "react";
 import "./Dashboard.css";
 
-import BackButton from "../components/BackButton";
+import BackButton from "../../components/BackButton";
 import Topbar from "./Topbar";
 import Sidebar from "./Sidebar";
 import StatCard from "./StatCard";

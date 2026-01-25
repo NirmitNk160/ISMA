@@ -28,3 +28,9 @@ function BackButton() {
 }
 
 export default BackButton;
+
+/* onClick={() =>
+  navigate("/profile", {
+    state: { from: "/dashboard" },
+  })
+} */

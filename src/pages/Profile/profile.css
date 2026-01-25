@@ -218,6 +218,7 @@
     flex-direction: column;
   }
 }
+
 /* ================= EXTRA STYLES ================= */
 .profile-page::before {
   content: "";
@@ -225,4 +226,41 @@
   height: 1px;
   background: rgba(255, 255, 255, 0.08);
   margin-bottom: 20px;
+}
+
+/* ================= HOME PILL ================= */
+
+.home-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  background: rgba(79, 70, 229, 0.15);
+  color: #c7d2fe;
+
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.home-pill:hover {
+  background: linear-gradient(135deg, #4f46e5, #2563eb);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+}
+
+.home-pill:active {
+  transform: translateY(0);
+  box-shadow: none;
 }

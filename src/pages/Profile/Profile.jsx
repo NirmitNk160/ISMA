@@ -1,33 +1,22 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import BackButton from "../../components/BackButton";
 import "./profile.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const raw = localStorage.getItem("isma_user");
-
-    if (!raw) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    setUser(JSON.parse(raw));
-  }, [navigate]);
+  const { user, setUser } = useAuth();
 
   if (!user) return null;
 
-  const shopName = user.shop_name ?? user.Shop_Name ?? user.shopName ?? "—";
-  const username = user.username ?? user.Username ?? user.user_name ?? "—";
-  const email = user.email ?? user.Email ?? "—";
-  const mobile = user.mobile ?? user.Mobile ?? "—";
+  const shopName = user.shop_name ?? "—";
+  const username = user.username ?? "—";
+  const email = user.email ?? "—";
+  const mobile = user.mobile ?? "—";
 
   return (
     <>
-      {/* ================= PROFILE TOPBAR ================= */}
+      {/* PROFILE TOPBAR */}
       <header className="profile-topbar">
         <div className="profile-topbar-inner">
           <BackButton />
@@ -35,12 +24,18 @@ export default function Profile() {
           <div className="profile-brand">
             <span className="brand">ISMA</span>
             <span className="welcome">👋 Welcome</span>
-            <span className="profile-pill">Profile</span>
+            <button
+              className="profile-pill home-pill"
+              onClick={() => navigate("/")}
+              title="Go to Home"
+            >
+              🏠 Home
+            </button>
           </div>
         </div>
       </header>
 
-      {/* ================= PROFILE CONTENT ================= */}
+      {/* PROFILE CONTENT */}
       <section className="profile-page">
         <h2 className="profile-title">My Profile</h2>
 
@@ -74,8 +69,9 @@ export default function Profile() {
           <button
             className="secondary"
             onClick={() => {
-              localStorage.removeItem("isma_user");
-              navigate("/", { replace: true });
+              localStorage.removeItem("token");
+              setUser(null); // 🔥 important
+              window.location.href = "/"; // 🔥 hard redirect to home
             }}
           >
             Logout

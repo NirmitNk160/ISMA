@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import "../styles/home.css";
 
-export default function Home({ user }) {
+export default function Home() {
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
 
   // Logout handler
   const handleLogout = () => {
-    localStorage.removeItem("isma_user");
+    localStorage.removeItem("token");
+    setUser(null);
     navigate("/login", { replace: true });
   };
 
@@ -65,7 +68,7 @@ export default function Home({ user }) {
             <h3>Welcome back 👋</h3>
 
             <p>
-              <strong>{user.shop_name || user.name}</strong>
+              <strong>{user.shop_name}</strong>
             </p>
 
             {user.email && <p className="user-email">{user.email}</p>}
@@ -81,13 +84,6 @@ export default function Home({ user }) {
               >
                 Go to Dashboard
               </button>
-
-              {/* <button
-                className="secondary"
-                onClick={() => navigate("/inventory")}
-              >
-                Manage Inventory
-              </button> */}
             </div>
           </div>
         )}

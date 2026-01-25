@@ -4,9 +4,11 @@ import "../styles/auth.css";
 
 export default function Register() {
   const navigate = useNavigate();
+
   const [form, setForm] = useState({
     shop_name: "",
     owner_name: "",
+    username: "",
     email: "",
     mobile: "",
     password: "",
@@ -26,6 +28,7 @@ export default function Register() {
     if (
       !form.shop_name ||
       !form.owner_name ||
+      !form.username ||
       !form.email ||
       !form.mobile ||
       !form.password ||
@@ -40,27 +43,16 @@ export default function Register() {
       return;
     }
 
-    if (!/^\d{10}$/.test(form.mobile)) {
-      setMessage("❌ Invalid mobile number format");
-      return;
-    }
-
-    if (!/\S+@\S+\.\S+/.test(form.email)) {
-      setMessage("❌ Invalid email format");
-      return;
-    }
-
     setLoading(true);
 
     try {
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shop_name: form.shop_name,
           owner_name: form.owner_name,
+          username: form.username,
           email: form.email,
           mobile: form.mobile,
           password: form.password,
@@ -69,12 +61,12 @@ export default function Register() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        setMessage(data.message || "❌ Registration failed");
-      } else {
+      if (!res.ok) setMessage(data.message);
+      else {
         setMessage("✅ Registration successful");
+        setTimeout(() => navigate("/login"), 1200);
       }
-    } catch (err) {
+    } catch {
       setMessage("❌ Backend not reachable");
     } finally {
       setLoading(false);
@@ -86,40 +78,12 @@ export default function Register() {
       <h2>Register Your Shop</h2>
 
       <input name="shop_name" placeholder="Shop Name" onChange={handleChange} />
-
-      <input
-        name="owner_name"
-        placeholder="Owner Name"
-        onChange={handleChange}
-      />
-
-      <input
-        name="mobile"
-        placeholder="Mobile Number"
-        type="tel"
-        onChange={handleChange}
-      />
-
-      <input
-        name="email"
-        placeholder="Gmail"
-        type="email"
-        onChange={handleChange}
-      />
-
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        onChange={handleChange}
-      />
-
-      <input
-        type="password"
-        name="confirmPassword"
-        placeholder="Confirm Password"
-        onChange={handleChange}
-      />
+      <input name="owner_name" placeholder="Owner Name" onChange={handleChange} />
+      <input name="username" placeholder="Username" onChange={handleChange} />
+      <input name="mobile" placeholder="Mobile Number" onChange={handleChange} />
+      <input name="email" placeholder="Gmail" onChange={handleChange} />
+      <input type="password" name="password" placeholder="Password" onChange={handleChange} />
+      <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} />
 
       <button className="primary-btn" onClick={handleSubmit} disabled={loading}>
         {loading ? "Registering..." : "Register"}
@@ -129,10 +93,7 @@ export default function Register() {
 
       <p>
         Already have an account?
-        <span className="link" onClick={() => navigate("/login")}>
-          {" "}
-          Login here
-        </span>
+        <span onClick={() => navigate("/login")}> Login here</span>
       </p>
     </div>
   );
