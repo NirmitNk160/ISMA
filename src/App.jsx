@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Profile from "./pages/Profile/Profile";
+import Inventory from "./pages/Inventory/Inventory";
 
 export default function App() {
   const { user, setUser, loading, setLoading } = useAuth();
@@ -35,7 +36,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
       <Route path="/register" element={<Register />} />
 
       <Route
@@ -46,6 +47,11 @@ export default function App() {
       <Route
         path="/profile"
         element={user ? <Profile /> : <Navigate to="/login" replace />}
+      />
+
+      <Route
+        path="/inventory"
+        element={user ? <Inventory /> : <Navigate to="/login" replace />}
       />
     </Routes>
   );

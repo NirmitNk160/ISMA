@@ -71,7 +71,7 @@ export default function Home() {
               <strong>{user.shop_name}</strong>
             </p>
 
-            {user.email && <p className="user-email">{user.email}</p>}
+            {user.username && <p className="user-username">{user.username}</p>}
 
             <div className="dashboard-actions">
               <button
@@ -83,6 +83,17 @@ export default function Home() {
                 }
               >
                 Go to Dashboard
+              </button>
+              <button
+                className="secondary"
+                onClick={() =>
+                  navigate("/inventory", {
+                    state: { from: "/" },
+                  })
+                }
+              >
+                {" "}
+                Manage Inventory{" "}
               </button>
             </div>
           </div>

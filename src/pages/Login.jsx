@@ -40,7 +40,7 @@ export default function Login() {
       setUser(data.user);
       localStorage.setItem("token", data.token);
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       setMessage("❌ Backend not reachable");
     } finally {

@@ -1,0 +1,180 @@
+/* ================= ROOT ================= */
+
+.inventory-root {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #1a1f4d, #060918);
+  color: white;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ================= LAYOUT ================= */
+
+.inventory-body {
+  display: flex;
+  width: 100%;
+}
+
+.inventory-content {
+  flex: 1;
+  padding: 30px;
+  overflow-x: hidden;
+}
+
+/* ================= HEADER ================= */
+
+.inventory-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.inventory-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+/* ================= ACTION BAR ================= */
+
+.inventory-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.add-btn {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: #020617;
+  border: none;
+  padding: 10px 18px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(79, 172, 254, 0.45);
+}
+
+.inventory-search {
+  flex: 1;
+  max-width: 260px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  outline: none;
+}
+
+.inventory-search::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ================= CARD ================= */
+
+.inventory-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 20px;
+  overflow-x: auto;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.inventory-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* ================= TABLE ================= */
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.inventory-table th {
+  opacity: 0.7;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.inventory-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.inventory-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.inventory-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ================= STATUS ================= */
+
+.status {
+  font-weight: 600;
+}
+
+.status.success {
+  color: #4ade80;
+}
+
+.status.warning {
+  color: #facc15;
+}
+
+.status.danger {
+  color: #f87171;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+  .inventory-search {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .inventory-body {
+    flex-direction: column;
+  }
+
+  .inventory-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inventory-search {
+    max-width: 100%;
+  }
+
+  .inventory-content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inventory-title {
+    font-size: 18px;
+  }
+}
