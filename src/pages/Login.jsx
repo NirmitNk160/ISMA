@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/auth.css";
@@ -7,12 +7,15 @@ export default function Login() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
+  const passwordRef = useRef(null);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault(); // ✅ REQUIRED
     setMessage("");
 
     if (!email || !password) {
@@ -36,12 +39,10 @@ export default function Login() {
         return;
       }
 
-      // ✅ Correct modern auth flow
       setUser(data.user);
       localStorage.setItem("token", data.token);
-
       navigate("/");
-    } catch (err) {
+    } catch {
       setMessage("❌ Backend not reachable");
     } finally {
       setLoading(false);
@@ -52,27 +53,37 @@ export default function Login() {
     <div className="auth-container">
       <h2>ISMA Login</h2>
 
-      <input
-        type="email"
-        placeholder="Gmail"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Gmail"
+          value={email}
+          autoFocus
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              passwordRef.current.focus(); // 🔥 MOVE TO PASSWORD
+            }
+          }}
+        />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <input
+          ref={passwordRef}
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-      <button
-        className="primary-btn"
-        onClick={handleLogin}
-        disabled={loading}
-      >
-        {loading ? "Logging in..." : "Login"}
-      </button>
+        <button
+          className="primary-btn"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
 
       {message && <p className="indicator">{message}</p>}
 

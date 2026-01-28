@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Profile from "./pages/Profile/Profile";
 import Inventory from "./pages/Inventory/Inventory";
+import AddProduct from "./pages/Inventory/AddProduct";
 
 export default function App() {
   const { user, setUser, loading, setLoading } = useAuth();
@@ -53,6 +54,12 @@ export default function App() {
         path="/inventory"
         element={user ? <Inventory /> : <Navigate to="/login" replace />}
       />
+
+      <Route
+        path="/inventory/add"
+        element={user ? <AddProduct /> : <Navigate to="/login" replace />}
+      />
+
     </Routes>
   );
 }

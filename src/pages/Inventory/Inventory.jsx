@@ -3,10 +3,12 @@ import "./Inventory.css";
 
 import BackButton from "../../components/BackButton";
 import InventoryTopbar from "./InventoryTopbar";
-
 import Sidebar from "../dashboard/Sidebar";
+import { useNavigate } from "react-router-dom";
 
 export default function Inventory() {
+  const navigate = useNavigate();
+
   return (
     <div className="inventory-root">
       {/* TOP BAR */}
@@ -26,7 +28,13 @@ export default function Inventory() {
 
           {/* ACTION BAR */}
           <div className="inventory-actions">
-            <button className="add-btn">+ Add Product</button>
+            <button
+              className="add-btn"
+              onClick={() => navigate("/inventory/add")}
+            >
+              + Add Product
+            </button>
+
             <input
               type="text"
               placeholder="Search product..."
@@ -45,6 +53,7 @@ export default function Inventory() {
                   <th>Stock</th>
                   <th>Price</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
 
@@ -56,6 +65,14 @@ export default function Inventory() {
                   <td>120</td>
                   <td>₹799</td>
                   <td className="status success">In Stock</td>
+                  <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() => navigate("/inventory/edit/1")}
+                    >
+                      ✏️ Edit
+                    </button>
+                  </td>
                 </tr>
 
                 <tr>
@@ -65,6 +82,14 @@ export default function Inventory() {
                   <td>12</td>
                   <td>₹999</td>
                   <td className="status warning">Low</td>
+                  <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() => navigate("/inventory/edit/2")}
+                    >
+                      ✏️ Edit
+                    </button>
+                  </td>
                 </tr>
 
                 <tr>
@@ -74,6 +99,14 @@ export default function Inventory() {
                   <td>0</td>
                   <td>₹6,499</td>
                   <td className="status danger">Out</td>
+                  <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() => navigate("/inventory/edit/3")}
+                    >
+                      ✏️ Edit
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>

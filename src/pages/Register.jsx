@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 
 export default function Register() {
   const navigate = useNavigate();
+
+  // 🔥 refs for keyboard navigation
+  const ownerRef = useRef(null);
+  const usernameRef = useRef(null);
+  const mobileRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmRef = useRef(null);
 
   const [form, setForm] = useState({
     shop_name: "",
@@ -22,7 +30,8 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // ✅ REQUIRED
     setMessage("");
 
     if (
@@ -61,8 +70,9 @@ export default function Register() {
 
       const data = await res.json();
 
-      if (!res.ok) setMessage(data.message);
-      else {
+      if (!res.ok) {
+        setMessage(data.message || "❌ Registration failed");
+      } else {
         setMessage("✅ Registration successful");
         setTimeout(() => navigate("/login"), 1200);
       }
@@ -77,17 +87,110 @@ export default function Register() {
     <div className="auth-container">
       <h2>Register Your Shop</h2>
 
-      <input name="shop_name" placeholder="Shop Name" onChange={handleChange} />
-      <input name="owner_name" placeholder="Owner Name" onChange={handleChange} />
-      <input name="username" placeholder="Username" onChange={handleChange} />
-      <input name="mobile" placeholder="Mobile Number" onChange={handleChange} />
-      <input name="email" placeholder="Gmail" onChange={handleChange} />
-      <input type="password" name="password" placeholder="Password" onChange={handleChange} />
-      <input type="password" name="confirmPassword" placeholder="Confirm Password" onChange={handleChange} />
+      <form onSubmit={handleSubmit}>
+        <input
+          name="shop_name"
+          placeholder="Shop Name"
+          autoFocus
+          value={form.shop_name}
+          onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              ownerRef.current.focus();
+            }
+          }}
+        />
 
-      <button className="primary-btn" onClick={handleSubmit} disabled={loading}>
-        {loading ? "Registering..." : "Register"}
-      </button>
+        <input
+          ref={ownerRef}
+          name="owner_name"
+          placeholder="Owner Name"
+          value={form.owner_name}
+          onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              usernameRef.current.focus();
+            }
+          }}
+        />
+
+        <input
+          ref={usernameRef}
+          name="username"
+          placeholder="Username"
+          value={form.username}
+          onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              mobileRef.current.focus();
+            }
+          }}
+        />
+
+        <input
+          ref={mobileRef}
+          name="mobile"
+          placeholder="Mobile Number"
+          value={form.mobile}
+          onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              emailRef.current.focus();
+            }
+          }}
+        />
+
+        <input
+          ref={emailRef}
+          type="email"
+          name="email"
+          placeholder="Gmail"
+          value={form.email}
+          onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              passwordRef.current.focus();
+            }
+          }}
+        />
+
+        <input
+          ref={passwordRef}
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              confirmRef.current.focus();
+            }
+          }}
+        />
+
+        <input
+          ref={confirmRef}
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          value={form.confirmPassword}
+          onChange={handleChange}
+        />
+
+        <button
+          className="primary-btn"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+      </form>
 
       {message && <p className="indicator">{message}</p>}
 

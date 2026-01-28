@@ -29,7 +29,8 @@ export default function Profile() {
               onClick={() => navigate("/")}
               title="Go to Home"
             >
-              🏠 Home
+              <span style={{ fontSize: "14px" }}>🏠</span>
+              Home
             </button>
           </div>
         </div>
