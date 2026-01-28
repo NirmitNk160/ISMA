@@ -104,6 +104,13 @@ export default function Inventory() {
                     </td>
                     <td>
                       <button
+                        className="edit-btn"
+                        onClick={() => navigate(`/inventory/edit/${p.id}`)}
+                      >
+                        ✏️ Edit
+                      </button>
+
+                      <button
                         className="delete-btn"
                         onClick={() => deleteProduct(p.id)}
                       >

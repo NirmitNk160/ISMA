@@ -27,7 +27,7 @@ router.post("/", verifyToken, (req, res) => {
         return res.status(500).json({ message: "DB error" });
       }
       res.status(201).json({ message: "Product added" });
-    }
+    },
   );
 });
 
@@ -54,6 +54,61 @@ router.get("/", verifyToken, (req, res) => {
     }
     res.json(rows);
   });
+});
+
+router.get("/:id", verifyToken, (req, res) => {
+  const userId = req.user.id;
+  const productId = req.params.id;
+
+  const sql = `
+    SELECT name, category, stock, price, description
+    FROM products
+    WHERE id = ? AND user_id = ?
+  `;
+
+  db.query(sql, [productId, userId], (err, rows) => {
+    if (err) return res.status(500).json({ message: "DB error" });
+    if (!rows.length) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json(rows[0]);
+  });
+});
+
+router.put("/:id", verifyToken, (req, res) => {
+  const { name, category, stock, price, description } = req.body;
+  const userId = req.user.id;
+  const productId = req.params.id;
+
+  const sql = `
+    UPDATE products
+    SET name = ?, category = ?, stock = ?, price = ?, description = ?
+    WHERE id = ? AND user_id = ?
+  `;
+
+  if (!name || !category || stock === "" || price === "") {
+    return res.status(400).json({ message: "All fields required" });
+  }
+
+  db.query(
+    sql,
+    [
+      name,
+      category,
+      Number(stock),
+      Number(price),
+      description,
+      productId,
+      userId,
+    ],
+    (err, result) => {
+      if (err) return res.status(500).json({ message: "DB error" });
+      if (!result.affectedRows) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.json({ message: "Product updated" });
+    },
+  );
 });
 
 /* DELETE PRODUCT */

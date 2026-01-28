@@ -9,6 +9,8 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Profile from "./pages/Profile/Profile";
 import Inventory from "./pages/Inventory/Inventory";
 import AddProduct from "./pages/Inventory/AddProduct";
+import EditProduct from "./pages/Inventory/EditProduct";
+
 
 export default function App() {
   const { user, setUser, loading, setLoading } = useAuth();
@@ -58,6 +60,11 @@ export default function App() {
       <Route
         path="/inventory/add"
         element={user ? <AddProduct /> : <Navigate to="/login" replace />}
+      />
+
+      <Route
+        path="/inventory/edit/:id"
+        element={user ? <EditProduct /> : <Navigate to="/login" replace />}
       />
 
     </Routes>
