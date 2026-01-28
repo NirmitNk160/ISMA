@@ -20,11 +20,30 @@ export default function AddProduct() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 Later connect API here
-    console.log("Product data:", form);
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://localhost:5000/api/inventory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ...form,
+        stock: Number(form.stock),
+        price: Number(form.price),
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message);
+      return;
+    }
 
     navigate("/inventory");
   };
@@ -49,7 +68,6 @@ export default function AddProduct() {
               <div className="form-group">
                 <label>Product Name</label>
                 <input
-                  type="text"
                   name="name"
                   placeholder="e.g. Wireless Mouse"
                   value={form.name}
@@ -61,7 +79,6 @@ export default function AddProduct() {
               <div className="form-group">
                 <label>Category</label>
                 <input
-                  type="text"
                   name="category"
                   placeholder="e.g. Electronics"
                   value={form.category}
