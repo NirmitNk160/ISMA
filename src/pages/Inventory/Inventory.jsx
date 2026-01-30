@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Inventory() {
   const [products, setProducts] = useState([]);
+  const [deleteId, setDeleteId] = useState(null);
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
@@ -27,18 +28,17 @@ export default function Inventory() {
     fetchProducts();
   }, []);
 
-  const deleteProduct = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
-
+  const confirmDelete = async () => {
     const token = localStorage.getItem("token");
 
-    await fetch(`http://localhost:5000/api/inventory/${id}`, {
+    await fetch(`http://localhost:5000/api/inventory/${deleteId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
+    setDeleteId(null);
     fetchProducts();
   };
 
@@ -54,6 +54,7 @@ export default function Inventory() {
             <BackButton />
             <h2 className="inventory-title">Inventory</h2>
           </div>
+
           <div className="inventory-actions">
             <button
               className="add-btn"
@@ -91,15 +92,7 @@ export default function Inventory() {
                     <td>{p.category}</td>
                     <td>{p.stock}</td>
                     <td>₹{p.price}</td>
-                    <td
-                      className={`status ${
-                        p.status === "In Stock"
-                          ? "success"
-                          : p.status === "Low"
-                            ? "warning"
-                            : "danger"
-                      }`}
-                    >
+                    <td className={`status ${p.status.toLowerCase()}`}>
                       {p.status}
                     </td>
                     <td>
@@ -112,7 +105,7 @@ export default function Inventory() {
 
                       <button
                         className="delete-btn"
-                        onClick={() => deleteProduct(p.id)}
+                        onClick={() => setDeleteId(p.id)}
                       >
                         🗑 Delete
                       </button>
@@ -132,6 +125,28 @@ export default function Inventory() {
           </div>
         </main>
       </div>
+
+      {/* DELETE MODAL */}
+      {deleteId && (
+        <div className="modal-overlay">
+          <div className="delete-modal">
+            <h3>Delete Product</h3>
+            <p>Are you sure you want to delete this product?</p>
+
+            <div className="modal-actions">
+              <button
+                className="modal-cancel"
+                onClick={() => setDeleteId(null)}
+              >
+                Cancel
+              </button>
+              <button className="modal-delete" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
