@@ -1,55 +1,28 @@
-import { useEffect, useState } from "react";
-import api from "../../api/axios";
-
+import { useState } from "react";
 import Sidebar from "../dashboard/Sidebar";
 import InventoryTopbar from "../inventory/InventoryTopbar";
 import BackButton from "../../components/BackButton";
-
 import "./Settings.css";
 
 export default function Settings() {
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-
   const [settings, setSettings] = useState({
-    username: "",
-    email: "",
-    shopName: "",
+    username: "User",
+    email: "user@email.com",
+    autoLogout: 30,
+    loginAlerts: true,
     lowStockThreshold: 10,
-    autoLogout: true,
-    emailAlerts: true,
-    salesAlerts: true,
+    blockOutOfStock: true,
     darkMode: true,
+    currency: "INR",
   });
 
-  useEffect(() => {
-    api.get("/auth/profile").then((res) => {
-      setSettings((prev) => ({
-        ...prev,
-        username: res.data.username,
-        email: res.data.email,
-        shopName: res.data.shop_name,
-      }));
-    });
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, type, checked, value } = e.target;
-    setSettings({
-      ...settings,
-      [name]: type === "checkbox" ? checked : value,
-    });
+  const handleChange = (key, value) => {
+    setSettings({ ...settings, [key]: value });
   };
 
-  const saveSettings = async () => {
-    setSaving(true);
-    setSuccess(false);
-
-    // simulate save (replace with real API later)
-    setTimeout(() => {
-      setSaving(false);
-      setSuccess(true);
-    }, 900);
+  const applyChanges = () => {
+    console.log("Applying settings:", settings);
+    alert("Settings saved successfully ✅");
   };
 
   return (
@@ -65,140 +38,146 @@ export default function Settings() {
             <h2>Settings</h2>
           </div>
 
-          {success && (
-            <div className="success-msg">
-              ✔ Settings saved successfully
-            </div>
-          )}
+          {/* 🔥 THIS IS THE KEY */}
+          <div className="settings-grid">
 
-          {/* ACCOUNT */}
-          <section className="settings-card">
-            <h3>👤 Account</h3>
+            {/* ACCOUNT */}
+            <section className="settings-card">
+              <h3>👤 Account</h3>
 
-            <div className="form-grid">
-              <div className="form-group">
+              <div className="setting-row">
                 <label>Username</label>
                 <input
-                  name="username"
                   value={settings.username}
-                  disabled
+                  onChange={(e) =>
+                    handleChange("username", e.target.value)
+                  }
                 />
               </div>
 
-              <div className="form-group">
+              <div className="setting-row">
                 <label>Email</label>
+                <input value={settings.email} disabled />
+              </div>
+            </section>
+
+            {/* SECURITY */}
+            <section className="settings-card">
+              <h3>🔐 Security</h3>
+
+              <div className="setting-row">
+                <label>Auto Logout (minutes)</label>
+                <select
+                  value={settings.autoLogout}
+                  onChange={(e) =>
+                    handleChange(
+                      "autoLogout",
+                      Number(e.target.value)
+                    )
+                  }
+                >
+                  <option value={15}>15</option>
+                  <option value={30}>30</option>
+                  <option value={60}>60</option>
+                </select>
+              </div>
+
+              <div className="setting-row">
+                <label>Login Alerts</label>
                 <input
-                  name="email"
-                  value={settings.email}
-                  disabled
+                  type="checkbox"
+                  checked={settings.loginAlerts}
+                  onChange={(e) =>
+                    handleChange(
+                      "loginAlerts",
+                      e.target.checked
+                    )
+                  }
                 />
               </div>
 
-              <div className="form-group full">
-                <label>Shop Name</label>
+              <button className="danger-btn">
+                Change Password
+              </button>
+
+              <button className="danger-btn outline">
+                Logout from all devices
+              </button>
+            </section>
+
+            {/* INVENTORY RULES */}
+            <section className="settings-card">
+              <h3>📦 Inventory Rules</h3>
+
+              <div className="setting-row">
+                <label>Low Stock Threshold</label>
                 <input
-                  name="shopName"
-                  value={settings.shopName}
-                  onChange={handleChange}
+                  type="number"
+                  min="1"
+                  value={settings.lowStockThreshold}
+                  onChange={(e) =>
+                    handleChange(
+                      "lowStockThreshold",
+                      Number(e.target.value)
+                    )
+                  }
                 />
               </div>
-            </div>
-          </section>
 
-          {/* INVENTORY */}
-          <section className="settings-card">
-            <h3>📦 Inventory Preferences</h3>
+              <div className="setting-row">
+                <label>Block billing when out of stock</label>
+                <input
+                  type="checkbox"
+                  checked={settings.blockOutOfStock}
+                  onChange={(e) =>
+                    handleChange(
+                      "blockOutOfStock",
+                      e.target.checked
+                    )
+                  }
+                />
+              </div>
+            </section>
 
-            <div className="form-group">
-              <label>Low Stock Alert Threshold</label>
-              <input
-                type="number"
-                min="1"
-                name="lowStockThreshold"
-                value={settings.lowStockThreshold}
-                onChange={handleChange}
-              />
-              <small>
-                Alert when stock falls below this number
-              </small>
-            </div>
-          </section>
+            {/* PREFERENCES */}
+            <section className="settings-card">
+              <h3>⚙ Preferences</h3>
 
-          {/* SALES */}
-          <section className="settings-card">
-            <h3>💰 Sales & Billing</h3>
+              <div className="setting-row">
+                <label>Dark Mode</label>
+                <input
+                  type="checkbox"
+                  checked={settings.darkMode}
+                  onChange={(e) =>
+                    handleChange("darkMode", e.target.checked)
+                  }
+                />
+              </div>
 
-            <label className="toggle">
-              <input
-                type="checkbox"
-                name="salesAlerts"
-                checked={settings.salesAlerts}
-                onChange={handleChange}
-              />
-              <span />
-              Enable sales alerts
-            </label>
+              <div className="setting-row">
+                <label>Currency</label>
+                <select
+                  value={settings.currency}
+                  onChange={(e) =>
+                    handleChange("currency", e.target.value)
+                  }
+                >
+                  <option value="INR">₹ INR</option>
+                  <option value="USD">$ USD</option>
+                  <option value="EUR">€ EUR</option>
+                </select>
+              </div>
+            </section>
 
-            <label className="toggle">
-              <input
-                type="checkbox"
-                name="autoLogout"
-                checked={settings.autoLogout}
-                onChange={handleChange}
-              />
-              <span />
-              Auto logout on inactivity
-            </label>
-          </section>
+          </div>
 
-          {/* NOTIFICATIONS */}
-          <section className="settings-card">
-            <h3>🔔 Notifications</h3>
-
-            <label className="toggle">
-              <input
-                type="checkbox"
-                name="emailAlerts"
-                checked={settings.emailAlerts}
-                onChange={handleChange}
-              />
-              <span />
-              Receive email alerts
-            </label>
-          </section>
-
-          {/* UI */}
-          <section className="settings-card">
-            <h3>🎨 Appearance</h3>
-
-            <label className="toggle">
-              <input
-                type="checkbox"
-                name="darkMode"
-                checked={settings.darkMode}
-                onChange={handleChange}
-              />
-              <span />
-              Dark mode
-            </label>
-          </section>
-
-          {/* DANGER */}
-          <section className="settings-card danger-zone">
-            <h3>⚠ Danger Zone</h3>
-
-            <button className="danger-btn">
-              Reset All Settings
-            </button>
-          </section>
-
-          <div className="settings-actions">
+          {/* APPLY BAR */}
+          <div className="settings-footer">
             <button
-              className="save-btn"
-              onClick={saveSettings}
-              disabled={saving}
+              className="apply-btn"
+              onClick={applyChanges}
             >
-              {saving ? "Saving..." : "Save Settings"}
+              Apply Changes
             </button>
           </div>
         </main>
