@@ -1,7 +1,7 @@
 .billing-root {
   min-height: 100vh;
   background: radial-gradient(circle at top, #1a1f4d, #060918);
-  color: #e5e7eb;
+  color: #fff;
 }
 
 .billing-body {
@@ -15,92 +15,91 @@
 
 .billing-header {
   display: flex;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 20px;
-}
-
-.billing-form {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.billing-form select,
-.billing-form input {
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: white;
-}
-
-.billing-form button {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+  margin-bottom: 24px;
 }
 
 .billing-card {
-  background: rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.billing-card table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.billing-card th,
-.billing-card td {
-  padding: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.billing-summary {
-  margin-top: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.confirm-btn {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  border: none;
-  padding: 10px 22px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.billing-root {
-  padding: 30px;
-  color: white;
+  max-width: 860px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .billing-controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 120px 100px;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .billing-controls select,
 .billing-controls input {
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  outline: none;
+}
+
+.billing-controls select option {
+  background-color: #1e234a;
+  color: #fff;
+}
+
+
+.billing-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 28px;
+}
+
+.billing-table th,
+.billing-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.billing-table th {
+  opacity: 0.7;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.billing-table .empty {
+  text-align: center;
+  opacity: 0.6;
+}
+
+.billing-footer {
+  display: flex;
+  margin-top: 24px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total {
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .confirm-btn {
-  margin-top: 20px;
-  padding: 12px 18px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
-  border: none;
-  border-radius: 10px;
+  color: #022c22;
+  padding: 12px 26px;
+  border-radius: 12px;
   font-weight: 700;
+  border: none;
   cursor: pointer;
-  color: #020617;
+  transition: all 0.25s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(34, 197, 94, 0.4);
 }
 
