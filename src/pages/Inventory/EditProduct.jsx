@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import api from "../../api/axios";
 import InventoryTopbar from "./InventoryTopbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
@@ -12,6 +13,9 @@ export default function EditProduct() {
   const { id } = useParams();
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     category: "",
@@ -22,39 +26,24 @@ export default function EditProduct() {
 
   /* ================= FETCH PRODUCT ================= */
   useEffect(() => {
-    const fetchProduct = async () => {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(
-        `http://localhost:5000/api/inventory/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Failed to load product");
-        navigate("/inventory");
-        return;
-      }
-
-      setForm({
-        name: data.name ?? "",
-        category: data.category ?? "",
-        stock: data.stock ?? "",
-        price: data.price ?? "",
-        description: data.description ?? "",
-      });
-
-      setLoading(false);
-    };
-
-    fetchProduct();
-  }, [id, navigate]);
+    api
+      .get(`/inventory/${id}`)
+      .then((res) => {
+        setForm({
+          name: res.data.name ?? "",
+          category: res.data.category ?? "",
+          stock: res.data.stock ?? "",
+          price: res.data.price ?? "",
+          description: res.data.description ?? "",
+        });
+      })
+      .catch((err) => {
+        setError(
+          err.response?.data?.message || "Failed to load product"
+        );
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
 
   /* ================= HANDLERS ================= */
 
@@ -64,36 +53,47 @@ export default function EditProduct() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(
-      `http://localhost:5000/api/inventory/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...form,
-          stock: Number(form.stock),
-          price: Number(form.price),
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.message || "Update failed");
+    if (Number(form.stock) < 0 || Number(form.price) < 0) {
+      setError("Stock and price must be non-negative");
       return;
     }
 
-    navigate("/inventory");
+    setSaving(true);
+
+    try {
+      await api.put(`/inventory/${id}`, {
+        ...form,
+        stock: Number(form.stock),
+        price: Number(form.price),
+      });
+
+      navigate("/inventory");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Update failed"
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (loading) return null;
+  /* ================= UI ================= */
+
+  if (loading) {
+    return (
+      <div className="add-product-root">
+        <InventoryTopbar />
+        <div className="add-product-body">
+          <Sidebar />
+          <main className="add-product-content">
+            <p style={{ padding: "2rem" }}>Loading product…</p>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="add-product-root">
@@ -110,7 +110,14 @@ export default function EditProduct() {
           </div>
 
           {/* FORM */}
-          <form className="add-product-card" onSubmit={handleSubmit}>
+          <form
+            className="add-product-card"
+            onSubmit={handleSubmit}
+          >
+            {error && (
+              <div className="error-msg">❌ {error}</div>
+            )}
+
             <div className="form-grid">
               <div className="form-group">
                 <label>Product Name</label>
@@ -136,6 +143,7 @@ export default function EditProduct() {
                 <label>Stock</label>
                 <input
                   type="number"
+                  min="0"
                   name="stock"
                   value={form.stock}
                   onChange={handleChange}
@@ -147,6 +155,7 @@ export default function EditProduct() {
                 <label>Price (₹)</label>
                 <input
                   type="number"
+                  min="0"
                   name="price"
                   value={form.price}
                   onChange={handleChange}
@@ -170,12 +179,17 @@ export default function EditProduct() {
                 type="button"
                 className="secondary-btn"
                 onClick={() => navigate("/inventory")}
+                disabled={saving}
               >
                 Cancel
               </button>
 
-              <button type="submit" className="primary-btn">
-                Update Product
+              <button
+                type="submit"
+                className="primary-btn"
+                disabled={saving}
+              >
+                {saving ? "Updating..." : "Update Product"}
               </button>
             </div>
           </form>

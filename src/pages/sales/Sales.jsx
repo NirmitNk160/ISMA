@@ -1,45 +1,50 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import "./Sales.css";
-
-import InventoryTopbar from "../inventory/InventoryTopbar";
+import api from "../../api/axios";
 import Sidebar from "../dashboard/Sidebar";
+import InventoryTopbar from "../Inventory/InventoryTopbar";
 import BackButton from "../../components/BackButton";
+import "./Sales.css";
 
 export default function Sales() {
   const [bills, setBills] = useState([]);
-  const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/sales", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        const grouped = {};
+    api.get("/sales").then((res) => {
+      const grouped = {};
 
-        res.data.forEach((row) => {
-          if (!grouped[row.bill_id]) {
-            grouped[row.bill_id] = {
-              bill_id: row.bill_id,
-              status: row.status,
-              created_at: row.created_at,
-              items: [],
-            };
-          }
+      res.data.forEach((row) => {
+        const billId = row.bill_id;
 
-          grouped[row.bill_id].items.push({
-            product: row.product_name,
-            quantity: Number(row.quantity),
-            unit_price: Number(row.unit_price),
-            total_price: Number(row.total_price),
-          });
+        if (!grouped[billId]) {
+          grouped[billId] = {
+            bill_id: billId,
+            created_at: row.created_at,
+            items: [],
+            total: 0,
+          };
+        }
+
+        const qty = Number(row.quantity) || 0;
+        const price = Number(row.unit_price) || 0;
+        const total = Number(row.total_price) || qty * price;
+
+        grouped[billId].items.push({
+          name: row.product_name,
+          quantity: qty,
+          price,
+          total,
         });
 
-        setBills(Object.values(grouped));
-      })
-      .catch(() => alert("Failed to load sales"));
-  }, [token]);
+        grouped[billId].total += total;
+      });
+
+      setBills(Object.values(grouped));
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return null;
 
   return (
     <div className="sales-root">
@@ -51,80 +56,49 @@ export default function Sales() {
         <main className="sales-content">
           <div className="sales-header">
             <BackButton />
-            <h2 className="sales-title">Sales</h2>
+            <h2>Sales</h2>
           </div>
 
-          <div className="sales-card">
-            <table className="sales-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Bill ID</th>
-                  <th>Products</th>
-                  <th>Qty</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
+          {bills.length === 0 && (
+            <p style={{ opacity: 0.6 }}>No sales found</p>
+          )}
 
-              <tbody>
-                {bills.map((bill, i) => {
-                  const billTotal = bill.items.reduce(
-                    (sum, it) => sum + it.total_price,
-                    0
-                  );
+          {bills.map((bill) => (
+            <div key={bill.bill_id} className="sales-card">
+              <div className="sales-card-header">
+                <span>🧾 {bill.bill_id}</span>
+                <span>
+                  {new Date(bill.created_at).toLocaleString()}
+                </span>
+              </div>
 
-                  return (
-                    <tr key={bill.bill_id}>
-                      <td>{i + 1}</td>
-
-                      <td>{bill.bill_id}</td>
-
-                      <td>
-                        {bill.items.map((it, idx) => (
-                          <div key={idx}>{it.product}</div>
-                        ))}
-                      </td>
-
-                      <td>
-                        {bill.items.map((it, idx) => (
-                          <div key={idx}>{it.quantity}</div>
-                        ))}
-                      </td>
-
-                      <td>
-                        {bill.items.map((it, idx) => (
-                          <div key={idx}>
-                            ₹{it.unit_price} × {it.quantity} = ₹{it.total_price}
-                          </div>
-                        ))}
-                        <div style={{ marginTop: 6, fontWeight: 600 }}>
-                          Total: ₹{billTotal}
-                        </div>
-                      </td>
-
-                      <td className={`sale-status ${bill.status.toLowerCase()}`}>
-                        {bill.status}
-                      </td>
-
-                      <td>
-                        {new Date(bill.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  );
-                })}
-
-                {bills.length === 0 && (
+              <table className="sales-table">
+                <thead>
                   <tr>
-                    <td colSpan="7" style={{ textAlign: "center", opacity: 0.6 }}>
-                      No sales recorded
-                    </td>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody>
+                  {bill.items.map((item, idx) => (
+                    <tr key={idx}>
+                      <td>{item.name}</td>
+                      <td>{item.quantity}</td>
+                      <td>₹{item.price}</td>
+                      <td>₹{item.total}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="bill-total">
+                Total: ₹{bill.total}
+              </div>
+            </div>
+          ))}
         </main>
       </div>
     </div>

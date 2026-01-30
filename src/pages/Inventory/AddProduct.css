@@ -1,13 +1,9 @@
-/* ================= ROOT ================= */
-
 .add-product-root {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #1a1f4d, #060918);
-  color: #fff;
+  background: linear-gradient(180deg, #0b1024 0%, #050713 100%);
+  color: #e5e7eb;
   font-family: "Segoe UI", sans-serif;
 }
-
-/* ================= LAYOUT ================= */
 
 .add-product-body {
   display: flex;
@@ -15,7 +11,7 @@
 
 .add-product-content {
   flex: 1;
-  padding: 30px;
+  padding: 32px;
 }
 
 /* ================= HEADER ================= */
@@ -36,9 +32,8 @@
 
 .add-product-card {
   max-width: 720px;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 22px;
   padding: 30px;
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
@@ -64,28 +59,29 @@
 
 .form-group label {
   font-size: 13px;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 
 .form-group input,
 .form-group textarea {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 12px;
   padding: 12px 14px;
-  color: #fff;
+  color: #e5e7eb;
   outline: none;
   font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
 }
 
 .form-group textarea {
   min-height: 90px;
   resize: vertical;
-}
-
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
 }
 
 /* ================= ACTIONS ================= */
@@ -105,10 +101,10 @@
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.primary-btn:hover {
+.primary-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(79, 70, 229, 0.45);
 }
@@ -125,20 +121,4 @@
 
 .secondary-btn:hover {
   background: rgba(255, 255, 255, 0.08);
-}
-
-/* ================= RESPONSIVE ================= */
-
-@media (max-width: 768px) {
-  .add-product-body {
-    flex-direction: column;
-  }
-
-  .add-product-content {
-    padding: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
 }

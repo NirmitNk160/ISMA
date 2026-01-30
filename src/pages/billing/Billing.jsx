@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+import api from "../../api/axios";
 import Sidebar from "../dashboard/Sidebar";
 import InventoryTopbar from "../inventory/InventoryTopbar";
 import BackButton from "../../components/BackButton";
@@ -10,56 +10,55 @@ import "./Billing.css";
 
 export default function Billing() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   const [products, setProducts] = useState([]);
   const [billItems, setBillItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
+
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
+  /* -------------------- LOAD PRODUCTS -------------------- */
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/inventory", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/inventory")
       .then((res) => setProducts(res.data))
-      .catch(() => alert("Failed to load products"));
-  }, [token]);
+      .catch(() => setError("Failed to load products"));
+  }, []);
 
+  /* -------------------- ADD TO BILL -------------------- */
   const addToBill = () => {
-    if (!selectedProduct) {
-      alert("Select a product");
-      return;
-    }
+    if (!selectedProduct || quantity <= 0) return;
 
-    if (quantity <= 0) {
-      alert("Quantity must be at least 1");
-      return;
-    }
-
-    const product = products.find((p) => p.id === Number(selectedProduct));
-
+    const product = products.find(
+      (p) => p.id === Number(selectedProduct)
+    );
     if (!product) return;
 
     if (quantity > product.stock) {
-      alert(`Only ${product.stock} items in stock`);
+      setError(`Only ${product.stock} items in stock`);
       return;
     }
 
     setBillItems((prev) => {
-      const existing = prev.find((i) => i.product_id === product.id);
+      const existing = prev.find(
+        (i) => i.product_id === product.id
+      );
 
       if (existing) {
         const newQty = existing.quantity + quantity;
 
         if (newQty > product.stock) {
-          alert(`Only ${product.stock} items in stock`);
+          setError(`Only ${product.stock} items in stock`);
           return prev;
         }
 
-        return prev.map((item) =>
-          item.product_id === product.id ? { ...item, quantity: newQty } : item,
+        return prev.map((i) =>
+          i.product_id === product.id
+            ? { ...i, quantity: newQty }
+            : i
         );
       }
 
@@ -76,49 +75,51 @@ export default function Billing() {
 
     setQuantity(1);
     setSelectedProduct("");
+    setError("");
   };
 
+  /* -------------------- TOTAL -------------------- */
   const totalAmount = billItems.reduce(
     (sum, i) => sum + i.quantity * i.price,
-    0,
+    0
   );
 
+  /* -------------------- REMOVE ITEM -------------------- */
   const removeItem = (index) => {
     setBillItems((prev) => prev.filter((_, i) => i !== index));
   };
 
+  /* -------------------- CONFIRM BILL -------------------- */
   const confirmBill = async () => {
-    if (billItems.length === 0) return;
+    if (!billItems.length || loading) return;
+
+    setLoading(true);
+    setError("");
 
     try {
-      await axios.post(
-        "http://localhost:5000/api/billing/confirm",
-        {
-          items: billItems.map((i) => ({
-            product_id: i.product_id,
-            quantity: i.quantity,
-          })),
-        },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await api.post("/billing/confirm", {
+        items: billItems.map((i) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+        })),
+      });
 
-      // ✅ show success message in UI
       setSuccess(true);
-
-      // ✅ reset cart
       setBillItems([]);
-      setSelectedProduct("");
-      setQuantity(1);
 
-      // ✅ auto redirect (smooth)
       setTimeout(() => {
         navigate("/sales", { replace: true });
       }, 1200);
     } catch (err) {
-      console.error(err);
+      setError(
+        err.response?.data?.message || "Billing failed"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
+  /* -------------------- UI -------------------- */
   return (
     <div className="billing-root">
       <InventoryTopbar />
@@ -131,18 +132,16 @@ export default function Billing() {
             <BackButton />
             <h2>Billing</h2>
           </div>
+
           {success && (
-            <div
-              style={{
-                marginBottom: "16px",
-                padding: "12px 18px",
-                background: "rgba(34,197,94,0.15)",
-                color: "#22c55e",
-                borderRadius: "12px",
-                fontWeight: 600,
-              }}
-            >
+            <div className="success-msg">
               ✔ Bill successful. Redirecting to sales…
+            </div>
+          )}
+
+          {error && (
+            <div className="error-msg">
+              ❌ {error}
             </div>
           )}
 
@@ -150,7 +149,9 @@ export default function Billing() {
             <div className="billing-controls">
               <select
                 value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
+                onChange={(e) =>
+                  setSelectedProduct(e.target.value)
+                }
               >
                 <option value="">Select product</option>
                 {products.map((p) => (
@@ -164,7 +165,9 @@ export default function Billing() {
                 type="number"
                 min="1"
                 value={quantity}
-                onChange={(e) => setQuantity(+e.target.value)}
+                onChange={(e) =>
+                  setQuantity(Number(e.target.value))
+                }
               />
 
               <button
@@ -195,7 +198,9 @@ export default function Billing() {
                     <td>
                       <button
                         className="remove-btn"
-                        onClick={() => removeItem(idx)}
+                        onClick={() =>
+                          removeItem(idx)
+                        }
                       >
                         ❌
                       </button>
@@ -203,11 +208,11 @@ export default function Billing() {
                   </tr>
                 ))}
 
-                {billItems.length === 0 && (
+                {!billItems.length && (
                   <tr>
                     <td
                       colSpan="4"
-                      style={{ textAlign: "center", opacity: 0.6 }}
+                      className="empty-row"
                     >
                       No items added
                     </td>
@@ -217,13 +222,17 @@ export default function Billing() {
             </table>
 
             <div className="billing-footer">
-              <div className="total">Total: ₹{totalAmount}</div>
+              <div className="total">
+                Total: ₹{totalAmount}
+              </div>
               <button
                 className="confirm-btn"
                 onClick={confirmBill}
-                disabled={billItems.length === 0}
+                disabled={!billItems.length || loading}
               >
-                Confirm Bill
+                {loading
+                  ? "Processing..."
+                  : "Confirm Bill"}
               </button>
             </div>
           </div>

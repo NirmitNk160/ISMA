@@ -1,5 +1,5 @@
 import express from "express";
-import pool from "../db.js";
+import db from "../db.js";
 import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
@@ -8,19 +8,19 @@ router.get("/", verifyToken, async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const [rows] = await pool.query(
+    const [rows] = await db.query(
       `
       SELECT
-        bill_id,
-        product_name,
-        quantity,
-        unit_price,
-        total_price,
-        status,
-        created_at
-      FROM sales
-      WHERE user_id = ?
-      ORDER BY created_at DESC
+        s.bill_id,
+        s.quantity,
+        p.name AS product_name,
+        p.price AS unit_price,
+        (s.quantity * p.price) AS total_price,
+        s.created_at
+      FROM sales s
+      JOIN products p ON p.id = s.product_id
+      WHERE s.user_id = ?
+      ORDER BY s.created_at DESC
       `,
       [userId]
     );
@@ -31,6 +31,5 @@ router.get("/", verifyToken, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch sales" });
   }
 });
-
 
 export default router;

@@ -2,7 +2,7 @@
 
 .sales-root {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #1a1f4d, #060918);
+  background: linear-gradient(180deg, #0b1024 0%, #050713 100%);
   color: #e5e7eb;
   font-family: "Segoe UI", sans-serif;
 }
@@ -16,7 +16,8 @@
 
 .sales-content {
   flex: 1;
-  padding: 32px;
+  padding: 32px 36px;
+  overflow-x: hidden;
 }
 
 /* ================= HEADER ================= */
@@ -25,46 +26,56 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
-.sales-title {
+.sales-header h2 {
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 600;
   color: #f8fafc;
 }
 
-/* ================= ACTION BAR ================= */
+/* ================= EMPTY STATE ================= */
 
-.sales-actions {
-  margin-bottom: 20px;
+.sales-content > p {
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  text-align: center;
 }
 
-.add-sale-btn {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: #020617;
-  border: none;
-  padding: 10px 18px;
-  font-weight: 600;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.add-sale-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(79, 172, 254, 0.45);
-}
-
-/* ================= CARD ================= */
+/* ================= SALES CARD ================= */
 
 .sales-card {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.45);
+}
+
+/* ================= CARD HEADER ================= */
+
+.sales-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sales-card-header span:first-child {
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.4px;
+}
+
+.sales-card-header span:last-child {
+  font-size: 13px;
+  opacity: 0.65;
 }
 
 /* ================= TABLE ================= */
@@ -72,7 +83,7 @@
 .sales-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  min-width: 620px;
 }
 
 .sales-table th,
@@ -83,36 +94,39 @@
 }
 
 .sales-table th {
-  opacity: 0.7;
-  font-weight: 600;
+  opacity: 0.6;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  letter-spacing: 1px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .sales-table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sales-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
 }
 
-/* ================= STATUS ================= */
+/* ================= BILL TOTAL ================= */
 
-.sale-status {
-  font-weight: 600;
-}
-
-.sale-status.paid {
+.bill-total {
+  margin-top: 18px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
   color: #4ade80;
 }
 
-.sale-status.pending {
-  color: #facc15;
-}
-
 /* ================= RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+  .sales-content {
+    padding: 26px;
+  }
+}
 
 @media (max-width: 768px) {
   .sales-body {
@@ -121,5 +135,25 @@
 
   .sales-content {
     padding: 20px;
+  }
+
+  .sales-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .bill-total {
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-header h2 {
+    font-size: 20px;
+  }
+
+  .sales-card {
+    padding: 18px;
   }
 }

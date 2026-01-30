@@ -1,52 +1,37 @@
-import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function Sidebar() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const isActive = (path) => location.pathname === path;
+  const linkClass = ({ isActive }) =>
+    isActive ? "active" : "";
 
   return (
     <aside className="sidebar">
       <h2 className="logo">ISMA</h2>
 
       <nav>
-        <a
-          className={isActive("/dashboard") ? "active" : ""}
-          onClick={() => navigate("/dashboard", { state: { from: "/" } })}
-        >
+        <NavLink to="/dashboard" className={linkClass}>
           Dashboard
-        </a>
+        </NavLink>
 
-        <a
-          className={isActive("/inventory") ? "active" : ""}
-          onClick={() =>
-            navigate("/inventory", { state: { from: "/dashboard" } })
-          }
-        >
+        <NavLink to="/inventory" className={linkClass}>
           Inventory
-        </a>
+        </NavLink>
 
-        <a
-          className={isActive("/billing") ? "active" : ""}
-          onClick={() =>
-            navigate("/billing", { state: { from: "/dashboard" } })
-          }
-        >
-          Billings
-        </a>
+        <NavLink to="/billing" className={linkClass}>
+          Billing
+        </NavLink>
 
-        <a
-          className={isActive("/sales") ? "active" : ""}
-          onClick={() => navigate("/sales", { state: { from: "/dashboard" } })}
-        >
+        <NavLink to="/sales" className={linkClass}>
           Sales
-        </a>
+        </NavLink>
 
-        <a className={isActive("/reports") ? "active" : ""}>Reports</a>
+        <NavLink to="/reports" className={linkClass}>
+          Reports
+        </NavLink>
 
-        <a className={isActive("/settings") ? "active" : ""}>Settings</a>
+        <NavLink to="/settings" className={linkClass}>
+          Settings
+        </NavLink>
       </nav>
     </aside>
   );

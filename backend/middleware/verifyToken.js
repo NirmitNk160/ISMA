@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import db from "../db.js";
 
-export default function verifyToken(req, res, next) {
+export default async function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -11,9 +12,20 @@ export default function verifyToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 🔒 Check if user still exists
+    const [rows] = await db.query(
+      "SELECT id FROM users WHERE id = ?",
+      [decoded.id]
+    );
+
+    if (!rows.length) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 }

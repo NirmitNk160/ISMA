@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import api from "../../api/axios";
 import InventoryTopbar from "./InventoryTopbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
@@ -16,36 +18,39 @@ export default function AddProduct() {
     description: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    const token = localStorage.getItem("token");
-
-    const res = await fetch("http://localhost:5000/api/inventory", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        ...form,
-        stock: Number(form.stock),
-        price: Number(form.price),
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.message);
+    if (Number(form.stock) < 0 || Number(form.price) < 0) {
+      setError("Stock and price must be non-negative");
       return;
     }
 
-    navigate("/inventory");
+    setLoading(true);
+
+    try {
+      await api.post("/inventory", {
+        ...form,
+        stock: Number(form.stock),
+        price: Number(form.price),
+      });
+
+      navigate("/inventory");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to add product"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,7 +68,14 @@ export default function AddProduct() {
           </div>
 
           {/* FORM CARD */}
-          <form className="add-product-card" onSubmit={handleSubmit}>
+          <form
+            className="add-product-card"
+            onSubmit={handleSubmit}
+          >
+            {error && (
+              <div className="error-msg">❌ {error}</div>
+            )}
+
             <div className="form-grid">
               <div className="form-group">
                 <label>Product Name</label>
@@ -91,6 +103,7 @@ export default function AddProduct() {
                 <label>Stock</label>
                 <input
                   type="number"
+                  min="0"
                   name="stock"
                   placeholder="e.g. 120"
                   value={form.stock}
@@ -103,6 +116,7 @@ export default function AddProduct() {
                 <label>Price (₹)</label>
                 <input
                   type="number"
+                  min="0"
                   name="price"
                   placeholder="e.g. 799"
                   value={form.price}
@@ -128,12 +142,17 @@ export default function AddProduct() {
                 type="button"
                 className="secondary-btn"
                 onClick={() => navigate("/inventory")}
+                disabled={loading}
               >
                 Cancel
               </button>
 
-              <button type="submit" className="primary-btn">
-                Save Product
+              <button
+                type="submit"
+                className="primary-btn"
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Product"}
               </button>
             </div>
           </form>

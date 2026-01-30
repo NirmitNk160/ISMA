@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
 import "../styles/auth.css";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { login } = useAuth(); // ✅ correct usage
 
   const passwordRef = useRef(null);
 
@@ -15,7 +16,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // ✅ REQUIRED
+    e.preventDefault();
     setMessage("");
 
     if (!email || !password) {
@@ -23,27 +24,23 @@ export default function Login() {
       return;
     }
 
+    if (loading) return;
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const res = await api.post("/auth/login", {
+        email,
+        password,
       });
 
-      const data = await res.json();
+      // ✅ centralized auth handling
+      login(res.data.token);
 
-      if (!res.ok) {
-        setMessage(data.message || "❌ Login failed");
-        return;
-      }
-
-      setUser(data.user);
-      localStorage.setItem("token", data.token);
-      navigate("/");
-    } catch {
-      setMessage("❌ Backend not reachable");
+      navigate("/", { replace: true });
+    } catch (err) {
+      setMessage(
+        err.response?.data?.message || "❌ Backend not reachable"
+      );
     } finally {
       setLoading(false);
     }
@@ -63,7 +60,7 @@ export default function Login() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              passwordRef.current.focus(); // 🔥 MOVE TO PASSWORD
+              passwordRef.current?.focus();
             }
           }}
         />

@@ -2,10 +2,21 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
+  // ⏳ Wait for auth check to finish
+  if (loading) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        Loading...
+      </div>
+    );
+  }
+
+  // 🔒 Not logged in → redirect
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   return children;
 }

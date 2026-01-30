@@ -1,15 +1,30 @@
-import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import api from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 
 export default function InventoryTopbar() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
-  // Get initials safely
-  const initials = user?.username
-    ? user.username.slice(0, 2).toUpperCase()
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    api
+      .get("/auth/profile")
+      .then((res) => setProfile(res.data))
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          logout();
+        }
+      });
+  }, [isAuthenticated, logout]);
+
+  const initials = profile?.username
+    ? profile.username.slice(0, 2).toUpperCase()
     : "U";
 
   return (
@@ -18,22 +33,16 @@ export default function InventoryTopbar() {
 
       <div className="user-info">
         <span>
-          Welcome, {user?.username || "User"} 👋
+          Welcome, {profile?.username || "User"} 👋
         </span>
 
-        {/* Avatar */}
-        <div
+        <button
           className="avatar"
-          onClick={() =>
-            navigate("/profile", {
-              state: { from: "/inventory" },
-            })
-          }
-          role="button"
+          onClick={() => navigate("/profile")}
           aria-label="Go to profile"
         >
           {initials}
-        </div>
+        </button>
       </div>
     </header>
   );

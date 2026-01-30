@@ -4,69 +4,67 @@ import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-/*
-POST /api/billing/confirm
-Body:
-{
-  items: [
-    { product_id, quantity }
-  ]
-}
-*/
 router.post("/confirm", verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { items } = req.body;
 
-  if (!items || items.length === 0) {
-    return res.status(400).json({ message: "No billing items provided" });
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: "No items provided" });
   }
 
-  const connection = await db.getConnection();
+  const conn = await db.getConnection();
   const billId = `BILL-${Date.now()}`;
 
   try {
-    await connection.beginTransaction();
+    await conn.beginTransaction();
 
     for (const item of items) {
-      // 1. Fetch product with lock
-      const [products] = await connection.query(
-        `SELECT id, name, stock, price 
-         FROM products 
-         WHERE id = ? AND user_id = ? 
+      const qty = Number(item.quantity);
+
+      if (!item.product_id || qty <= 0) {
+        throw new Error("Invalid item data");
+      }
+
+      // 🔒 LOCK PRODUCT
+      const [rows] = await conn.query(
+        `SELECT id, name, price, stock
+         FROM products
+         WHERE id = ? AND user_id = ?
          FOR UPDATE`,
         [item.product_id, userId]
       );
 
-      if (products.length === 0) {
+      if (!rows.length) {
         throw new Error("Product not found");
       }
 
-      const product = products[0];
+      const product = rows[0];
 
-      // 2. Validate stock
-      if (item.quantity > product.stock) {
+      if (product.stock < qty) {
         throw new Error(`Insufficient stock for ${product.name}`);
       }
 
       const unitPrice = Number(product.price);
-      const totalPrice = unitPrice * Number(item.quantity);
+      const totalPrice = unitPrice * qty;
 
-      // 3. Deduct inventory
-      await connection.query(
-        "UPDATE products SET stock = stock - ? WHERE id = ?",
-        [item.quantity, product.id]
+      // ✅ UPDATE STOCK
+      await conn.query(
+        `UPDATE products SET stock = stock - ? WHERE id = ?`,
+        [qty, product.id]
       );
 
-      // 4. Insert sale row with SAME bill_id
-      await connection.query(
-        `INSERT INTO sales
-          (user_id, product_id, product_name, quantity, unit_price, total_price, status, bill_id)
-         VALUES (?, ?, ?, ?, ?, ?, 'PAID', ?)`,
+      // ✅ INSERT SALE (THIS WAS BROKEN BEFORE)
+      await conn.query(
+        `
+        INSERT INTO sales
+        (user_id, product_id, product_name, quantity, unit_price, total_price, status, bill_id)
+        VALUES (?, ?, ?, ?, ?, ?, 'PAID', ?)
+        `,
         [
           userId,
           product.id,
           product.name,
-          item.quantity,
+          qty,
           unitPrice,
           totalPrice,
           billId,
@@ -74,14 +72,13 @@ router.post("/confirm", verifyToken, async (req, res) => {
       );
     }
 
-    await connection.commit();
-    res.json({ message: "Bill confirmed successfully", bill_id: billId });
-
+    await conn.commit();
+    res.json({ message: "Bill confirmed", bill_id: billId });
   } catch (err) {
-    await connection.rollback();
+    await conn.rollback();
     res.status(400).json({ message: err.message });
   } finally {
-    connection.release();
+    conn.release();
   }
 });
 

@@ -1,18 +1,53 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import api from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import BackButton from "../../components/BackButton";
 import "./profile.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
+  const { logout } = useAuth();
 
-  if (!user) return null;
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const shopName = user.shop_name ?? "—";
-  const username = user.username ?? "—";
-  const email = user.email ?? "—";
-  const mobile = user.mobile ?? "—";
+  useEffect(() => {
+    api
+      .get("/auth/profile")
+      .then((res) => setProfile(res.data))
+      .catch((err) => {
+        if (err.response?.status === 401) {
+          logout();
+        } else {
+          setError("Failed to load profile");
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [logout]);
+
+  if (loading) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        Loading profile…
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        {error || "Profile unavailable"}
+      </div>
+    );
+  }
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <>
@@ -24,13 +59,13 @@ export default function Profile() {
           <div className="profile-brand">
             <span className="brand">ISMA</span>
             <span className="welcome">👋 Welcome</span>
+
             <button
               className="profile-pill home-pill"
               onClick={() => navigate("/")}
               title="Go to Home"
             >
-              <span style={{ fontSize: "14px" }}>🏠</span>
-              Home
+              🏠 Home
             </button>
           </div>
         </div>
@@ -43,37 +78,36 @@ export default function Profile() {
         <div className="profile-card">
           <div className="profile-row">
             <span>Shop Name</span>
-            <strong>{shopName}</strong>
+            <strong>{profile.shop_name}</strong>
           </div>
 
           <div className="profile-row">
             <span>Username</span>
-            <strong>{username}</strong>
+            <strong>{profile.username}</strong>
           </div>
 
           <div className="profile-row">
             <span>Email</span>
-            <strong>{email}</strong>
+            <strong>{profile.email}</strong>
           </div>
 
           <div className="profile-row">
             <span>Mobile</span>
-            <strong>{mobile}</strong>
+            <strong>{profile.mobile}</strong>
           </div>
         </div>
 
         <div className="profile-actions">
-          <button className="primary" onClick={() => navigate("/dashboard")}>
+          <button
+            className="primary"
+            onClick={() => navigate("/dashboard")}
+          >
             Back to Dashboard
           </button>
 
           <button
             className="secondary"
-            onClick={() => {
-              localStorage.removeItem("token");
-              setUser(null); // 🔥 important
-              window.location.href = "/"; // 🔥 hard redirect to home
-            }}
+            onClick={handleLogout}
           >
             Logout
           </button>

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 import "../styles/auth.css";
 
 export default function Register() {
@@ -31,7 +32,7 @@ export default function Register() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ✅ REQUIRED
+    e.preventDefault();
     setMessage("");
 
     if (
@@ -52,32 +53,28 @@ export default function Register() {
       return;
     }
 
+    if (loading) return;
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          shop_name: form.shop_name,
-          owner_name: form.owner_name,
-          username: form.username,
-          email: form.email,
-          mobile: form.mobile,
-          password: form.password,
-        }),
+      await api.post("/auth/register", {
+        shop_name: form.shop_name,
+        owner_name: form.owner_name,
+        username: form.username,
+        email: form.email,
+        mobile: form.mobile,
+        password: form.password,
       });
 
-      const data = await res.json();
+      setMessage("✅ Registration successful");
 
-      if (!res.ok) {
-        setMessage(data.message || "❌ Registration failed");
-      } else {
-        setMessage("✅ Registration successful");
-        setTimeout(() => navigate("/login"), 1200);
-      }
-    } catch {
-      setMessage("❌ Backend not reachable");
+      setTimeout(() => {
+        navigate("/login", { replace: true });
+      }, 1200);
+    } catch (err) {
+      setMessage(
+        err.response?.data?.message || "❌ Backend not reachable"
+      );
     } finally {
       setLoading(false);
     }
@@ -97,7 +94,7 @@ export default function Register() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              ownerRef.current.focus();
+              ownerRef.current?.focus();
             }
           }}
         />
@@ -111,7 +108,7 @@ export default function Register() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              usernameRef.current.focus();
+              usernameRef.current?.focus();
             }
           }}
         />
@@ -125,7 +122,7 @@ export default function Register() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              mobileRef.current.focus();
+              mobileRef.current?.focus();
             }
           }}
         />
@@ -139,7 +136,7 @@ export default function Register() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              emailRef.current.focus();
+              emailRef.current?.focus();
             }
           }}
         />
@@ -154,7 +151,7 @@ export default function Register() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              passwordRef.current.focus();
+              passwordRef.current?.focus();
             }
           }}
         />
@@ -169,7 +166,7 @@ export default function Register() {
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              confirmRef.current.focus();
+              confirmRef.current?.focus();
             }
           }}
         />

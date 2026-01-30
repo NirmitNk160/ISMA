@@ -14,6 +14,12 @@ router.post("/", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
+    if (Number(stock) < 0 || Number(price) < 0) {
+      return res.status(400).json({
+        message: "Stock and price must be non-negative",
+      });
+    }
+
     await db.query(
       `
       INSERT INTO products (user_id, name, category, stock, price, description)
@@ -92,6 +98,12 @@ router.put("/:id", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
+    if (Number(stock) < 0 || Number(price) < 0) {
+      return res.status(400).json({
+        message: "Stock and price must be non-negative",
+      });
+    }
+
     const [result] = await db.query(
       `
       UPDATE products
@@ -125,11 +137,20 @@ router.delete("/:id", verifyToken, async (req, res) => {
     const userId = req.user.id;
     const productId = req.params.id;
 
+    // 🔒 Prevent deletion if product has sales
+    const [sales] = await db.query(
+      "SELECT id FROM sales WHERE product_id = ? LIMIT 1",
+      [productId]
+    );
+
+    if (sales.length) {
+      return res.status(400).json({
+        message: "Cannot delete product with existing sales",
+      });
+    }
+
     const [result] = await db.query(
-      `
-      DELETE FROM products
-      WHERE id = ? AND user_id = ?
-      `,
+      "DELETE FROM products WHERE id = ? AND user_id = ?",
       [productId, userId]
     );
 

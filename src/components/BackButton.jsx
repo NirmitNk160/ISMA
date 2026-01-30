@@ -1,22 +1,20 @@
-import "./backButton.css";
 import { useNavigate, useLocation } from "react-router-dom";
+import "./backButton.css";
 
-function BackButton() {
+export default function BackButton({ fallback = "/dashboard" }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ❌ Hide back button on Home page
-  if (location.pathname === "/") {
+  // 🚫 Hide on landing pages
+  if (location.pathname === "/" || location.pathname === "/dashboard") {
     return null;
   }
 
-  const from = location.state?.from;
-
   const handleBack = () => {
-    if (from) {
-      navigate(from, { replace: true });
-    } else {
+    if (window.history.length > 1) {
       navigate(-1);
+    } else {
+      navigate(fallback, { replace: true });
     }
   };
 
@@ -26,11 +24,3 @@ function BackButton() {
     </button>
   );
 }
-
-export default BackButton;
-
-/* onClick={() =>
-  navigate("/profile", {
-    state: { from: "/dashboard" },
-  })
-} */

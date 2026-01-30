@@ -1,0 +1,169 @@
+.settings-root {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #1a1f4d, #060918);
+  color: #e5e7eb;
+}
+
+.settings-body {
+  display: flex;
+}
+
+.settings-content {
+  flex: 1;
+  padding: 36px 44px;
+  max-width: 1100px;
+}
+
+/* HEADER */
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.settings-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* CARD */
+.settings-card {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.settings-card h3 {
+  margin-bottom: 16px;
+}
+
+/* FORM */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.form-group input {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff;
+}
+
+.form-group input:disabled {
+  opacity: 0.6;
+}
+
+.form-group small {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* TOGGLE */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle span {
+  width: 44px;
+  height: 24px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.25s;
+}
+
+.toggle span::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  transition: transform 0.25s;
+}
+
+.toggle input:checked + span {
+  background: #4f46e5;
+}
+
+.toggle input:checked + span::after {
+  transform: translateX(20px);
+}
+
+/* ACTIONS */
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border: none;
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #022c22;
+}
+
+.save-btn:hover {
+  box-shadow: 0 12px 28px rgba(34,197,94,0.45);
+}
+
+/* DANGER */
+.danger-zone {
+  border: 1px solid rgba(239,68,68,0.4);
+}
+
+.danger-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-content {
+    padding: 24px;
+  }
+}

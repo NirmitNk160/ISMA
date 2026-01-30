@@ -1,47 +1,71 @@
-import React, { useEffect, useState } from "react";
-import "./Inventory.css";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import api from "../../api/axios";
 import BackButton from "../../components/BackButton";
 import InventoryTopbar from "./InventoryTopbar";
 import Sidebar from "../dashboard/Sidebar";
-import { useNavigate } from "react-router-dom";
+
+import "./Inventory.css";
 
 export default function Inventory() {
-  const [products, setProducts] = useState([]);
-  const [deleteId, setDeleteId] = useState(null);
   const navigate = useNavigate();
 
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [search, setSearch] = useState("");
+
+  /* ================= FETCH PRODUCTS ================= */
   const fetchProducts = async () => {
-    const token = localStorage.getItem("token");
+    setLoading(true);
+    setError("");
 
-    const res = await fetch("http://localhost:5000/api/inventory", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data = await res.json();
-    setProducts(data);
+    try {
+      const res = await api.get("/inventory");
+      setProducts(res.data);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to load inventory"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  /* ================= DELETE PRODUCT ================= */
   const confirmDelete = async () => {
-    const token = localStorage.getItem("token");
+    if (!deleteId || deleting) return;
 
-    await fetch(`http://localhost:5000/api/inventory/${deleteId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    setDeleting(true);
 
-    setDeleteId(null);
-    fetchProducts();
+    try {
+      await api.delete(`/inventory/${deleteId}`);
+      setDeleteId(null);
+      fetchProducts();
+    } catch (err) {
+      alert(
+        err.response?.data?.message || "Failed to delete product"
+      );
+    } finally {
+      setDeleting(false);
+    }
   };
 
+  /* ================= SEARCH FILTER ================= */
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) =>
+      p.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [products, search]);
+
+  /* ================= UI ================= */
   return (
     <div className="inventory-root">
       <InventoryTopbar />
@@ -67,61 +91,84 @@ export default function Inventory() {
               type="text"
               placeholder="Search product..."
               className="inventory-search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
+          {error && (
+            <div className="error-msg">❌ {error}</div>
+          )}
+
           <div className="inventory-card">
-            <table className="inventory-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Product</th>
-                  <th>Category</th>
-                  <th>Stock</th>
-                  <th>Price</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {products.map((p, i) => (
-                  <tr key={p.id}>
-                    <td>{i + 1}</td>
-                    <td>{p.name}</td>
-                    <td>{p.category}</td>
-                    <td>{p.stock}</td>
-                    <td>₹{p.price}</td>
-                    <td className={`status ${p.status.toLowerCase()}`}>
-                      {p.status}
-                    </td>
-                    <td>
-                      <button
-                        className="edit-btn"
-                        onClick={() => navigate(`/inventory/edit/${p.id}`)}
-                      >
-                        ✏️ Edit
-                      </button>
-
-                      <button
-                        className="delete-btn"
-                        onClick={() => setDeleteId(p.id)}
-                      >
-                        🗑 Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-
-                {products.length === 0 && (
+            {loading ? (
+              <p style={{ padding: "1.5rem" }}>
+                Loading inventory…
+              </p>
+            ) : (
+              <table className="inventory-table">
+                <thead>
                   <tr>
-                    <td colSpan="7" style={{ textAlign: "center" }}>
-                      No products found
-                    </td>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Stock</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {filteredProducts.map((p, i) => (
+                    <tr key={p.id}>
+                      <td>{i + 1}</td>
+                      <td>{p.name}</td>
+                      <td>{p.category}</td>
+                      <td>{p.stock}</td>
+                      <td>₹{p.price}</td>
+                      <td
+                        className={`status ${p.status.toLowerCase()}`}
+                      >
+                        {p.status}
+                      </td>
+                      <td>
+                        <button
+                          className="edit-btn"
+                          onClick={() =>
+                            navigate(
+                              `/inventory/edit/${p.id}`
+                            )
+                          }
+                        >
+                          ✏️ Edit
+                        </button>
+
+                        <button
+                          className="delete-btn"
+                          onClick={() =>
+                            setDeleteId(p.id)
+                          }
+                        >
+                          🗑 Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {filteredProducts.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan="7"
+                        style={{ textAlign: "center" }}
+                      >
+                        No products found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </main>
       </div>
@@ -131,17 +178,25 @@ export default function Inventory() {
         <div className="modal-overlay">
           <div className="delete-modal">
             <h3>Delete Product</h3>
-            <p>Are you sure you want to delete this product?</p>
+            <p>
+              Are you sure you want to delete this product?
+            </p>
 
             <div className="modal-actions">
               <button
                 className="modal-cancel"
                 onClick={() => setDeleteId(null)}
+                disabled={deleting}
               >
                 Cancel
               </button>
-              <button className="modal-delete" onClick={confirmDelete}>
-                Delete
+
+              <button
+                className="modal-delete"
+                onClick={confirmDelete}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>

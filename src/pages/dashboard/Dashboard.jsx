@@ -1,60 +1,105 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import "./Dashboard.css";
 
+import api from "../../api/axios";
 import BackButton from "../../components/BackButton";
-import Topbar from "./Topbar";
+import InventoryTopbar from "../Inventory/InventoryTopbar";
 import Sidebar from "./Sidebar";
 import StatCard from "./StatCard";
 import Progress from "./Progress";
 
 export default function Dashboard() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  /* ---------------- FETCH DASHBOARD DATA ---------------- */
+  useEffect(() => {
+    api
+      .get("/dashboard")
+      .then((res) => {
+        setStats(res.data);
+      })
+      .catch(() => {
+        setError("Failed to load dashboard data");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  /* ---------------- LOADING ---------------- */
+  if (loading) {
+    return (
+      <div className="dashboard-root">
+        <InventoryTopbar />
+        <div className="dashboard-body">
+          <Sidebar />
+          <main className="content">
+            <p style={{ padding: "2rem" }}>
+              Loading dashboard…
+            </p>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------------- UI ---------------- */
   return (
     <div className="dashboard-root">
-      {/* GLOBAL TOP BAR */}
-      <Topbar />
+      <InventoryTopbar />
 
       <div className="dashboard-body">
-        {/* SIDEBAR */}
         <Sidebar />
 
-        {/* MAIN CONTENT */}
         <main className="content">
-          {/* PAGE HEADER (Back + Title) */}
           <div className="page-header">
             <BackButton />
             <h2 className="page-title">Analytics</h2>
           </div>
 
+          {error && (
+            <div className="error-msg">❌ {error}</div>
+          )}
+
           {/* STATS */}
           <section className="stats">
             <StatCard
-              title="Monthly Earnings"
-              value="₹40,000"
-              change="+3.48%"
+              title="Total Revenue"
+              value={`₹${stats?.totalRevenue ?? 0}`}
             />
-            <StatCard title="Sales" value="650" change="+12%" />
-            <StatCard title="New Users" value="366" change="+20.4%" />
             <StatCard
-              title="Pending Requests"
-              value="18"
-              change="-1.1%"
-              danger
+              title="Items Sold"
+              value={stats?.itemsSold ?? 0}
+            />
+            <StatCard
+              title="Active Products"
+              value={stats?.activeProducts ?? 0}
             />
           </section>
 
-          {/* GRID SECTION */}
+          {/* GRID */}
           <section className="grid">
             <div className="card chart">
-              <h3>Monthly Recap Report</h3>
-              <div className="chart-placeholder">📈 Chart goes here</div>
+              <h3>Monthly Recap</h3>
+              <div className="chart-placeholder">
+                📊 Chart coming soon
+              </div>
             </div>
 
             <div className="card">
-              <h3>Products Sold</h3>
-              <Progress label="Oblong T-Shirt" value={75} />
-              <Progress label="Gundam Editions" value={62} />
-              <Progress label="Rounded Hat" value={57} />
-              <Progress label="Indomie Goreng" value={50} />
+              <h3>Top Products</h3>
+
+              {stats?.topProducts?.length ? (
+                stats.topProducts.map((p) => (
+                  <Progress
+                    key={p.name}
+                    label={p.name}
+                    value={p.sold}
+                  />
+                ))
+              ) : (
+                <p>No sales yet</p>
+              )}
             </div>
           </section>
         </main>
