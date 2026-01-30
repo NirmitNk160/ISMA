@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import inventoryRoutes from "./routes/inventory.js";
 import billingRoutes from "./routes/billing.js";
+import salesRoutes from "./routes/sales.js";
+
 
 dotenv.config();
 
@@ -22,6 +24,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/billing", billingRoutes);
+app.use("/api/sales", salesRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

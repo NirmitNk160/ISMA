@@ -87,9 +87,7 @@ export default function Billing() {
   };
 
   const confirmBill = async () => {
-    if (billItems.length === 0) {
-      return alert("No items in bill");
-    }
+    if (billItems.length === 0) return;
 
     try {
       await axios.post(
@@ -103,8 +101,13 @@ export default function Billing() {
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      alert("Bill Successful ✅");
-      navigate("/sales");
+      // ✅ clear state BEFORE navigation
+      setBillItems([]);
+      setSelectedProduct("");
+      setQuantity(1);
+
+      // ✅ go directly to sales
+      navigate("/sales", { replace: true });
     } catch (err) {
       alert(err.response?.data?.message || "Billing failed");
     }
