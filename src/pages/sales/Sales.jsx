@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Sales.css";
 
-import InventoryTopbar from "../Inventory/InventoryTopbar";
+import InventoryTopbar from "../inventory/InventoryTopbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
 
@@ -22,21 +22,18 @@ export default function Sales() {
           if (!grouped[row.bill_id]) {
             grouped[row.bill_id] = {
               bill_id: row.bill_id,
-              created_at: row.created_at,
               status: row.status,
+              created_at: row.created_at,
               items: [],
-              total: 0,
             };
           }
 
           grouped[row.bill_id].items.push({
-            name: row.product_name,
-            qty: row.quantity,
-            price: row.unit_price,
-            total: row.total_price,
+            product: row.product_name,
+            quantity: Number(row.quantity),
+            unit_price: Number(row.unit_price),
+            total_price: Number(row.total_price),
           });
-
-          grouped[row.bill_id].total += row.total_price;
         });
 
         setBills(Object.values(grouped));
@@ -47,13 +44,14 @@ export default function Sales() {
   return (
     <div className="sales-root">
       <InventoryTopbar />
+
       <div className="sales-body">
         <Sidebar />
 
         <main className="sales-content">
           <div className="sales-header">
             <BackButton />
-            <h2>Sales</h2>
+            <h2 className="sales-title">Sales</h2>
           </div>
 
           <div className="sales-card">
@@ -61,7 +59,8 @@ export default function Sales() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Product</th>
+                  <th>Bill ID</th>
+                  <th>Products</th>
                   <th>Qty</th>
                   <th>Total</th>
                   <th>Status</th>
@@ -70,46 +69,55 @@ export default function Sales() {
               </thead>
 
               <tbody>
-                {bills.map((bill, i) => (
-                  <tr key={bill.bill_id}>
-                    <td>{i + 1}</td>
+                {bills.map((bill, i) => {
+                  const billTotal = bill.items.reduce(
+                    (sum, it) => sum + it.total_price,
+                    0
+                  );
 
-                    <td>
-                      {bill.items.map((it, idx) => (
-                        <div key={idx}>{it.name}</div>
-                      ))}
-                    </td>
+                  return (
+                    <tr key={bill.bill_id}>
+                      <td>{i + 1}</td>
 
-                    <td>
-                      {bill.items.map((it, idx) => (
-                        <div key={idx}>{it.qty}</div>
-                      ))}
-                    </td>
+                      <td>{bill.bill_id}</td>
 
-                    <td>
-                      {bill.items.map((it, idx) => (
-                        <div key={idx}>
-                          ₹{it.price} × {it.qty} = ₹{it.total}
+                      <td>
+                        {bill.items.map((it, idx) => (
+                          <div key={idx}>{it.product}</div>
+                        ))}
+                      </td>
+
+                      <td>
+                        {bill.items.map((it, idx) => (
+                          <div key={idx}>{it.quantity}</div>
+                        ))}
+                      </td>
+
+                      <td>
+                        {bill.items.map((it, idx) => (
+                          <div key={idx}>
+                            ₹{it.unit_price} × {it.quantity} = ₹{it.total_price}
+                          </div>
+                        ))}
+                        <div style={{ marginTop: 6, fontWeight: 600 }}>
+                          Total: ₹{billTotal}
                         </div>
-                      ))}
-                      <div style={{ marginTop: 6, fontWeight: 600 }}>
-                        Total: ₹{bill.total}
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className={`sale-status ${bill.status.toLowerCase()}`}>
-                      {bill.status}
-                    </td>
+                      <td className={`sale-status ${bill.status.toLowerCase()}`}>
+                        {bill.status}
+                      </td>
 
-                    <td>
-                      {new Date(bill.created_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
+                      <td>
+                        {new Date(bill.created_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  );
+                })}
 
                 {bills.length === 0 && (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: "center", opacity: 0.6 }}>
+                    <td colSpan="7" style={{ textAlign: "center", opacity: 0.6 }}>
                       No sales recorded
                     </td>
                   </tr>

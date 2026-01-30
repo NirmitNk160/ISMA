@@ -1,6 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useAuth } from "./context/AuthContext";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -13,30 +11,11 @@ import EditProduct from "./pages/Inventory/EditProduct";
 import Billing from "./pages/billing/Billing";
 import Sales from "./pages/sales/Sales";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
 
 export default function App() {
-  const { user, setUser, loading, setLoading } = useAuth();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    fetch("http://localhost:5000/api/auth/me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setUser(data.user))
-      .catch(() => localStorage.removeItem("token"))
-      .finally(() => setLoading(false));
-  }, [setUser, setLoading]);
-
-  if (loading) return null;
+  const { user } = useAuth();
 
   return (
     <Routes>
@@ -46,38 +25,66 @@ export default function App() {
 
       <Route
         path="/dashboard"
-        element={user ? <Dashboard /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/profile"
-        element={user ? <Profile /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/inventory"
-        element={user ? <Inventory /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute>
+            <Inventory />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/inventory/add"
-        element={user ? <AddProduct /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute>
+            <AddProduct />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/inventory/edit/:id"
-        element={user ? <EditProduct /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute>
+            <EditProduct />
+          </ProtectedRoute>
+        }
       />
+
       <Route
         path="/billing"
-        element={user ? <Billing /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute>
+            <Billing />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/sales"
-        element={user ? <Sales /> : <Navigate to="/login" replace />}
+        element={
+          <ProtectedRoute>
+            <Sales />
+          </ProtectedRoute>
+        }
       />
-
     </Routes>
   );
 }
