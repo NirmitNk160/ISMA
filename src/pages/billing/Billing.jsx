@@ -47,21 +47,19 @@ export default function Billing() {
     }
 
     setBillItems((prev) => {
-      const existingIndex = prev.findIndex(
-        (item) => item.product_id === product.id,
-      );
+      const existing = prev.find((i) => i.product_id === product.id);
 
-      if (existingIndex !== -1) {
-        const updated = [...prev];
-        const newQty = updated[existingIndex].quantity + 1;
+      if (existing) {
+        const newQty = existing.quantity + quantity;
 
         if (newQty > product.stock) {
           alert(`Only ${product.stock} items in stock`);
           return prev;
         }
 
-        updated[existingIndex].quantity = newQty;
-        return updated;
+        return prev.map((item) =>
+          item.product_id === product.id ? { ...item, quantity: newQty } : item,
+        );
       }
 
       return [
@@ -69,7 +67,7 @@ export default function Billing() {
         {
           product_id: product.id,
           name: product.name,
-          quantity: 1,
+          quantity,
           price: product.price,
         },
       ];
