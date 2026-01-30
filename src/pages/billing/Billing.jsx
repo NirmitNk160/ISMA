@@ -27,33 +27,66 @@ export default function Billing() {
   }, [token]);
 
   const addToBill = () => {
-    if (!selectedProduct) return alert("Select a product");
-    if (quantity <= 0) return alert("Quantity must be at least 1");
-
-    const product = products.find((p) => p.id === Number(selectedProduct));
-    if (!product) return alert("Invalid product");
-
-    if (quantity > product.stock) {
-      return alert(`Only ${product.stock} in stock`);
+    if (!selectedProduct) {
+      alert("Select a product");
+      return;
     }
 
-    setBillItems((prev) => [
-      ...prev,
-      {
-        product_id: product.id,
-        name: product.name,
-        quantity,
-        price: product.price,
-      },
-    ]);
+    if (quantity <= 0) {
+      alert("Quantity must be at least 1");
+      return;
+    }
+
+    const product = products.find((p) => p.id === Number(selectedProduct));
+
+    if (!product) return;
+
+    if (quantity > product.stock) {
+      alert(`Only ${product.stock} items in stock`);
+      return;
+    }
+
+    setBillItems((prev) => {
+      const existingIndex = prev.findIndex(
+        (item) => item.product_id === product.id,
+      );
+
+      if (existingIndex !== -1) {
+        const updated = [...prev];
+        const newQty = updated[existingIndex].quantity + 1;
+
+        if (newQty > product.stock) {
+          alert(`Only ${product.stock} items in stock`);
+          return prev;
+        }
+
+        updated[existingIndex].quantity = newQty;
+        return updated;
+      }
+
+      return [
+        ...prev,
+        {
+          product_id: product.id,
+          name: product.name,
+          quantity: 1,
+          price: product.price,
+        },
+      ];
+    });
 
     setQuantity(1);
+    setSelectedProduct("");
   };
 
   const totalAmount = billItems.reduce(
     (sum, i) => sum + i.quantity * i.price,
-    0
+    0,
   );
+
+  const removeItem = (index) => {
+    setBillItems((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const confirmBill = async () => {
     if (billItems.length === 0) {
@@ -69,7 +102,7 @@ export default function Billing() {
             quantity: i.quantity,
           })),
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       alert("Bill Successful ✅");
@@ -113,7 +146,11 @@ export default function Billing() {
                 onChange={(e) => setQuantity(+e.target.value)}
               />
 
-              <button className="add-btn" onClick={addToBill}>
+              <button
+                className="add-btn"
+                onClick={addToBill}
+                disabled={!selectedProduct || quantity <= 0}
+              >
                 Add
               </button>
             </div>
@@ -124,30 +161,47 @@ export default function Billing() {
                   <th>Product</th>
                   <th>Qty</th>
                   <th>Total</th>
+                  <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
-                {billItems.length === 0 && (
-                  <tr>
-                    <td colSpan="3" className="empty">
-                      No items added
-                    </td>
-                  </tr>
-                )}
 
+              <tbody>
                 {billItems.map((i, idx) => (
                   <tr key={idx}>
                     <td>{i.name}</td>
                     <td>{i.quantity}</td>
-                    <td>₹{i.quantity * i.price}</td>
+                    <td>₹{i.price * i.quantity}</td>
+                    <td>
+                      <button
+                        className="remove-btn"
+                        onClick={() => removeItem(idx)}
+                      >
+                        ❌
+                      </button>
+                    </td>
                   </tr>
                 ))}
+
+                {billItems.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      style={{ textAlign: "center", opacity: 0.6 }}
+                    >
+                      No items added
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
 
             <div className="billing-footer">
               <div className="total">Total: ₹{totalAmount}</div>
-              <button className="confirm-btn" onClick={confirmBill}>
+              <button
+                className="confirm-btn"
+                onClick={confirmBill}
+                disabled={billItems.length === 0}
+              >
                 Confirm Bill
               </button>
             </div>
