@@ -11,22 +11,32 @@ router.get("/", verifyToken, async (req, res) => {
     const [rows] = await pool.query(
       `
       SELECT
-        id,
+        bill_id,
         product_name,
         quantity,
+        unit_price,
         total_price,
         status,
         created_at
       FROM sales
       WHERE user_id = ?
+        AND bill_id IS NOT NULL
       ORDER BY created_at DESC
       `,
       [userId]
     );
 
-    res.json(rows);
+    // 👇 FORCE numeric types (kills string concat bugs)
+    const clean = rows.map(r => ({
+      ...r,
+      quantity: Number(r.quantity),
+      unit_price: Number(r.unit_price),
+      total_price: Number(r.total_price),
+    }));
+
+    res.json(clean);
   } catch (err) {
-    console.error("Sales fetch error:", err);
+    console.error(err);
     res.status(500).json({ message: "Failed to fetch sales" });
   }
 });

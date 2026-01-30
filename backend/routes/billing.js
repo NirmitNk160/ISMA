@@ -5,13 +5,13 @@ import verifyToken from "../middleware/verifyToken.js";
 const router = express.Router();
 
 /*
-  POST /api/billing/confirm
-  Body:
-  {
-    items: [
-      { product_id, quantity }
-    ]
-  }
+POST /api/billing/confirm
+Body:
+{
+  items: [
+    { product_id, quantity }
+  ]
+}
 */
 router.post("/confirm", verifyToken, async (req, res) => {
   const userId = req.user.id;
@@ -22,14 +22,18 @@ router.post("/confirm", verifyToken, async (req, res) => {
   }
 
   const connection = await db.getConnection();
+  const billId = `BILL-${Date.now()}`;
 
   try {
     await connection.beginTransaction();
 
     for (const item of items) {
-      // 1. Fetch product
+      // 1. Fetch product with lock
       const [products] = await connection.query(
-        "SELECT id, name, stock, price FROM products WHERE id = ? AND user_id = ? FOR UPDATE",
+        `SELECT id, name, stock, price 
+         FROM products 
+         WHERE id = ? AND user_id = ? 
+         FOR UPDATE`,
         [item.product_id, userId]
       );
 
@@ -44,7 +48,8 @@ router.post("/confirm", verifyToken, async (req, res) => {
         throw new Error(`Insufficient stock for ${product.name}`);
       }
 
-      const totalPrice = item.quantity * product.price;
+      const unitPrice = Number(product.price);
+      const totalPrice = unitPrice * Number(item.quantity);
 
       // 3. Deduct inventory
       await connection.query(
@@ -52,24 +57,25 @@ router.post("/confirm", verifyToken, async (req, res) => {
         [item.quantity, product.id]
       );
 
-      // 4. Insert into sales
+      // 4. Insert sale row with SAME bill_id
       await connection.query(
-        `INSERT INTO sales 
-          (user_id, product_id, product_name, quantity, unit_price, total_price, status)
-         VALUES (?, ?, ?, ?, ?, ?, 'PAID')`,
+        `INSERT INTO sales
+          (user_id, product_id, product_name, quantity, unit_price, total_price, status, bill_id)
+         VALUES (?, ?, ?, ?, ?, ?, 'PAID', ?)`,
         [
           userId,
           product.id,
           product.name,
           item.quantity,
-          product.price,
+          unitPrice,
           totalPrice,
+          billId,
         ]
       );
     }
 
     await connection.commit();
-    res.json({ message: "Bill confirmed successfully" });
+    res.json({ message: "Bill confirmed successfully", bill_id: billId });
 
   } catch (err) {
     await connection.rollback();

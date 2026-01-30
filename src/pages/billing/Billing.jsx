@@ -16,6 +16,7 @@ export default function Billing() {
   const [billItems, setBillItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     axios
@@ -101,15 +102,20 @@ export default function Billing() {
         { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      // ✅ clear state BEFORE navigation
+      // ✅ show success message in UI
+      setSuccess(true);
+
+      // ✅ reset cart
       setBillItems([]);
       setSelectedProduct("");
       setQuantity(1);
 
-      // ✅ go directly to sales
-      navigate("/sales", { replace: true });
+      // ✅ auto redirect (smooth)
+      setTimeout(() => {
+        navigate("/sales", { replace: true });
+      }, 1200);
     } catch (err) {
-      alert(err.response?.data?.message || "Billing failed");
+      console.error(err);
     }
   };
 
@@ -125,6 +131,20 @@ export default function Billing() {
             <BackButton />
             <h2>Billing</h2>
           </div>
+          {success && (
+            <div
+              style={{
+                marginBottom: "16px",
+                padding: "12px 18px",
+                background: "rgba(34,197,94,0.15)",
+                color: "#22c55e",
+                borderRadius: "12px",
+                fontWeight: 600,
+              }}
+            >
+              ✔ Bill successful. Redirecting to sales…
+            </div>
+          )}
 
           <div className="billing-card">
             <div className="billing-controls">
