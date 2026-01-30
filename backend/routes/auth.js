@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import db from "../db.js";
+import pool from "../db.js";
 import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
@@ -22,42 +22,45 @@ router.post("/register", async (req, res) => {
       VALUES (?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(
-      sql,
-      [shop_name, owner_name, username, email, mobile, hashedPassword],
-      (err) => {
-        if (err) {
-          return res.status(500).json({
-            message: err.sqlMessage || "Database error",
-          });
-        }
+    await pool.query(sql, [
+      shop_name,
+      owner_name,
+      username,
+      email,
+      mobile,
+      hashedPassword,
+    ]);
 
-        res.json({
-          success: true,
-          message: "Registration successful",
-        });
-      }
-    );
-  } catch {
-    res.status(500).json({ message: "Server error" });
+    return res.json({
+      success: true,
+      message: "Registration successful",
+    });
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
 /* ================= LOGIN ================= */
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const sql = "SELECT * FROM users WHERE email = ?";
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
 
-  db.query(sql, [email], async (err, results) => {
-    if (err) return res.status(500).json({ message: "DB error" });
-    if (results.length === 0)
+    if (rows.length === 0) {
       return res.status(401).json({ message: "User not found" });
+    }
 
-    const user = results[0];
+    const user = rows[0];
+
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(401).json({ message: "Wrong password" });
+    }
 
     const token = jwt.sign(
       { id: user.id },
@@ -65,7 +68,7 @@ router.post("/login", (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({
+    return res.json({
       success: true,
       token,
       user: {
@@ -77,18 +80,24 @@ router.post("/login", (req, res) => {
         mobile: user.mobile,
       },
     });
-  });
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
 });
 
 /* ================= GET LOGGED IN USER ================= */
-router.get("/me", verifyToken, (req, res) => {
-  const sql =
-    "SELECT id, shop_name, owner_name, username, email, mobile FROM users WHERE id = ?";
+router.get("/me", verifyToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT id, shop_name, owner_name, username, email, mobile FROM users WHERE id = ?",
+      [req.user.id]
+    );
 
-  db.query(sql, [req.user.id], (err, results) => {
-    if (err) return res.status(500).json({ message: "DB error" });
-    res.json({ user: results[0] });
-  });
+    return res.json({ user: rows[0] });
+  } catch (err) {
+    return res.status(500).json({ message: "DB error" });
+  }
 });
 
 export default router;

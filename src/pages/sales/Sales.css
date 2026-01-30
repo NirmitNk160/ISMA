@@ -1,0 +1,125 @@
+/* ================= ROOT ================= */
+
+.sales-root {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #1a1f4d, #060918);
+  color: #e5e7eb;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* ================= LAYOUT ================= */
+
+.sales-body {
+  display: flex;
+  width: 100%;
+}
+
+.sales-content {
+  flex: 1;
+  padding: 32px;
+}
+
+/* ================= HEADER ================= */
+
+.sales-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sales-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+/* ================= ACTION BAR ================= */
+
+.sales-actions {
+  margin-bottom: 20px;
+}
+
+.add-sale-btn {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: #020617;
+  border: none;
+  padding: 10px 18px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-sale-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(79, 172, 254, 0.45);
+}
+
+/* ================= CARD ================= */
+
+.sales-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* ================= TABLE ================= */
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.sales-table th,
+.sales-table td {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.sales-table th {
+  opacity: 0.7;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sales-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sales-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ================= STATUS ================= */
+
+.sale-status {
+  font-weight: 600;
+}
+
+.sale-status.paid {
+  color: #4ade80;
+}
+
+.sale-status.pending {
+  color: #facc15;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .sales-body {
+    flex-direction: column;
+  }
+
+  .sales-content {
+    padding: 20px;
+  }
+}

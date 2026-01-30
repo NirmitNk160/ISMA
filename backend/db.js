@@ -1,9 +1,10 @@
+/* eslint-env node */
+
 import dotenv from "dotenv";
-dotenv.config(); // 🔥 REQUIRED HERE
+dotenv.config();
 
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 
-// DEBUG (keep for now)
 console.log("DB ENV CHECK →", {
   DB_HOST: process.env.DB_HOST,
   DB_USER: process.env.DB_USER,
@@ -11,19 +12,16 @@ console.log("DB ENV CHECK →", {
   DB_NAME: process.env.DB_NAME,
 });
 
-const db = mysql.createConnection({
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-db.connect((err) => {
-  if (err) {
-    console.error("❌ Database connection failed:", err.message);
-  } else {
-    console.log("✅ Database connected to ISMA");
-  }
-});
+console.log("✅ MySQL Pool ready for transactions");
 
-export default db;
+export default pool;

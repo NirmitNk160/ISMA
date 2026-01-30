@@ -14,9 +14,7 @@ export default function Sidebar() {
       <nav>
         <a
           className={isActive("/dashboard") ? "active" : ""}
-          onClick={() =>
-            navigate("/dashboard", { state: { from: "/" } })
-          }
+          onClick={() => navigate("/dashboard", { state: { from: "/" } })}
         >
           Dashboard
         </a>
@@ -30,17 +28,25 @@ export default function Sidebar() {
           Inventory
         </a>
 
-        <a className={isActive("/sales") ? "active" : ""}>
+        <a
+          className={isActive("/billing") ? "active" : ""}
+          onClick={() =>
+            navigate("/billing", { state: { from: "/dashboard" } })
+          }
+        >
+          Billings
+        </a>
+
+        <a
+          className={isActive("/sales") ? "active" : ""}
+          onClick={() => navigate("/sales", { state: { from: "/dashboard" } })}
+        >
           Sales
         </a>
 
-        <a className={isActive("/reports") ? "active" : ""}>
-          Reports
-        </a>
+        <a className={isActive("/reports") ? "active" : ""}>Reports</a>
 
-        <a className={isActive("/settings") ? "active" : ""}>
-          Settings
-        </a>
+        <a className={isActive("/settings") ? "active" : ""}>Settings</a>
       </nav>
     </aside>
   );

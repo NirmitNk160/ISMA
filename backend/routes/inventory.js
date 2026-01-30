@@ -4,130 +4,143 @@ import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-/* ADD PRODUCT */
-router.post("/", verifyToken, (req, res) => {
-  const { name, category, stock, price, description } = req.body;
-  const userId = req.user.id;
+/* ================= ADD PRODUCT ================= */
+router.post("/", verifyToken, async (req, res) => {
+  try {
+    const { name, category, stock, price, description } = req.body;
+    const userId = req.user.id;
 
-  if (!name || !category || stock === "" || price === "") {
-    return res.status(400).json({ message: "All fields required" });
-  }
-
-  const sql = `
-    INSERT INTO products (user_id, name, category, stock, price, description)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-
-  db.query(
-    sql,
-    [userId, name, category, Number(stock), Number(price), description],
-    (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: "DB error" });
-      }
-      res.status(201).json({ message: "Product added" });
-    },
-  );
-});
-
-/* GET PRODUCTS */
-router.get("/", verifyToken, (req, res) => {
-  const userId = req.user.id;
-
-  const sql = `
-    SELECT id, name, category, stock, price,
-    CASE
-      WHEN stock = 0 THEN 'Out'
-      WHEN stock < 15 THEN 'Low'
-      ELSE 'In Stock'
-    END AS status
-    FROM products
-    WHERE user_id = ?
-    ORDER BY created_at DESC
-  `;
-
-  db.query(sql, [userId], (err, rows) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: "DB error" });
+    if (!name || !category || stock === "" || price === "") {
+      return res.status(400).json({ message: "All fields required" });
     }
-    res.json(rows);
-  });
+
+    await db.query(
+      `
+      INSERT INTO products (user_id, name, category, stock, price, description)
+      VALUES (?, ?, ?, ?, ?, ?)
+      `,
+      [userId, name, category, Number(stock), Number(price), description]
+    );
+
+    res.status(201).json({ message: "Product added" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "DB error" });
+  }
 });
 
-router.get("/:id", verifyToken, (req, res) => {
-  const userId = req.user.id;
-  const productId = req.params.id;
+/* ================= GET PRODUCTS ================= */
+router.get("/", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-  const sql = `
-    SELECT name, category, stock, price, description
-    FROM products
-    WHERE id = ? AND user_id = ?
-  `;
+    const [rows] = await db.query(
+      `
+      SELECT id, name, category, stock, price,
+        CASE
+          WHEN stock = 0 THEN 'Out'
+          WHEN stock < 15 THEN 'Low'
+          ELSE 'In Stock'
+        END AS status
+      FROM products
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+      `,
+      [userId]
+    );
 
-  db.query(sql, [productId, userId], (err, rows) => {
-    if (err) return res.status(500).json({ message: "DB error" });
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "DB error" });
+  }
+});
+
+/* ================= GET SINGLE PRODUCT ================= */
+router.get("/:id", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const productId = req.params.id;
+
+    const [rows] = await db.query(
+      `
+      SELECT name, category, stock, price, description
+      FROM products
+      WHERE id = ? AND user_id = ?
+      `,
+      [productId, userId]
+    );
+
     if (!rows.length) {
       return res.status(404).json({ message: "Product not found" });
     }
+
     res.json(rows[0]);
-  });
-});
-
-router.put("/:id", verifyToken, (req, res) => {
-  const { name, category, stock, price, description } = req.body;
-  const userId = req.user.id;
-  const productId = req.params.id;
-
-  const sql = `
-    UPDATE products
-    SET name = ?, category = ?, stock = ?, price = ?, description = ?
-    WHERE id = ? AND user_id = ?
-  `;
-
-  if (!name || !category || stock === "" || price === "") {
-    return res.status(400).json({ message: "All fields required" });
+  } catch (err) {
+    res.status(500).json({ message: "DB error" });
   }
-
-  db.query(
-    sql,
-    [
-      name,
-      category,
-      Number(stock),
-      Number(price),
-      description,
-      productId,
-      userId,
-    ],
-    (err, result) => {
-      if (err) return res.status(500).json({ message: "DB error" });
-      if (!result.affectedRows) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json({ message: "Product updated" });
-    },
-  );
 });
 
-/* DELETE PRODUCT */
-router.delete("/:id", verifyToken, (req, res) => {
-  const userId = req.user.id;
-  const productId = req.params.id;
+/* ================= UPDATE PRODUCT ================= */
+router.put("/:id", verifyToken, async (req, res) => {
+  try {
+    const { name, category, stock, price, description } = req.body;
+    const userId = req.user.id;
+    const productId = req.params.id;
 
-  const sql = `
-    DELETE FROM products
-    WHERE id = ? AND user_id = ?
-  `;
+    if (!name || !category || stock === "" || price === "") {
+      return res.status(400).json({ message: "All fields required" });
+    }
 
-  db.query(sql, [productId, userId], (err, result) => {
-    if (err) return res.status(500).json({ message: "DB error" });
-    if (result.affectedRows === 0) {
+    const [result] = await db.query(
+      `
+      UPDATE products
+      SET name = ?, category = ?, stock = ?, price = ?, description = ?
+      WHERE id = ? AND user_id = ?
+      `,
+      [
+        name,
+        category,
+        Number(stock),
+        Number(price),
+        description,
+        productId,
+        userId,
+      ]
+    );
+
+    if (!result.affectedRows) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    res.json({ message: "Product updated" });
+  } catch (err) {
+    res.status(500).json({ message: "DB error" });
+  }
+});
+
+/* ================= DELETE PRODUCT ================= */
+router.delete("/:id", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const productId = req.params.id;
+
+    const [result] = await db.query(
+      `
+      DELETE FROM products
+      WHERE id = ? AND user_id = ?
+      `,
+      [productId, userId]
+    );
+
+    if (!result.affectedRows) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
     res.json({ message: "Deleted" });
-  });
+  } catch (err) {
+    res.status(500).json({ message: "DB error" });
+  }
 });
 
 export default router;

@@ -10,6 +10,8 @@ import Profile from "./pages/Profile/Profile";
 import Inventory from "./pages/Inventory/Inventory";
 import AddProduct from "./pages/Inventory/AddProduct";
 import EditProduct from "./pages/Inventory/EditProduct";
+import Billing from "./pages/billing/Billing";
+import Sales from "./pages/sales/Sales";
 
 
 export default function App() {
@@ -65,6 +67,15 @@ export default function App() {
       <Route
         path="/inventory/edit/:id"
         element={user ? <EditProduct /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/billing"
+        element={user ? <Billing /> : <Navigate to="/login" replace />}
+      />
+
+      <Route
+        path="/sales"
+        element={user ? <Sales /> : <Navigate to="/login" replace />}
       />
 
     </Routes>
