@@ -2,8 +2,8 @@
 
 .settings-root {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #1a1f4d, #060918);
-  color: #e5e7eb;
+  background: var(--app-bg-alt);
+  color: var(--text-primary);
   font-family: "Segoe UI", sans-serif;
 }
 
@@ -33,6 +33,7 @@
 .settings-header h2 {
   font-size: 28px;
   font-weight: 800;
+  color: var(--text-primary);
 }
 
 /* ================= GRID ================= */
@@ -46,18 +47,20 @@
 /* ================= CARD ================= */
 
 .settings-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--card-bg-glass);
   backdrop-filter: blur(18px);
   border-radius: 22px;
   padding: 28px 30px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  overflow: visible;
 }
 
 .settings-card h3 {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 22px;
+  color: var(--text-primary);
 }
 
 /* ================= FORM ================= */
@@ -75,15 +78,19 @@
   min-width: 200px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.settings-card input::placeholder {
+  color: var(--text-muted);
 }
 
 .settings-card input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #a855f7;
+  accent-color: var(--accent);
 }
 
 /* ================= BUTTONS ================= */
@@ -91,19 +98,25 @@
 .danger-btn {
   width: 100%;
   margin-top: 14px;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff;
+  background: var(--danger-bg);
+  color: var(--danger-text);
   border: none;
   padding: 14px;
   border-radius: 14px;
   font-weight: 800;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.danger-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--danger-shadow);
 }
 
 .danger-btn.outline {
   background: transparent;
-  border: 1px solid rgba(239, 68, 68, 0.6);
-  color: #f87171;
+  border: 1px solid var(--danger-border);
+  color: var(--danger-border);
 }
 
 /* ================= APPLY BAR ================= */
@@ -117,13 +130,19 @@
 }
 
 .apply-btn {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #022c22;
+  background: var(--success-bg);
+  color: var(--success-text);
   padding: 16px 48px;
   border-radius: 18px;
   font-weight: 900;
   border: none;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apply-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--success-shadow);
 }
 
 .apply-btn:disabled {
@@ -137,12 +156,12 @@
   position: fixed;
   bottom: 32px;
   right: 32px;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #022c22;
+  background: var(--success-bg);
+  color: var(--success-text);
   padding: 16px 22px;
   border-radius: 14px;
   font-weight: 800;
-  box-shadow: 0 18px 40px rgba(34, 197, 94, 0.45);
+  box-shadow: var(--success-shadow);
   z-index: 999;
   animation: slideUp 0.3s ease;
 }
@@ -152,7 +171,6 @@
     opacity: 0;
     transform: translateY(20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -173,21 +191,17 @@
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+
+  background-image: var(--select-arrow);
   background-repeat: no-repeat;
   background-position: right 14px center;
   background-size: 18px;
+
   padding-right: 42px;
   cursor: pointer;
 }
 
-/* dropdown options */
 .settings-card select option {
-  background-color: #1e234a;
-  color: #ffffff;
-}
-
-/* prevent overflow cut */
-.settings-card {
-  overflow: visible;
+  background-color: var(--dropdown-bg);
+  color: var(--text-primary);
 }

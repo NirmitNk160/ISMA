@@ -1,0 +1,87 @@
+/* =========================================================
+   SIDEBAR — ISMA (FIXED & UPGRADED)
+   ========================================================= */
+
+.sidebar {
+  width: 260px;
+  min-height: calc(100vh - 64px);
+
+  padding: 32px 24px;
+  background: var(--app-bg-alt);
+
+  border-right: 1px solid var(--border-soft);
+}
+
+/* LOGO */
+.sidebar .logo {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--accent);
+  margin-bottom: 36px;
+}
+
+/* NAV */
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* LINKS */
+.sidebar nav a {
+  display: block;
+
+  padding: 12px 18px;
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+
+  color: var(--text-secondary);
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+/* HOVER */
+.sidebar nav a:hover {
+  background: var(--row-hover);
+  color: var(--text-primary);
+  transform: translateX(4px);
+}
+
+/* ACTIVE */
+.sidebar nav a.active {
+  background: linear-gradient(
+    135deg,
+    var(--accent-soft),
+    rgba(99, 102, 241, 0.18)
+  );
+
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .sidebar nav {
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .sidebar nav a {
+    white-space: nowrap;
+  }
+}

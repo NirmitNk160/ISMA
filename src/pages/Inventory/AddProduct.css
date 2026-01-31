@@ -1,9 +1,18 @@
+/* =====================================================
+   ADD / EDIT PRODUCT — ISMA
+   Clear form hierarchy, strong CTAs
+   ===================================================== */
+
+/* ================= ROOT ================= */
+
 .add-product-root {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0b1024 0%, #050713 100%);
-  color: #e5e7eb;
-  font-family: "Segoe UI", sans-serif;
+  background: var(--app-bg);
+  color: var(--text-primary);
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
+
+/* ================= LAYOUT ================= */
 
 .add-product-body {
   display: flex;
@@ -11,7 +20,9 @@
 
 .add-product-content {
   flex: 1;
-  padding: 32px;
+  padding: 40px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* ================= HEADER ================= */
@@ -19,33 +30,50 @@
 .page-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .page-title {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
 }
 
 /* ================= CARD ================= */
 
 .add-product-card {
-  max-width: 720px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 22px;
-  padding: 30px;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+  background: var(--card-bg-solid);
+  border-radius: 26px;
+  padding: 32px 34px;
+
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
 }
 
-/* ================= FORM ================= */
+/* ================= ERROR ================= */
+
+.error-msg {
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  border-radius: 14px;
+
+  background: var(--danger-bg);
+  color: var(--danger-text);
+
+  font-weight: 700;
+  box-shadow: var(--danger-shadow);
+}
+
+/* ================= FORM GRID ================= */
 
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 22px;
 }
+
+/* ================= FORM GROUP ================= */
 
 .form-group {
   display: flex;
@@ -57,30 +85,50 @@
   grid-column: 1 / -1;
 }
 
+/* ================= LABEL ================= */
+
 .form-group label {
   font-size: 13px;
-  opacity: 0.7;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+
+  color: var(--text-secondary);
+  text-transform: uppercase;
 }
+
+/* ================= INPUT ================= */
 
 .form-group input,
 .form-group textarea {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 12px;
-  padding: 12px 14px;
-  color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 14px;
+
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+
+  color: var(--text-primary);
+  font-size: 15px;
   outline: none;
-  font-size: 14px;
+
+  transition: border 0.2s ease,
+              box-shadow 0.2s ease,
+              background 0.2s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-muted);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  background: var(--input-bg-focus);
 }
 
 .form-group textarea {
-  min-height: 90px;
+  min-height: 110px;
   resize: vertical;
 }
 
@@ -89,36 +137,86 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 14px;
-  margin-top: 28px;
+  gap: 16px;
+  margin-top: 32px;
 }
 
-.primary-btn {
-  background: linear-gradient(135deg, #4f46e5, #2563eb);
-  color: #fff;
-  border: none;
+/* ================= SECONDARY ================= */
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+
   padding: 12px 22px;
-  border-radius: 12px;
-  font-weight: 600;
+  border-radius: 14px;
+
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+
+  transition: background 0.2s ease,
+              transform 0.15s ease;
+}
+
+.secondary-btn:hover {
+  background: var(--row-hover);
+  transform: translateY(-1px);
+}
+
+/* ================= PRIMARY ================= */
+
+.primary-btn {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+
+  color: var(--text-invert);
+  border: none;
+
+  padding: 14px 28px;
+  border-radius: 16px;
+
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(79, 70, 229, 0.45);
+
+  transition: transform 0.15s ease,
+              box-shadow 0.15s ease;
 }
 
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(79, 70, 229, 0.45);
+  box-shadow: 0 18px 46px rgba(79, 70, 229, 0.65);
 }
 
-.secondary-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #e5e7eb;
-  padding: 12px 22px;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+  .add-product-content {
+    padding: 28px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 22px;
+  }
+
+  .add-product-card {
+    padding: 26px 24px;
+  }
 }

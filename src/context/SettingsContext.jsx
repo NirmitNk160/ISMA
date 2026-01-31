@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-const SettingsContext = createContext();
+const SettingsContext = createContext(null);
+
+/* ================= DEFAULT SETTINGS ================= */
 
 const DEFAULT_SETTINGS = {
   username: "User",
@@ -9,34 +11,35 @@ const DEFAULT_SETTINGS = {
   loginAlerts: true,
   lowStockThreshold: 10,
   blockOutOfStock: true,
-  darkMode: true,
+
+  // 🔥 THEME
+  darkMode: true, // dark is default
+
+  // 🔥 GLOBAL CURRENCY
   currency: "INR",
 };
 
+/* ================= PROVIDER ================= */
+
 export function SettingsProvider({ children }) {
-  const [appliedSettings, setAppliedSettings] = useState(() => {
+  const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem("isma_settings");
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
   });
 
-  // 🔥 only applied settings affect app
+  /* ================= APPLY THEME ================= */
   useEffect(() => {
-    localStorage.setItem(
-      "isma_settings",
-      JSON.stringify(appliedSettings)
-    );
+    localStorage.setItem("isma_settings", JSON.stringify(settings));
 
-    document.body.classList.toggle(
-      "dark-mode",
-      appliedSettings.darkMode
-    );
-  }, [appliedSettings]);
+    // 🔥 SINGLE SOURCE OF TRUTH
+    document.body.classList.toggle("light-mode", !settings.darkMode);
+  }, [settings]);
 
   return (
     <SettingsContext.Provider
       value={{
-        settings: appliedSettings,
-        applySettings: setAppliedSettings,
+        settings,
+        applySettings: setSettings,
       }}
     >
       {children}
@@ -44,6 +47,14 @@ export function SettingsProvider({ children }) {
   );
 }
 
+/* ================= HOOK ================= */
+
 export function useSettings() {
-  return useContext(SettingsContext);
+  const ctx = useContext(SettingsContext);
+  if (!ctx) {
+    throw new Error(
+      "useSettings must be used inside SettingsProvider"
+    );
+  }
+  return ctx;
 }

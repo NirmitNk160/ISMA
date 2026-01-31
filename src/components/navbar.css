@@ -1,0 +1,139 @@
+/* =========================================================
+   NAVBAR — ISMA (Global)
+   ========================================================= */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  height: 64px;
+  padding: 0 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: var(--card-bg-glass);
+  backdrop-filter: blur(14px);
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* ================= LEFT ================= */
+
+.navbar .logo {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* ================= RIGHT ================= */
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Login / Register buttons */
+.nav-links button {
+  padding: 8px 16px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+
+  transition: background 0.2s ease;
+}
+
+.nav-links button:hover {
+  background: var(--row-hover);
+}
+
+/* Primary CTA */
+.nav-btn {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  ) !important;
+  color: var(--text-invert) !important;
+  border: none !important;
+}
+
+/* ================= AUTHENTICATED ================= */
+
+.welcome-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.welcome-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Avatar */
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+  color: var(--text-invert);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 800;
+  cursor: pointer;
+
+  transition: transform 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Logout */
+.logout-btn {
+  background: transparent;
+  color: var(--danger-text);
+  border: 1px solid var(--danger-border);
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+/* ================= BACK BUTTON FIX ================= */
+
+.navbar .back-btn {
+  margin-right: 14px;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0 16px;
+  }
+
+  .welcome-text {
+    display: none;
+  }
+}

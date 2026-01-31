@@ -1,20 +1,27 @@
+/* =====================================================
+   BILLING — ISMA
+   Money-first, clean, theme-aware
+   ===================================================== */
+
 /* ================= ROOT ================= */
 
 .billing-root {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0b1024 0%, #050713 100%);
-  color: #e5e7eb;
+  background: var(--app-bg);
+  color: var(--text-primary);
 }
+
+/* ================= LAYOUT ================= */
 
 .billing-body {
   display: flex;
 }
 
-/* ================= CONTENT ================= */
-
 .billing-content {
   flex: 1;
-  padding: 32px 40px;
+  padding: 40px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ================= HEADER ================= */
@@ -22,103 +29,123 @@
 .billing-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 26px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .billing-header h2 {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
 }
 
-/* ================= STATUS MESSAGES ================= */
+/* ================= STATUS ================= */
 
 .success-msg,
 .error-msg {
-  max-width: 900px;
   margin-bottom: 18px;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 14px 18px;
+  border-radius: 14px;
   font-size: 14px;
+  font-weight: 700;
 }
 
 .success-msg {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: var(--success-bg);
+  color: var(--success-text);
+  box-shadow: var(--success-shadow);
 }
 
 .error-msg {
-  background: rgba(248, 113, 113, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  box-shadow: var(--danger-shadow);
 }
 
-/* ================= BILLING CARD ================= */
+/* ================= CARD ================= */
 
 .billing-card {
-  max-width: 900px;
-  background: rgba(15, 23, 42, 0.85);
-  border-radius: 20px;
-  padding: 26px 28px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  background: var(--card-bg-solid);
+  border-radius: 24px;
+  padding: 28px 30px;
+
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
 }
 
 /* ================= CONTROLS ================= */
 
 .billing-controls {
   display: grid;
-  grid-template-columns: 1fr 120px 120px;
-  gap: 14px;
-  margin-bottom: 28px;
+  grid-template-columns: 1fr 140px 140px;
+  gap: 16px;
+  margin-bottom: 26px;
 }
 
 .billing-controls select,
 .billing-controls input {
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 14px;
+
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+
+  color: var(--text-primary);
   font-size: 14px;
   outline: none;
+
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .billing-controls select:focus,
 .billing-controls input:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-.billing-controls select option {
-  background-color: #0f172a;
-  color: #e5e7eb;
+.billing-controls select {
+  appearance: none;
+  background-image: var(--select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px;
+  padding-right: 42px;
 }
 
 /* ================= ADD BUTTON ================= */
 
 .add-btn {
-  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+
+  color: var(--text-invert);
   border: none;
-  border-radius: 12px;
-  font-weight: 700;
+
+  padding: 14px;
+  border-radius: 16px;
+
   font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+
   cursor: pointer;
-  color: #020617;
-  transition: all 0.25s ease;
+  box-shadow: 0 14px 32px rgba(79, 70, 229, 0.45);
+
+  transition: transform 0.15s ease,
+              box-shadow 0.15s ease;
 }
 
 .add-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 18px 44px rgba(79, 70, 229, 0.65);
 }
 
 .add-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 /* ================= TABLE ================= */
@@ -126,20 +153,21 @@
 .billing-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .billing-table th,
 .billing-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .billing-table th {
   font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 1px;
-  opacity: 0.6;
+  color: var(--text-muted);
 }
 
 .billing-table td {
@@ -147,28 +175,25 @@
 }
 
 .billing-table tbody tr:hover td {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--row-hover);
 }
 
-.empty-row {
-  text-align: center;
-  opacity: 0.6;
-  padding: 20px 0;
-}
-
-/* ================= REMOVE BUTTON ================= */
+/* ================= REMOVE ================= */
 
 .remove-btn {
   background: transparent;
   border: none;
+
   font-size: 18px;
+  font-weight: 900;
+  color: #ef4444;
+
   cursor: pointer;
-  color: #f87171;
   transition: transform 0.15s ease;
 }
 
 .remove-btn:hover {
-  transform: scale(1.2);
+  transform: scale(1.25);
 }
 
 /* ================= FOOTER ================= */
@@ -177,58 +202,58 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 26px;
+  margin-top: 28px;
 }
 
 .total {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
 }
 
-/* ================= CONFIRM BUTTON ================= */
+/* ================= CONFIRM ================= */
 
 .confirm-btn {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #022c22;
-  padding: 13px 32px;
-  border-radius: 14px;
-  font-weight: 800;
+  background: var(--success-bg);
+  color: var(--success-text);
+
+  padding: 14px 36px;
+  border-radius: 18px;
+
+  font-weight: 900;
   font-size: 14px;
   border: none;
   cursor: pointer;
-  transition: all 0.25s ease;
+
+  box-shadow: var(--success-shadow);
+
+  transition: transform 0.15s ease,
+              box-shadow 0.15s ease;
 }
 
 .confirm-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.45);
+  box-shadow: 0 18px 40px rgba(34, 197, 94, 0.55);
 }
 
 .confirm-btn:disabled {
-  opacity: 0.55;
+  opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 900px) {
   .billing-content {
-    padding: 26px;
+    padding: 28px;
   }
 
   .billing-controls {
-    grid-template-columns: 1fr 100px 100px;
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 640px) {
-  .billing-controls {
-    grid-template-columns: 1fr;
-  }
-
   .billing-footer {
     flex-direction: column;
     align-items: stretch;

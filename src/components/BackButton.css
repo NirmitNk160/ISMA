@@ -1,16 +1,50 @@
+/* =========================================================
+   BACK BUTTON – ISMA
+   Uses theme.css variables
+   ========================================================= */
+
 .back-btn {
-  background: transparent;
-  color: #38bdf8;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
   padding: 8px 14px;
   border-radius: 10px;
+
+  background: transparent;
+  border: 1px solid var(--border-soft);
+
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
   outline: none;
-  border: none;
+  white-space: nowrap;
+
+  transition: all 0.2s ease;
 }
 
+/* Hover */
 .back-btn:hover {
-  background: rgba(56, 189, 248, 0.15);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: translateX(-2px);
+}
+
+/* Active click */
+.back-btn:active {
+  transform: translateX(-4px);
+}
+
+/* Focus (keyboard) */
+.back-btn:focus-visible {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Icon (arrow) */
+.back-btn::before {
+  content: "";
+  font-size: 15px;
+  font-weight: 900;
 }

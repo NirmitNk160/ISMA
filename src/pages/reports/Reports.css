@@ -1,7 +1,9 @@
+/* ================= ROOT ================= */
+
 .reports-root {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #1a1f4d 0%, #060918 70%);
-  color: #e5e7eb;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: "Segoe UI", sans-serif;
 }
 
@@ -16,7 +18,8 @@
   max-width: 1200px;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
+
 .reports-header {
   display: flex;
   align-items: center;
@@ -27,9 +30,11 @@
 .reports-header h2 {
   font-size: 24px;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
-/* SUMMARY */
+/* ================= SUMMARY ================= */
+
 .report-summary {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -38,41 +43,41 @@
 }
 
 .summary-card {
-  background: linear-gradient(
-    145deg,
-    rgba(255,255,255,0.08),
-    rgba(255,255,255,0.04)
-  );
+  background: var(--card-bg);
   border-radius: 18px;
   padding: 22px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid var(--border-color);
   min-height: 110px;
 }
 
 .summary-card span {
   font-size: 13px;
   opacity: 0.7;
+  color: var(--text-secondary);
 }
 
 .summary-card strong {
   display: block;
   margin-top: 8px;
   font-size: 26px;
+  color: var(--text-primary);
 }
 
-/* HEALTH */
+/* ================= HEALTH ================= */
+
 .health-section {
   margin-bottom: 40px;
 }
 
 .health-section h3 {
   margin-bottom: 10px;
+  color: var(--text-primary);
 }
 
 .health-bar {
   height: 12px;
   border-radius: 10px;
-  background: rgba(255,255,255,0.12);
+  background: var(--border-color);
   overflow: hidden;
   margin: 12px 0;
 }
@@ -94,7 +99,8 @@
   background: linear-gradient(90deg, #ef4444, #f87171);
 }
 
-/* ALERTS */
+/* ================= ALERTS ================= */
+
 .alerts-section {
   margin-bottom: 36px;
 }
@@ -109,7 +115,8 @@
 .alert-card {
   padding: 16px 18px;
   border-radius: 14px;
-  background: rgba(255,255,255,0.06);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 .alert-card strong {
@@ -126,14 +133,15 @@
 }
 
 .alert-card.info {
-  border-left: 4px solid #38bdf8;
+  border-left: 4px solid var(--accent);
 }
 
 .alert-card.success {
   border-left: 4px solid #22c55e;
 }
 
-/* ACTIONS */
+/* ================= ACTIONS ================= */
+
 .actions-section ul {
   margin-top: 12px;
   padding-left: 22px;
@@ -142,16 +150,231 @@
 .actions-section li {
   margin-bottom: 8px;
   opacity: 0.9;
+  color: var(--text-secondary);
 }
 
-/* RESPONSIVE */
+/* ================= RESPONSIVE ================= */
+
 @media (max-width: 1024px) {
   .report-summary {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+@media (max-width: 600px) {/* =========================================================
+   REPORTS PAGE — ISMA
+   Uses theme.css variables
+   ========================================================= */
+
+/* ================= ROOT ================= */
+
+.reports-root {
+  min-height: 100vh;
+  background: var(--app-bg-alt);
+  color: var(--text-primary);
+}
+
+/* ================= LAYOUT ================= */
+
+.reports-body {
+  display: flex;
+  width: 100%;
+}
+
+.reports-content {
+  flex: 1;
+  max-width: 1200px;
+  padding: 36px 40px;
+  margin: 0 auto;
+}
+
+/* ================= HEADER ================= */
+
+.reports-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.reports-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* ================= SUMMARY ================= */
+
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  margin-bottom: 40px;
+}
+
+.summary-card {
+  background: var(--card-bg-solid);
+  border-radius: 20px;
+  padding: 22px 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+}
+
+.summary-card span {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.summary-card strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* ================= HEALTH ================= */
+
+.health-section {
+  margin-bottom: 42px;
+}
+
+.health-section h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.health-bar {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--row-hover);
+  overflow: hidden;
+  margin: 14px 0;
+}
+
+.health-bar div {
+  height: 100%;
+  transition: width 0.6s ease;
+}
+
+.health-bar.good div {
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+
+.health-bar.warning div {
+  background: linear-gradient(90deg, #facc15, #fde047);
+}
+
+.health-bar.danger div {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.health-section p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ================= ALERTS ================= */
+
+.alerts-section {
+  margin-bottom: 40px;
+}
+
+.alerts-section h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.alert-card {
+  background: var(--card-bg-solid);
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--border-soft);
+}
+
+.alert-card strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.alert-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Alert accents */
+.alert-card.danger {
+  border-left: 4px solid #ef4444;
+}
+
+.alert-card.warning {
+  border-left: 4px solid #facc15;
+}
+
+.alert-card.info {
+  border-left: 4px solid var(--accent);
+}
+
+.alert-card.success {
+  border-left: 4px solid #22c55e;
+}
+
+/* ================= ACTIONS ================= */
+
+.actions-section {
+  margin-bottom: 20px;
+}
+
+.actions-section h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.actions-section ul {
+  padding-left: 20px;
+}
+
+.actions-section li {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+  .reports-content {
+    padding: 28px;
+  }
+}
+
 @media (max-width: 600px) {
+  .reports-content {
+    padding: 22px 16px;
+  }
+
+  .reports-header h2 {
+    font-size: 22px;
+  }
+
+  .summary-card strong {
+    font-size: 24px;
+  }
+}
+
   .report-summary {
     grid-template-columns: 1fr;
   }

@@ -1,40 +1,191 @@
-/* ================= DARK MODE (DEFAULT) ================= */
-body.dark-mode {
-  --bg-primary: #060918;
-  --bg-secondary: #0b1024;
-  --card-bg: #0f1533;
+/* =========================================================
+   ISMA THEME SYSTEM
+   Dark Mode = default
+   Light Mode = body.light-mode
+   ========================================================= */
 
-  --text-primary: #ffffff;
-  --text-secondary: #a1a6c8;
+/* ================= BASE VARIABLES ================= */
 
-  --border-color: rgba(255, 255, 255, 0.08);
+:root {
+  /* ---------- Backgrounds ---------- */
+  --app-bg: linear-gradient(180deg, #0b1024 0%, #050713 100%);
+  --app-bg-alt: radial-gradient(circle at top, #1a1f4d, #060918);
 
-  --accent: #5b7cff;
-  --success: #22c55e;
+  /* ---------- Cards ---------- */
+  --card-bg: rgba(15, 23, 42, 0.85);
+  --card-bg-glass: rgba(255, 255, 255, 0.08);
+  --card-radius: 22px;
+  --card-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+
+  /* ---------- Borders ---------- */
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-soft: rgba(255, 255, 255, 0.08);
+
+  /* ---------- Text ---------- */
+  --text-primary: #e5e7eb;
+  --text-secondary: #cbd5f5;
+  --text-muted: #94a3b8;
+  --text-invert: #020617;
+
+  /* ---------- Inputs ---------- */
+  --input-bg: rgba(255, 255, 255, 0.08);
+  --input-bg-focus: rgba(255, 255, 255, 0.14);
+  --input-border: rgba(255, 255, 255, 0.18);
+  --input-radius: 14px;
+
+  /* ---------- Accent ---------- */
+  --accent: #38bdf8;
+  --accent-strong: #4f46e5;
+  --accent-soft: rgba(56, 189, 248, 0.25);
+
+  /* ---------- Primary CTA ---------- */
+  --btn-primary-bg: linear-gradient(135deg, #38bdf8, #4f46e5);
+  --btn-primary-text: #020617;
+  --btn-primary-shadow: 0 18px 45px rgba(56, 189, 248, 0.45);
+
+  /* ---------- Secondary Button ---------- */
+  --btn-secondary-bg: rgba(255, 255, 255, 0.08);
+  --btn-secondary-border: rgba(255, 255, 255, 0.25);
+  --btn-secondary-text: #e5e7eb;
+
+  /* ---------- Status ---------- */
+  --success: #4ade80;
+  --danger: #f87171;
   --warning: #facc15;
-  --danger: #ef4444;
+  --info: #38bdf8;
+
+  /* ---------- Hover ---------- */
+  --row-hover: rgba(255, 255, 255, 0.04);
+
+  /* ---------- Animation ---------- */
+  --ease: 0.25s ease;
 }
 
-/* ================= LIGHT MODE ================= */
-body:not(.dark-mode) {
-  --bg-primary: #f5f7fb;
-  --bg-secondary: #ffffff;
+/* =========================================================
+   LIGHT MODE (APPLE / STRIPE STYLE)
+   ========================================================= */
+
+body.light-mode {
+  --app-bg: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  --app-bg-alt: linear-gradient(180deg, #ffffff, #f1f5f9);
+
   --card-bg: #ffffff;
+  --card-bg-glass: rgba(255, 255, 255, 0.9);
+  --card-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+
+  --border-strong: rgba(15, 23, 42, 0.15);
+  --border-soft: rgba(15, 23, 42, 0.08);
 
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-invert: #ffffff;
 
-  --border-color: rgba(0, 0, 0, 0.08);
+  --input-bg: rgba(15, 23, 42, 0.04);
+  --input-bg-focus: rgba(15, 23, 42, 0.08);
+  --input-border: rgba(15, 23, 42, 0.18);
 
-  --accent: #3b5bfd;
-  --success: #16a34a;
-  --warning: #ca8a04;
-  --danger: #dc2626;
+  --accent: #2563eb;
+  --accent-strong: #4f46e5;
+  --accent-soft: rgba(37, 99, 235, 0.18);
+
+  --btn-primary-bg: linear-gradient(135deg, #2563eb, #4f46e5);
+  --btn-primary-text: #ffffff;
+  --btn-primary-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+
+  --btn-secondary-bg: rgba(15, 23, 42, 0.04);
+  --btn-secondary-border: rgba(15, 23, 42, 0.18);
+  --btn-secondary-text: #0f172a;
+
+  --row-hover: rgba(15, 23, 42, 0.04);
 }
 
-/* ================= GLOBAL TRANSITION ================= */
-* {
-  transition: background-color 0.2s ease,
-              color 0.2s ease,
-              border-color 0.2s ease;
+/* =========================================================
+   GLOBAL ELEMENT NORMALIZATION
+   ========================================================= */
+
+body {
+  background: var(--app-bg);
+  color: var(--text-primary);
+  transition: background var(--ease), color var(--ease);
+}
+
+/* ---------- Inputs ---------- */
+
+input,
+textarea,
+select {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  color: var(--text-primary);
+  transition: border var(--ease), box-shadow var(--ease), background var(--ease);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  background: var(--input-bg-focus);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ---------- Primary Button ---------- */
+
+.primary-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- Secondary Button ---------- */
+
+.secondary-btn {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--ease), transform var(--ease);
+}
+
+.secondary-btn:hover {
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+/* ---------- Cards ---------- */
+
+.card,
+.inventory-card,
+.sales-card,
+.billing-card,
+.settings-card,
+.add-product-card {
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+  transition: background var(--ease), box-shadow var(--ease);
 }

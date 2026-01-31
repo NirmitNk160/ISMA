@@ -19,30 +19,22 @@ export default function Profile() {
       .get("/auth/profile")
       .then((res) => setProfile(res.data))
       .catch((err) => {
-        if (err.response?.status === 401) {
-          logout();
-        } else {
-          setError("Failed to load profile");
-        }
+        if (err.response?.status === 401) logout();
+        else setError("Failed to load profile");
       })
       .finally(() => setLoading(false));
   }, [logout]);
 
   if (loading) {
-    return (
-      <div style={{ padding: "2rem", textAlign: "center" }}>
-        Loading profile…
-      </div>
-    );
+    return <div className="profile-loading">Loading profile…</div>;
   }
 
   if (!profile) {
-    return (
-      <div style={{ padding: "2rem", textAlign: "center" }}>
-        {error || "Profile unavailable"}
-      </div>
-    );
+    return <div className="profile-loading">{error}</div>;
   }
+
+  const initials =
+    profile.username?.slice(0, 2).toUpperCase() || "U";
 
   const handleLogout = () => {
     logout();
@@ -51,7 +43,7 @@ export default function Profile() {
 
   return (
     <>
-      {/* PROFILE TOPBAR */}
+      {/* TOP BAR */}
       <header className="profile-topbar">
         <div className="profile-topbar-inner">
           <BackButton />
@@ -61,9 +53,8 @@ export default function Profile() {
             <span className="welcome">👋 Welcome</span>
 
             <button
-              className="profile-pill home-pill"
+              className="profile-pill"
               onClick={() => navigate("/")}
-              title="Go to Home"
             >
               🏠 Home
             </button>
@@ -71,33 +62,45 @@ export default function Profile() {
         </div>
       </header>
 
-      {/* PROFILE CONTENT */}
-      <section className="profile-page">
-        <h2 className="profile-title">My Profile</h2>
+      {/* PAGE */}
+      <main className="profile-page">
+        {/* HEADER */}
+        <section className="profile-header">
+          <div className="profile-avatar">{initials}</div>
 
-        <div className="profile-card">
-          <div className="profile-row">
-            <span>Shop Name</span>
-            <strong>{profile.shop_name}</strong>
+          <div className="profile-header-text">
+            <h2>{profile.username}</h2>
+            <p>{profile.email}</p>
           </div>
+        </section>
 
-          <div className="profile-row">
-            <span>Username</span>
-            <strong>{profile.username}</strong>
+        {/* CARD */}
+        <section className="profile-card">
+          <div className="profile-grid">
+            <div>
+              <span>Shop Name</span>
+              <strong>{profile.shop_name}</strong>
+            </div>
+
+            <div>
+              <span>Username</span>
+              <strong>{profile.username}</strong>
+            </div>
+
+            <div>
+              <span>Email</span>
+              <strong>{profile.email}</strong>
+            </div>
+
+            <div>
+              <span>Mobile</span>
+              <strong>{profile.mobile}</strong>
+            </div>
           </div>
+        </section>
 
-          <div className="profile-row">
-            <span>Email</span>
-            <strong>{profile.email}</strong>
-          </div>
-
-          <div className="profile-row">
-            <span>Mobile</span>
-            <strong>{profile.mobile}</strong>
-          </div>
-        </div>
-
-        <div className="profile-actions">
+        {/* ACTIONS */}
+        <section className="profile-actions">
           <button
             className="primary"
             onClick={() => navigate("/dashboard")}
@@ -106,13 +109,13 @@ export default function Profile() {
           </button>
 
           <button
-            className="secondary"
+            className="danger"
             onClick={handleLogout}
           >
             Logout
           </button>
-        </div>
-      </section>
+        </section>
+      </main>
     </>
   );
 }

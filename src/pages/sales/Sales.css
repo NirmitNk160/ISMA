@@ -1,10 +1,14 @@
+/* =========================================================
+   SALES PAGE — ISMA
+   Uses theme.css variables
+   ========================================================= */
+
 /* ================= ROOT ================= */
 
 .sales-root {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0b1024 0%, #050713 100%);
-  color: #e5e7eb;
-  font-family: "Segoe UI", sans-serif;
+  background: var(--app-bg);
+  color: var(--text-primary);
 }
 
 /* ================= LAYOUT ================= */
@@ -16,8 +20,9 @@
 
 .sales-content {
   flex: 1;
-  padding: 32px 36px;
-  overflow-x: hidden;
+  max-width: 1200px;
+  padding: 36px 40px;
+  margin: 0 auto;
 }
 
 /* ================= HEADER ================= */
@@ -25,35 +30,37 @@
 .sales-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 26px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .sales-header h2 {
-  font-size: 22px;
-  font-weight: 600;
-  color: #f8fafc;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
 }
 
 /* ================= EMPTY STATE ================= */
 
 .sales-content > p {
-  padding: 24px;
-  background: rgba(15, 23, 42, 0.7);
+  padding: 22px;
   border-radius: 14px;
-  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border: 1px dashed var(--border-soft);
+  background: var(--card-bg-glass);
+  color: var(--text-muted);
   text-align: center;
 }
 
 /* ================= SALES CARD ================= */
 
 .sales-card {
-  background: rgba(15, 23, 42, 0.88);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 22px;
-  margin-bottom: 24px;
-  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.45);
+  background: var(--card-bg-solid);
+  border-radius: 22px;
+  padding: 22px 24px;
+  margin-bottom: 26px;
+
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
 }
 
 /* ================= CARD HEADER ================= */
@@ -62,20 +69,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   padding-bottom: 14px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .sales-card-header span:first-child {
-  font-weight: 700;
-  color: #38bdf8;
-  letter-spacing: 0.4px;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--accent);
 }
 
 .sales-card-header span:last-child {
   font-size: 13px;
-  opacity: 0.65;
+  color: var(--text-muted);
 }
 
 /* ================= TABLE ================= */
@@ -94,19 +102,21 @@
 }
 
 .sales-table th {
-  opacity: 0.6;
-  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .sales-table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-secondary);
 }
 
-.sales-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04);
+.sales-table tbody tr:hover td {
+  background: var(--row-hover);
 }
 
 /* ================= BILL TOTAL ================= */
@@ -114,17 +124,17 @@
 .bill-total {
   margin-top: 18px;
   text-align: right;
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 900;
   letter-spacing: 0.4px;
-  color: #4ade80;
+  color: #22c55e;
 }
 
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 1024px) {
   .sales-content {
-    padding: 26px;
+    padding: 28px;
   }
 }
 
@@ -134,7 +144,7 @@
   }
 
   .sales-content {
-    padding: 20px;
+    padding: 22px 16px;
   }
 
   .sales-card-header {
@@ -145,12 +155,13 @@
 
   .bill-total {
     text-align: left;
+    margin-top: 14px;
   }
 }
 
 @media (max-width: 480px) {
   .sales-header h2 {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .sales-card {

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import BackButton from "./BackButton";
-import "../styles/home.css";
+import "./navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();

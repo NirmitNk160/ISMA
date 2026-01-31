@@ -1,10 +1,15 @@
+/* =====================================================
+   INVENTORY LIST — ISMA
+   Theme-aware (dark + light)
+   ===================================================== */
+
 /* ================= ROOT ================= */
 
 .inventory-root {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0b1024 0%, #050713 100%);
-  color: #e5e7eb;
-  font-family: "Segoe UI", sans-serif;
+  background: var(--app-bg);
+  color: var(--text-primary);
+  font-family: "Segoe UI", system-ui, sans-serif;
 }
 
 /* ================= LAYOUT ================= */
@@ -16,8 +21,9 @@
 
 .inventory-content {
   flex: 1;
-  padding: 32px 36px;
-  overflow-x: hidden;
+  padding: 40px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ================= HEADER ================= */
@@ -25,14 +31,14 @@
 .inventory-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 28px;
 }
 
 .inventory-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #f8fafc;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
 }
 
 /* ================= ACTION BAR ================= */
@@ -41,58 +47,84 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
+
+  padding-bottom: 16px;
   margin-bottom: 22px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-bottom: 1px solid var(--border-soft);
 }
 
+/* ================= ADD BUTTON ================= */
+
 .add-btn {
-  background: linear-gradient(135deg, #38bdf8, #6366f1);
-  color: #020617;
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+
+  color: var(--text-invert);
   border: none;
-  padding: 10px 22px;
-  font-weight: 700;
+
+  padding: 12px 26px;
+  border-radius: 16px;
+
   font-size: 14px;
-  border-radius: 12px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 14px 32px rgba(79, 70, 229, 0.45);
+
+  transition: transform 0.15s ease,
+              box-shadow 0.15s ease;
 }
 
 .add-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 18px 44px rgba(79, 70, 229, 0.65);
 }
+
+/* ================= SEARCH ================= */
 
 .inventory-search {
-  max-width: 280px;
+  max-width: 300px;
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: #f8fafc;
-  outline: none;
-}
 
-.inventory-search:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  padding: 12px 16px;
+  border-radius: 14px;
+
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+
+  color: var(--text-primary);
+  font-size: 14px;
+
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .inventory-search::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
+}
+
+.inventory-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 /* ================= CARD ================= */
 
 .inventory-card {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  padding: 22px;
+  background: var(--card-bg-solid);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+
+  padding: 24px;
   overflow-x: auto;
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+
+  box-shadow: var(--card-shadow);
 }
 
 /* ================= TABLE ================= */
@@ -100,44 +132,50 @@
 .inventory-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  min-width: 760px;
 }
 
 .inventory-table th,
 .inventory-table td {
-  padding: 16px;
+  padding: 16px 18px;
   text-align: left;
   font-size: 14px;
 }
 
 .inventory-table th {
-  opacity: 0.6;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 800;
   letter-spacing: 1px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .inventory-table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-soft);
 }
 
+/* ================= ROW HOVER ================= */
+
 .inventory-table tbody tr {
-  transition: background 0.18s ease;
+  transition: background 0.15s ease;
 }
 
 .inventory-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--row-hover);
 }
 
 /* ================= STATUS ================= */
 
 .status {
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.4px;
 }
 
 .status.in {
-  color: #4ade80;
+  color: #22c55e;
 }
 
 .status.low {
@@ -145,7 +183,7 @@
 }
 
 .status.out {
-  color: #f87171;
+  color: #ef4444;
 }
 
 /* ================= ACTION BUTTONS ================= */
@@ -154,107 +192,86 @@
   white-space: nowrap;
 }
 
+/* EDIT */
 .edit-btn {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  padding: 6px 12px;
-  border-radius: 9px;
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--accent);
+
+  border: 1px solid var(--accent-soft);
+  padding: 8px 14px;
+  border-radius: 12px;
+
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.18s ease;
+
+  transition: transform 0.15s ease,
+              background 0.15s ease;
 }
 
 .edit-btn:hover {
-  background: linear-gradient(135deg, #4f46e5, #2563eb);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.45);
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+  color: var(--text-invert);
+  transform: translateY(-1px);
 }
 
+/* DELETE */
 .delete-btn {
-  background: rgba(248, 113, 113, 0.14);
-  color: #f87171;
-  border: 1px solid rgba(248, 113, 113, 0.35);
-  padding: 6px 12px;
-  border-radius: 9px;
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+
+  border: 1px solid var(--danger-border);
+  padding: 8px 14px;
+  border-radius: 12px;
+
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 800;
   cursor: pointer;
-  margin-left: 6px;
-  transition: all 0.18s ease;
+  margin-left: 8px;
+
+  transition: transform 0.15s ease,
+              background 0.15s ease;
 }
 
 .delete-btn:hover {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #ffffff;
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45);
+  background: var(--danger-bg);
+  color: var(--text-invert);
+  transform: translateY(-1px);
 }
 
-/* ================= DELETE MODAL ================= */
+/* ================= RESPONSIVE ================= */
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
+@media (max-width: 1024px) {
+  .inventory-content {
+    padding: 28px;
+  }
 }
 
-.delete-modal {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  padding: 26px;
-  width: 340px;
-  text-align: center;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+@media (max-width: 768px) {
+  .inventory-body {
+    flex-direction: column;
+  }
+
+  .inventory-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inventory-search {
+    max-width: 100%;
+  }
 }
 
-.delete-modal h3 {
-  margin-bottom: 8px;
-  font-size: 18px;
-}
+@media (max-width: 480px) {
+  .inventory-title {
+    font-size: 22px;
+  }
 
-.delete-modal p {
-  font-size: 14px;
-  color: #cbd5e1;
-  margin-bottom: 22px;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.modal-cancel,
-.modal-delete {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.modal-cancel {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #e5e7eb;
-}
-
-.modal-cancel:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.modal-delete {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  border: none;
-  color: white;
-}
-
-.modal-delete:hover {
-  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45);
+  .inventory-card {
+    padding: 18px;
+  }
 }
