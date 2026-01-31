@@ -1,0 +1,40 @@
+/* ================= DARK MODE (DEFAULT) ================= */
+body.dark-mode {
+  --bg-primary: #060918;
+  --bg-secondary: #0b1024;
+  --card-bg: #0f1533;
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a6c8;
+
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  --accent: #5b7cff;
+  --success: #22c55e;
+  --warning: #facc15;
+  --danger: #ef4444;
+}
+
+/* ================= LIGHT MODE ================= */
+body:not(.dark-mode) {
+  --bg-primary: #f5f7fb;
+  --bg-secondary: #ffffff;
+  --card-bg: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+
+  --border-color: rgba(0, 0, 0, 0.08);
+
+  --accent: #3b5bfd;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --danger: #dc2626;
+}
+
+/* ================= GLOBAL TRANSITION ================= */
+* {
+  transition: background-color 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease;
+}

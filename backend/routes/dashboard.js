@@ -8,18 +8,19 @@ router.get("/", verifyToken, async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const [[revenue]] = await db.query(
+    /* ================= SALES SNAPSHOT (IMMUTABLE) ================= */
+    const [[sales]] = await db.query(
       `
       SELECT
-        COALESCE(SUM(s.quantity * p.price), 0) AS totalRevenue,
-        COALESCE(SUM(s.quantity), 0) AS itemsSold
-      FROM sales s
-      JOIN products p ON p.id = s.product_id
-      WHERE s.user_id = ?
+        COALESCE(SUM(total_price), 0) AS totalRevenue,
+        COALESCE(SUM(quantity), 0) AS itemsSold
+      FROM sales
+      WHERE user_id = ?
       `,
       [userId]
     );
 
+    /* ================= PRODUCTS ================= */
     const [[products]] = await db.query(
       `
       SELECT COUNT(*) AS activeProducts
@@ -29,15 +30,15 @@ router.get("/", verifyToken, async (req, res) => {
       [userId]
     );
 
+    /* ================= TOP PRODUCTS ================= */
     const [topProducts] = await db.query(
       `
       SELECT
-        p.name,
-        SUM(s.quantity) AS sold
-      FROM sales s
-      JOIN products p ON p.id = s.product_id
-      WHERE s.user_id = ?
-      GROUP BY s.product_id
+        product_name AS name,
+        SUM(quantity) AS sold
+      FROM sales
+      WHERE user_id = ?
+      GROUP BY product_id, product_name
       ORDER BY sold DESC
       LIMIT 5
       `,
@@ -45,8 +46,8 @@ router.get("/", verifyToken, async (req, res) => {
     );
 
     res.json({
-      totalRevenue: Number(revenue.totalRevenue),
-      itemsSold: Number(revenue.itemsSold),
+      totalRevenue: Number(sales.totalRevenue),
+      itemsSold: Number(sales.itemsSold),
       activeProducts: Number(products.activeProducts),
       topProducts,
     });

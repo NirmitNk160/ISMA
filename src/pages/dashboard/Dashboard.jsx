@@ -7,26 +7,44 @@ import InventoryTopbar from "../Inventory/InventoryTopbar";
 import Sidebar from "./Sidebar";
 import StatCard from "./StatCard";
 import Progress from "./Progress";
+import { useCurrency } from "../../context/CurrencyContext";
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* ---------------- FETCH DASHBOARD DATA ---------------- */
+  // 🔥 GLOBAL CURRENCY (UI ONLY)
+  const { format } = useCurrency();
+
+  /* ================= FETCH DASHBOARD DATA ================= */
   useEffect(() => {
+    let mounted = true;
+
     api
       .get("/dashboard")
       .then((res) => {
-        setStats(res.data);
+        if (mounted) {
+          setStats(res.data);
+        }
       })
       .catch(() => {
-        setError("Failed to load dashboard data");
+        if (mounted) {
+          setError("Failed to load dashboard data");
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (mounted) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  /* ---------------- LOADING ---------------- */
+  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="dashboard-root">
@@ -43,7 +61,7 @@ export default function Dashboard() {
     );
   }
 
-  /* ---------------- UI ---------------- */
+  /* ================= UI ================= */
   return (
     <div className="dashboard-root">
       <InventoryTopbar />
@@ -61,23 +79,25 @@ export default function Dashboard() {
             <div className="error-msg">❌ {error}</div>
           )}
 
-          {/* STATS */}
+          {/* ================= STATS ================= */}
           <section className="stats">
             <StatCard
               title="Total Revenue"
-              value={`₹${stats?.totalRevenue ?? 0}`}
+              value={format(Number(stats?.totalRevenue ?? 0))}
             />
+
             <StatCard
               title="Items Sold"
-              value={stats?.itemsSold ?? 0}
+              value={Number(stats?.itemsSold ?? 0)}
             />
+
             <StatCard
               title="Active Products"
-              value={stats?.activeProducts ?? 0}
+              value={Number(stats?.activeProducts ?? 0)}
             />
           </section>
 
-          {/* GRID */}
+          {/* ================= GRID ================= */}
           <section className="grid">
             <div className="card chart">
               <h3>Monthly Recap</h3>
@@ -94,7 +114,7 @@ export default function Dashboard() {
                   <Progress
                     key={p.name}
                     label={p.name}
-                    value={p.sold}
+                    value={Number(p.sold ?? 0)}
                   />
                 ))
               ) : (

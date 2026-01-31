@@ -12,13 +12,13 @@ router.get("/", verifyToken, async (req, res) => {
       `
       SELECT
         s.bill_id,
+        s.product_id,
+        s.product_name,
         s.quantity,
-        p.name AS product_name,
-        p.price AS unit_price,
-        (s.quantity * p.price) AS total_price,
+        s.unit_price,
+        s.total_price,
         s.created_at
       FROM sales s
-      JOIN products p ON p.id = s.product_id
       WHERE s.user_id = ?
       ORDER BY s.created_at DESC
       `,

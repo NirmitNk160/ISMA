@@ -5,12 +5,15 @@ import api from "../../api/axios";
 import InventoryTopbar from "./InventoryTopbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
-
-import "./AddProduct.css"; // reuse same CSS
+import { useSettings } from "../../context/SettingsContext";
+import { useCurrency } from "../../context/CurrencyContext";
+import "./AddProduct.css";
 
 export default function EditProduct() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { settings } = useSettings();
+  const { rates } = useCurrency();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,32 +23,35 @@ export default function EditProduct() {
     name: "",
     category: "",
     stock: "",
-    price: "",
+    price: "", // shown in selected currency
     description: "",
   });
 
-  /* ================= FETCH PRODUCT ================= */
   useEffect(() => {
     api
       .get(`/inventory/${id}`)
       .then((res) => {
+        const priceInINR = Number(res.data.price);
+
+        let displayPrice = priceInINR;
+        if (settings.currency !== "INR") {
+          const rate = rates[settings.currency];
+          if (rate) displayPrice = priceInINR * rate;
+        }
+
         setForm({
           name: res.data.name ?? "",
           category: res.data.category ?? "",
           stock: res.data.stock ?? "",
-          price: res.data.price ?? "",
+          price: displayPrice.toFixed(2),
           description: res.data.description ?? "",
         });
       })
-      .catch((err) => {
-        setError(
-          err.response?.data?.message || "Failed to load product"
-        );
+      .catch(() => {
+        setError("Failed to load product");
       })
       .finally(() => setLoading(false));
-  }, [id]);
-
-  /* ================= HANDLERS ================= */
+  }, [id, settings.currency, rates]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -55,31 +61,43 @@ export default function EditProduct() {
     e.preventDefault();
     setError("");
 
-    if (Number(form.stock) < 0 || Number(form.price) < 0) {
+    const priceInput = Number(form.price);
+    const stockInput = Number(form.stock);
+
+    if (priceInput < 0 || stockInput < 0) {
       setError("Stock and price must be non-negative");
       return;
+    }
+
+    // 🔥 CONVERT BACK TO INR
+    let priceInINR = priceInput;
+    if (settings.currency !== "INR") {
+      const rate = rates[settings.currency];
+      if (!rate) {
+        setError("Currency rate unavailable");
+        return;
+      }
+      priceInINR = priceInput / rate;
     }
 
     setSaving(true);
 
     try {
       await api.put(`/inventory/${id}`, {
-        ...form,
-        stock: Number(form.stock),
-        price: Number(form.price),
+        name: form.name,
+        category: form.category,
+        stock: stockInput,
+        price: Math.round(priceInINR),
+        description: form.description,
       });
 
       navigate("/inventory");
-    } catch (err) {
-      setError(
-        err.response?.data?.message || "Update failed"
-      );
+    } catch {
+      setError("Update failed");
     } finally {
       setSaving(false);
     }
   };
-
-  /* ================= UI ================= */
 
   if (loading) {
     return (
@@ -103,20 +121,13 @@ export default function EditProduct() {
         <Sidebar />
 
         <main className="add-product-content">
-          {/* HEADER */}
           <div className="page-header">
             <BackButton />
             <h2 className="page-title">Edit Product</h2>
           </div>
 
-          {/* FORM */}
-          <form
-            className="add-product-card"
-            onSubmit={handleSubmit}
-          >
-            {error && (
-              <div className="error-msg">❌ {error}</div>
-            )}
+          <form className="add-product-card" onSubmit={handleSubmit}>
+            {error && <div className="error-msg">❌ {error}</div>}
 
             <div className="form-grid">
               <div className="form-group">
@@ -152,10 +163,13 @@ export default function EditProduct() {
               </div>
 
               <div className="form-group">
-                <label>Price (₹)</label>
+                <label>
+                  Price ({settings.currency})
+                </label>
                 <input
                   type="number"
                   min="0"
+                  step="0.01"
                   name="price"
                   value={form.price}
                   onChange={handleChange}
@@ -173,7 +187,6 @@ export default function EditProduct() {
               </div>
             </div>
 
-            {/* ACTIONS */}
             <div className="form-actions">
               <button
                 type="button"

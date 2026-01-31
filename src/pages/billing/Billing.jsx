@@ -5,11 +5,15 @@ import api from "../../api/axios";
 import Sidebar from "../dashboard/Sidebar";
 import InventoryTopbar from "../inventory/InventoryTopbar";
 import BackButton from "../../components/BackButton";
+import { useSettings } from "../../context/SettingsContext";
+import { useCurrency } from "../../context/CurrencyContext";
 
 import "./Billing.css";
 
 export default function Billing() {
   const navigate = useNavigate();
+  const { settings } = useSettings();
+  const { format, rates } = useCurrency();
 
   const [products, setProducts] = useState([]);
   const [billItems, setBillItems] = useState([]);
@@ -32,9 +36,7 @@ export default function Billing() {
   const addToBill = () => {
     if (!selectedProduct || quantity <= 0) return;
 
-    const product = products.find(
-      (p) => p.id === Number(selectedProduct)
-    );
+    const product = products.find((p) => p.id === Number(selectedProduct));
     if (!product) return;
 
     if (quantity > product.stock) {
@@ -43,9 +45,7 @@ export default function Billing() {
     }
 
     setBillItems((prev) => {
-      const existing = prev.find(
-        (i) => i.product_id === product.id
-      );
+      const existing = prev.find((i) => i.product_id === product.id);
 
       if (existing) {
         const newQty = existing.quantity + quantity;
@@ -56,9 +56,7 @@ export default function Billing() {
         }
 
         return prev.map((i) =>
-          i.product_id === product.id
-            ? { ...i, quantity: newQty }
-            : i
+          i.product_id === product.id ? { ...i, quantity: newQty } : i,
         );
       }
 
@@ -68,7 +66,7 @@ export default function Billing() {
           product_id: product.id,
           name: product.name,
           quantity,
-          price: product.price,
+          priceINR: Number(product.price), // 🔥 ALWAYS INR
         },
       ];
     });
@@ -78,10 +76,11 @@ export default function Billing() {
     setError("");
   };
 
-  /* -------------------- TOTAL -------------------- */
-  const totalAmount = billItems.reduce(
-    (sum, i) => sum + i.quantity * i.price,
-    0
+  /* -------------------- UI TOTAL (SELECTED CURRENCY) -------------------- */
+  // 🔥 TOTAL ALWAYS IN INR
+  const totalINR = billItems.reduce(
+    (sum, i) => sum + i.quantity * i.priceINR,
+    0,
   );
 
   /* -------------------- REMOVE ITEM -------------------- */
@@ -97,6 +96,7 @@ export default function Billing() {
     setError("");
 
     try {
+      // 🔥 BACKEND RECEIVES INR ONLY
       await api.post("/billing/confirm", {
         items: billItems.map((i) => ({
           product_id: i.product_id,
@@ -111,9 +111,7 @@ export default function Billing() {
         navigate("/sales", { replace: true });
       }, 1200);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Billing failed"
-      );
+      setError(err.response?.data?.message || "Billing failed");
     } finally {
       setLoading(false);
     }
@@ -139,19 +137,13 @@ export default function Billing() {
             </div>
           )}
 
-          {error && (
-            <div className="error-msg">
-              ❌ {error}
-            </div>
-          )}
+          {error && <div className="error-msg">❌ {error}</div>}
 
           <div className="billing-card">
             <div className="billing-controls">
               <select
                 value={selectedProduct}
-                onChange={(e) =>
-                  setSelectedProduct(e.target.value)
-                }
+                onChange={(e) => setSelectedProduct(e.target.value)}
               >
                 <option value="">Select product</option>
                 {products.map((p) => (
@@ -165,9 +157,7 @@ export default function Billing() {
                 type="number"
                 min="1"
                 value={quantity}
-                onChange={(e) =>
-                  setQuantity(Number(e.target.value))
-                }
+                onChange={(e) => setQuantity(Number(e.target.value))}
               />
 
               <button
@@ -194,13 +184,11 @@ export default function Billing() {
                   <tr key={idx}>
                     <td>{i.name}</td>
                     <td>{i.quantity}</td>
-                    <td>₹{i.price * i.quantity}</td>
+                    <td>{format(i.priceINR * i.quantity)}</td>
                     <td>
                       <button
                         className="remove-btn"
-                        onClick={() =>
-                          removeItem(idx)
-                        }
+                        onClick={() => removeItem(idx)}
                       >
                         ❌
                       </button>
@@ -210,10 +198,7 @@ export default function Billing() {
 
                 {!billItems.length && (
                   <tr>
-                    <td
-                      colSpan="4"
-                      className="empty-row"
-                    >
+                    <td colSpan="4" className="empty-row">
                       No items added
                     </td>
                   </tr>
@@ -222,17 +207,14 @@ export default function Billing() {
             </table>
 
             <div className="billing-footer">
-              <div className="total">
-                Total: ₹{totalAmount}
-              </div>
+              <div className="total">Total: {format(totalINR)}</div>
+
               <button
                 className="confirm-btn"
                 onClick={confirmBill}
                 disabled={!billItems.length || loading}
               >
-                {loading
-                  ? "Processing..."
-                  : "Confirm Bill"}
+                {loading ? "Processing..." : "Confirm Bill"}
               </button>
             </div>
           </div>

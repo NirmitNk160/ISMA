@@ -5,11 +5,15 @@ import api from "../../api/axios";
 import BackButton from "../../components/BackButton";
 import InventoryTopbar from "./InventoryTopbar";
 import Sidebar from "../dashboard/Sidebar";
+import { useCurrency } from "../../context/CurrencyContext";
+import { useSettings } from "../../context/SettingsContext";
 
 import "./Inventory.css";
 
 export default function Inventory() {
   const navigate = useNavigate();
+  const { format } = useCurrency();
+  const { settings } = useSettings(); // 🔥 LOW STOCK THRESHOLD
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +68,19 @@ export default function Inventory() {
       p.name.toLowerCase().includes(search.toLowerCase())
     );
   }, [products, search]);
+
+  /* ================= STOCK STATUS LOGIC ================= */
+  const getStatus = (stock) => {
+    if (stock === 0) {
+      return { label: "Out of Stock", className: "out" };
+    }
+
+    if (stock <= settings.lowStockThreshold) {
+      return { label: "Low Stock", className: "low" };
+    }
+
+    return { label: "In Stock", className: "in" };
+  };
 
   /* ================= UI ================= */
   return (
@@ -120,41 +137,45 @@ export default function Inventory() {
                 </thead>
 
                 <tbody>
-                  {filteredProducts.map((p, i) => (
-                    <tr key={p.id}>
-                      <td>{i + 1}</td>
-                      <td>{p.name}</td>
-                      <td>{p.category}</td>
-                      <td>{p.stock}</td>
-                      <td>₹{p.price}</td>
-                      <td
-                        className={`status ${p.status.toLowerCase()}`}
-                      >
-                        {p.status}
-                      </td>
-                      <td>
-                        <button
-                          className="edit-btn"
-                          onClick={() =>
-                            navigate(
-                              `/inventory/edit/${p.id}`
-                            )
-                          }
-                        >
-                          ✏️ Edit
-                        </button>
+                  {filteredProducts.map((p, i) => {
+                    const status = getStatus(Number(p.stock));
 
-                        <button
-                          className="delete-btn"
-                          onClick={() =>
-                            setDeleteId(p.id)
-                          }
+                    return (
+                      <tr key={p.id}>
+                        <td>{i + 1}</td>
+                        <td>{p.name}</td>
+                        <td>{p.category}</td>
+                        <td>{p.stock}</td>
+                        <td>{format(Number(p.price))}</td>
+                        <td
+                          className={`status ${status.className}`}
                         >
-                          🗑 Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                          {status.label}
+                        </td>
+                        <td>
+                          <button
+                            className="edit-btn"
+                            onClick={() =>
+                              navigate(
+                                `/inventory/edit/${p.id}`
+                              )
+                            }
+                          >
+                            ✏️ Edit
+                          </button>
+
+                          <button
+                            className="delete-btn"
+                            onClick={() =>
+                              setDeleteId(p.id)
+                            }
+                          >
+                            🗑 Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
 
                   {filteredProducts.length === 0 && (
                     <tr>

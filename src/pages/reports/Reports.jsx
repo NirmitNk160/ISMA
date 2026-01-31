@@ -4,6 +4,8 @@ import api from "../../api/axios";
 import Sidebar from "../dashboard/Sidebar";
 import InventoryTopbar from "../inventory/InventoryTopbar";
 import BackButton from "../../components/BackButton";
+import { useCurrency } from "../../context/CurrencyContext";
+import { useSettings } from "../../context/SettingsContext";
 
 import "./Reports.css";
 
@@ -11,6 +13,10 @@ export default function Reports() {
   const [inventory, setInventory] = useState([]);
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { settings } = useSettings();
+
+  // 🔥 currency formatter
+  const { format } = useCurrency();
 
   /* ================= FETCH DATA ================= */
   useEffect(() => {
@@ -22,18 +28,19 @@ export default function Reports() {
       .finally(() => setLoading(false));
   }, []);
 
-  /* ================= DERIVED REPORT ================= */
+  /* ================= DERIVED REPORT (ALL INR) ================= */
   const report = useMemo(() => {
     const totalProducts = inventory.length;
-    const totalStock = inventory.reduce((a, b) => a + b.stock, 0);
+    const totalStock = inventory.reduce((a, b) => a + Number(b.stock || 0), 0);
 
-    let totalRevenue = 0;
+    let totalRevenueINR = 0;
     let totalItemsSold = 0;
     const salesMap = {};
 
     sales.forEach((s) => {
-      totalRevenue += Number(s.total_price || 0);
+      totalRevenueINR += Number(s.total_price || 0);
       totalItemsSold += Number(s.quantity || 0);
+
       salesMap[s.product_name] =
         (salesMap[s.product_name] || 0) + Number(s.quantity || 0);
     });
@@ -43,22 +50,23 @@ export default function Reports() {
 
     inventory.forEach((p) => {
       const sold = salesMap[p.name] || 0;
+      const stock = Number(p.stock || 0);
 
-      if (p.stock === 0) {
+      if (stock === 0) {
         alerts.push({
           type: "danger",
           title: "Out of Stock",
           msg: `${p.name} is completely out of stock`,
         });
         healthScore -= 10;
-      } else if (p.stock <= 5) {
+      } else if (stock <= settings.lowStockThreshold) {
         alerts.push({
           type: "danger",
           title: "Very Low Stock",
-          msg: `${p.name} has only ${p.stock} units left`,
+          msg: `${p.name} has only ${stock} units left`,
         });
         healthScore -= 7;
-      } else if (p.stock <= 15) {
+      } else if (stock <= 15) {
         alerts.push({
           type: "warning",
           title: "Low Stock",
@@ -67,14 +75,14 @@ export default function Reports() {
         healthScore -= 4;
       }
 
-      if (sold === 0 && p.stock > 0) {
+      if (sold === 0 && stock > 0) {
         alerts.push({
           type: "warning",
           title: "Dead Stock",
           msg: `${p.name} has never been sold`,
         });
         healthScore -= 6;
-      } else if (sold <= 2 && p.stock > 20) {
+      } else if (sold <= 2 && stock > 20) {
         alerts.push({
           type: "info",
           title: "Slow Moving",
@@ -104,12 +112,12 @@ export default function Reports() {
     return {
       totalProducts,
       totalStock,
-      totalRevenue,
+      totalRevenueINR,
       totalItemsSold,
       alerts,
       healthScore,
     };
-  }, [inventory, sales]);
+  }, [inventory, sales, settings.lowStockThreshold]);
 
   if (loading) return null;
 
@@ -140,7 +148,7 @@ export default function Reports() {
 
             <div className="summary-card">
               <span>💰 Total Revenue</span>
-              <strong>₹{report.totalRevenue}</strong>
+              <strong>{format(report.totalRevenueINR)}</strong>
             </div>
 
             <div className="summary-card">
@@ -158,11 +166,15 @@ export default function Reports() {
                 report.healthScore > 70
                   ? "good"
                   : report.healthScore > 40
-                  ? "warning"
-                  : "danger"
+                    ? "warning"
+                    : "danger"
               }`}
             >
-              <div style={{ width: `${report.healthScore}%` }} />
+              <div
+                style={{
+                  width: `${report.healthScore}%`,
+                }}
+              />
             </div>
 
             <p>
