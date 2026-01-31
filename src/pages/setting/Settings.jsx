@@ -1,40 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../dashboard/Sidebar";
 import InventoryTopbar from "../inventory/InventoryTopbar";
 import BackButton from "../../components/BackButton";
+import { useSettings } from "../../context/SettingsContext";
 import "./Settings.css";
 
 export default function Settings() {
-  const [settings, setSettings] = useState({
-    username: "User",
-    email: "user@email.com",
-    autoLogout: 30,
-    loginAlerts: true,
-    lowStockThreshold: 10,
-    blockOutOfStock: true,
-    darkMode: true,
-    currency: "INR",
-  });
+  const { settings, applySettings } = useSettings();
+
+  // 📝 draft copy
+  const [draft, setDraft] = useState(settings);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // sync when navigating back to settings
+  useEffect(() => {
+    setDraft(settings);
+  }, [settings]);
+
   const handleChange = (key, value) => {
-    setSettings({ ...settings, [key]: value });
+    setDraft(prev => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const applyChanges = () => {
     setSaving(true);
 
-    // simulate API call
     setTimeout(() => {
-      console.log("Settings saved:", settings);
-
+      applySettings(draft); // 🔥 THIS is the key
       setSaving(false);
       setSaved(true);
-
       setTimeout(() => setSaved(false), 2500);
-    }, 800);
+    }, 600);
   };
 
   return (
@@ -54,35 +54,38 @@ export default function Settings() {
             {/* ACCOUNT */}
             <section className="settings-card">
               <h3>👤 Account</h3>
-
               <div className="setting-row">
                 <label>Username</label>
                 <input
-                  value={settings.username}
+                  value={draft.username}
                   onChange={(e) =>
                     handleChange("username", e.target.value)
                   }
                 />
               </div>
-
               <div className="setting-row">
                 <label>Email</label>
-                <input value={settings.email} disabled />
+                <input value={draft.email} disabled />
               </div>
             </section>
 
             {/* SECURITY */}
             <section className="settings-card">
               <h3>🔐 Security</h3>
-
               <div className="setting-row">
                 <label>Auto Logout (minutes)</label>
                 <select
-                  value={settings.autoLogout}
+                  value={draft.autoLogout}
                   onChange={(e) =>
-                    handleChange("autoLogout", Number(e.target.value))
+                    handleChange(
+                      "autoLogout",
+                      Number(e.target.value)
+                    )
                   }
                 >
+                  <option value={0}>Never</option>
+                  <option value={1}>1</option>
+                  <option value={5}>5</option>
                   <option value={15}>15</option>
                   <option value={30}>30</option>
                   <option value={60}>60</option>
@@ -93,29 +96,26 @@ export default function Settings() {
                 <label>Login Alerts</label>
                 <input
                   type="checkbox"
-                  checked={settings.loginAlerts}
+                  checked={draft.loginAlerts}
                   onChange={(e) =>
-                    handleChange("loginAlerts", e.target.checked)
+                    handleChange(
+                      "loginAlerts",
+                      e.target.checked
+                    )
                   }
                 />
               </div>
-
-              <button className="danger-btn">Change Password</button>
-              <button className="danger-btn outline">
-                Logout from all devices
-              </button>
             </section>
 
             {/* INVENTORY */}
             <section className="settings-card">
               <h3>📦 Inventory Rules</h3>
-
               <div className="setting-row">
                 <label>Low Stock Threshold</label>
                 <input
                   type="number"
                   min="1"
-                  value={settings.lowStockThreshold}
+                  value={draft.lowStockThreshold}
                   onChange={(e) =>
                     handleChange(
                       "lowStockThreshold",
@@ -129,7 +129,7 @@ export default function Settings() {
                 <label>Block billing when out of stock</label>
                 <input
                   type="checkbox"
-                  checked={settings.blockOutOfStock}
+                  checked={draft.blockOutOfStock}
                   onChange={(e) =>
                     handleChange(
                       "blockOutOfStock",
@@ -143,14 +143,16 @@ export default function Settings() {
             {/* PREFERENCES */}
             <section className="settings-card">
               <h3>⚙ Preferences</h3>
-
               <div className="setting-row">
                 <label>Dark Mode</label>
                 <input
                   type="checkbox"
-                  checked={settings.darkMode}
+                  checked={draft.darkMode}
                   onChange={(e) =>
-                    handleChange("darkMode", e.target.checked)
+                    handleChange(
+                      "darkMode",
+                      e.target.checked
+                    )
                   }
                 />
               </div>
@@ -158,9 +160,12 @@ export default function Settings() {
               <div className="setting-row">
                 <label>Currency</label>
                 <select
-                  value={settings.currency}
+                  value={draft.currency}
                   onChange={(e) =>
-                    handleChange("currency", e.target.value)
+                    handleChange(
+                      "currency",
+                      e.target.value
+                    )
                   }
                 >
                   <option value="INR">₹ INR</option>
@@ -171,7 +176,6 @@ export default function Settings() {
             </section>
           </div>
 
-          {/* APPLY BAR */}
           <div className="settings-footer">
             <button
               className="apply-btn"
@@ -184,10 +188,9 @@ export default function Settings() {
         </main>
       </div>
 
-      {/* SUCCESS TOAST */}
       {saved && (
         <div className="settings-toast">
-          ✅ Settings saved successfully
+          ✅ Changes applied successfully
         </div>
       )}
     </div>
