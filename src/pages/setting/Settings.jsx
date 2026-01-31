@@ -16,13 +16,25 @@ export default function Settings() {
     currency: "INR",
   });
 
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
   const handleChange = (key, value) => {
     setSettings({ ...settings, [key]: value });
   };
 
   const applyChanges = () => {
-    console.log("Applying settings:", settings);
-    alert("Settings saved successfully ✅");
+    setSaving(true);
+
+    // simulate API call
+    setTimeout(() => {
+      console.log("Settings saved:", settings);
+
+      setSaving(false);
+      setSaved(true);
+
+      setTimeout(() => setSaved(false), 2500);
+    }, 800);
   };
 
   return (
@@ -38,9 +50,7 @@ export default function Settings() {
             <h2>Settings</h2>
           </div>
 
-          {/* 🔥 THIS IS THE KEY */}
           <div className="settings-grid">
-
             {/* ACCOUNT */}
             <section className="settings-card">
               <h3>👤 Account</h3>
@@ -70,10 +80,7 @@ export default function Settings() {
                 <select
                   value={settings.autoLogout}
                   onChange={(e) =>
-                    handleChange(
-                      "autoLogout",
-                      Number(e.target.value)
-                    )
+                    handleChange("autoLogout", Number(e.target.value))
                   }
                 >
                   <option value={15}>15</option>
@@ -88,24 +95,18 @@ export default function Settings() {
                   type="checkbox"
                   checked={settings.loginAlerts}
                   onChange={(e) =>
-                    handleChange(
-                      "loginAlerts",
-                      e.target.checked
-                    )
+                    handleChange("loginAlerts", e.target.checked)
                   }
                 />
               </div>
 
-              <button className="danger-btn">
-                Change Password
-              </button>
-
+              <button className="danger-btn">Change Password</button>
               <button className="danger-btn outline">
                 Logout from all devices
               </button>
             </section>
 
-            {/* INVENTORY RULES */}
+            {/* INVENTORY */}
             <section className="settings-card">
               <h3>📦 Inventory Rules</h3>
 
@@ -168,7 +169,6 @@ export default function Settings() {
                 </select>
               </div>
             </section>
-
           </div>
 
           {/* APPLY BAR */}
@@ -176,12 +176,20 @@ export default function Settings() {
             <button
               className="apply-btn"
               onClick={applyChanges}
+              disabled={saving}
             >
-              Apply Changes
+              {saving ? "Saving..." : "Apply Changes"}
             </button>
           </div>
         </main>
       </div>
+
+      {/* SUCCESS TOAST */}
+      {saved && (
+        <div className="settings-toast">
+          ✅ Settings saved successfully
+        </div>
+      )}
     </div>
   );
 }

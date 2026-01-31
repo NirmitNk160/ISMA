@@ -17,8 +17,7 @@
 .settings-content {
   flex: 1;
   padding: 40px 56px;
-  width: 100%;
-  max-width: 1600px; /* 🔥 WIDE LIKE ADMIN PANEL */
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -34,7 +33,6 @@
 .settings-header h2 {
   font-size: 28px;
   font-weight: 800;
-  color: #f8fafc;
 }
 
 /* ================= GRID ================= */
@@ -43,7 +41,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(420px, 1fr));
   gap: 32px;
-  align-items: start;
 }
 
 /* ================= CARD ================= */
@@ -55,20 +52,15 @@
   padding: 28px 30px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
-  overflow: visible; /* 🔥 fixes dropdown overlap */
 }
 
 .settings-card h3 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 22px;
-  color: #f8fafc;
 }
 
-/* ================= FORM ROWS ================= */
+/* ================= FORM ================= */
 
 .setting-row {
   display: flex;
@@ -78,14 +70,6 @@
   margin-bottom: 20px;
 }
 
-.setting-row label {
-  font-size: 14px;
-  opacity: 0.85;
-  line-height: 1.4;
-}
-
-/* ================= INPUTS ================= */
-
 .settings-card input,
 .settings-card select {
   min-width: 200px;
@@ -93,25 +77,13 @@
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  font-size: 14px;
-  outline: none;
-  position: relative;
-  z-index: 3;
+  color: #fff;
 }
-
-.settings-card select option {
-  background-color: #1e234a;
-  color: #ffffff;
-}
-
-/* ================= CHECKBOX ================= */
 
 .settings-card input[type="checkbox"] {
   width: 18px;
   height: 18px;
   accent-color: #a855f7;
-  cursor: pointer;
 }
 
 /* ================= BUTTONS ================= */
@@ -120,25 +92,18 @@
   width: 100%;
   margin-top: 14px;
   background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #ffffff;
+  color: #fff;
   border: none;
   padding: 14px;
   border-radius: 14px;
   font-weight: 800;
   cursor: pointer;
-  font-size: 14px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .danger-btn.outline {
   background: transparent;
   border: 1px solid rgba(239, 68, 68, 0.6);
   color: #f87171;
-}
-
-.danger-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(239, 68, 68, 0.45);
 }
 
 /* ================= APPLY BAR ================= */
@@ -149,7 +114,6 @@
   justify-content: center;
   position: sticky;
   bottom: 24px;
-  z-index: 5;
 }
 
 .apply-btn {
@@ -160,14 +124,38 @@
   font-weight: 900;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  letter-spacing: 0.3px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.apply-btn:hover {
-  transform: translateY(-2px);
+.apply-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ================= TOAST ================= */
+
+.settings-toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #022c22;
+  padding: 16px 22px;
+  border-radius: 14px;
+  font-weight: 800;
   box-shadow: 0 18px 40px rgba(34, 197, 94, 0.45);
+  z-index: 999;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ================= RESPONSIVE ================= */
@@ -175,19 +163,5 @@
 @media (max-width: 1200px) {
   .settings-grid {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .settings-body {
-    flex-direction: column;
-  }
-
-  .settings-content {
-    padding: 24px;
-  }
-
-  .settings-footer {
-    justify-content: center;
   }
 }
