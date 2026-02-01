@@ -1,10 +1,22 @@
 /* =====================================================
-   DASHBOARD — ISMA
-   Uses theme.css variables (dark / light safe)
+   DASHBOARD — ISMA (FINAL & STABLE)
    ===================================================== */
 
-/* ================= ROOT ================= */
+/* ---------- Global Safety ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ---------- Root ---------- */
 .dashboard-root {
   min-height: 100vh;
   background: var(--app-bg);
@@ -12,246 +24,258 @@
   font-family: "Inter", system-ui, sans-serif;
 }
 
-/* ================= LAYOUT ================= */
-
+/* ---------- Layout ---------- */
 .dashboard-body {
   display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
-/* ================= SIDEBAR ================= */
-
-.sidebar {
-  width: 240px;
-  padding: 28px 22px;
-  background: var(--card-bg-solid);
-  border-right: 1px solid var(--border-soft);
-}
-
-.sidebar .logo {
-  font-size: 24px;
-  font-weight: 900;
-  color: var(--accent);
-  margin-bottom: 36px;
-  letter-spacing: 1px;
-}
-
-.sidebar nav a {
-  display: block;
-  padding: 12px 16px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 600;
-
-  transition: background 0.2s ease,
-              color 0.2s ease,
-              transform 0.15s ease;
-}
-
-.sidebar nav a:hover {
-  background: var(--row-hover);
-  color: var(--text-primary);
-}
-
-.sidebar nav a.active {
-  background: linear-gradient(
-    135deg,
-    var(--accent-soft),
-    rgba(99, 102, 241, 0.18)
-  );
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-/* ================= CONTENT ================= */
-
+/* ---------- Content ---------- */
 .content {
   flex: 1;
-  padding: 36px 42px;
+  padding: 40px 48px;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
-/* ================= PAGE HEADER ================= */
-
+/* ---------- Header ---------- */
 .page-header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   margin-bottom: 32px;
 }
 
 .page-title {
-  font-size: 26px;
-  font-weight: 900;
-  letter-spacing: 0.4px;
-}
-
-/* ================= ERROR ================= */
-
-.error-msg {
-  margin-bottom: 20px;
-  padding: 14px 18px;
-  border-radius: 14px;
-
-  background: var(--danger-bg);
-  color: var(--danger-text);
-  font-weight: 700;
-
-  box-shadow: var(--danger-shadow);
-}
-
-/* ================= STATS ================= */
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
-}
-
-/* ================= CARD ================= */
-
-.card {
-  background: var(--card-bg-solid);
-  border-radius: 20px;
-  padding: 24px;
-
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--card-shadow);
-
-  transition: transform 0.2s ease,
-              box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45);
-}
-
-/* ================= STAT CARD ================= */
-
-.stat-card .stat-title {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-
-  color: var(--text-muted);
-}
-
-.stat-card .stat-value {
-  margin-top: 12px;
   font-size: 32px;
   font-weight: 900;
-  letter-spacing: 0.6px;
 }
 
-/* ================= GRID ================= */
+/* ---------- Stats ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
 
+/* ---------- Card ---------- */
+.card {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 41, 59, 0.85),
+    rgba(15, 23, 42, 0.9)
+  );
+  border-radius: 22px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Grid ---------- */
 .grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
-  margin-top: 36px;
+  grid-template-columns: 3fr 2fr;
+  gap: 28px;
+  margin-top: 40px;
 }
 
-/* ================= CHART ================= */
-
+/* ---------- Chart ---------- */
 .chart-placeholder {
-  margin-top: 18px;
-  height: 240px;
-
-  border-radius: 16px;
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.85),
-    rgba(15, 23, 42, 0.85)
+  height: 280px;
+  border-radius: 18px;
+  background: radial-gradient(
+    circle at top,
+    rgba(99, 102, 241, 0.3),
+    rgba(15, 23, 42, 0.9)
   );
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  font-size: 14px;
-  font-weight: 600;
-  opacity: 0.7;
 }
 
-/* ================= PROGRESS ================= */
-
-.progress {
-  margin-top: 20px;
-}
-
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.progress-bar {
-  height: 10px;
-  margin-top: 10px;
-  border-radius: 999px;
-
-  background: var(--row-hover);
-  overflow: hidden;
-}
-
-.progress-bar div {
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--accent),
-    var(--accent-strong)
-  );
-  transition: width 0.6s ease;
-}
-
-/* ================= RESPONSIVE ================= */
-
+/* =====================================================
+   TABLET
+   ===================================================== */
 @media (max-width: 1024px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }
 
   .content {
-    padding: 28px;
+    padding: 32px 24px;
   }
 }
 
+/* =====================================================
+   MOBILE
+   ===================================================== */
 @media (max-width: 768px) {
   .dashboard-body {
     flex-direction: column;
   }
 
-  .sidebar {
-    width: 100%;
-    display: flex;
-    overflow-x: auto;
+  .content {
+    padding: 20px 16px;
   }
 
-  .sidebar nav {
-    display: flex;
-    gap: 10px;
+  .stats {
+    grid-template-columns: 1fr;
   }
 
-  .sidebar nav a {
-    white-space: nowrap;
-    margin-bottom: 0;
-  }
-}
-
-@media (max-width: 480px) {
   .page-title {
     font-size: 22px;
   }
+}
 
-  .card {
-    padding: 20px;
+/* =====================================================
+   MOBILE MENU BUTTON (☰)
+   ===================================================== */
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 26px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .menu-btn {
+    display: block;
+  }
+}
+
+/* =====================================================
+   SIDEBAR OVERLAY
+   ===================================================== */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 900;
+}
+
+/* =====================================================
+   DASHBOARD — THEME ALIGNMENT FIX (DARK + LIGHT)
+   Uses theme.css variables ONLY
+   ===================================================== */
+
+/* Dashboard background */
+.dashboard-root {
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+/* Content area */
+.content {
+  background: transparent;
+}
+
+/* Cards (stats, monthly recap, top products) */
+.card,
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+  color: var(--text-primary);
+}
+
+/* Card titles */
+.card h3,
+.stat-title {
+  color: var(--text-secondary);
+}
+
+/* Card values */
+.stat-value {
+  color: var(--text-primary);
+}
+
+/* Chart placeholder */
+.chart-placeholder {
+  background: radial-gradient(
+    circle at top,
+    var(--accent-soft),
+    transparent 70%
+  );
+  color: var(--text-muted);
+}
+
+/* Page title */
+.page-title {
+  color: var(--text-primary);
+}
+
+/* Back button + icons */
+.page-header button,
+.page-header svg {
+  color: var(--text-primary);
+}
+
+/* Hover consistency */
+.card:hover {
+  box-shadow: var(--card-shadow);
+}
+
+/* =====================================================
+   DASHBOARD — HOVER EFFECT (DARK + LIGHT MODE)
+   Theme-aware & subtle
+   ===================================================== */
+
+/* Cards hover */
+.card,
+.stat-card {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+/* Hover effect */
+.card:hover,
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-soft);
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.25),
+    0 0 0 1px var(--accent-soft);
+}
+
+/* Light mode refinement */
+body.light-mode .card:hover,
+body.light-mode .stat-card:hover {
+  box-shadow:
+    0 14px 32px rgba(15, 23, 42, 0.18),
+    0 0 0 1px var(--accent-soft);
+}
+
+/* Chart placeholder hover */
+.chart-placeholder {
+  transition: background 0.3s ease, transform 0.25s ease;
+}
+
+.chart-placeholder:hover {
+  background: radial-gradient(
+    circle at top,
+    var(--accent-soft),
+    transparent 75%
+  );
+  transform: scale(1.02);
+}
+
+/* Disable hover lift on touch devices */
+@media (hover: none) {
+  .card:hover,
+  .stat-card:hover {
+    transform: none;
+    box-shadow: var(--card-shadow);
   }
 }

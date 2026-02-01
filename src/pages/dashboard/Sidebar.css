@@ -1,20 +1,28 @@
-/* =========================================================
-   SIDEBAR — ISMA (FIXED & UPGRADED)
-   ========================================================= */
+/* =====================================================
+   SIDEBAR — ISMA (FINAL, CLEAN, WORKING)
+   ===================================================== */
+
+/* ================= DESKTOP ================= */
 
 .sidebar {
   width: 260px;
-  min-height: calc(100vh - 64px);
+  min-height: 100vh;
+  padding: 28px 22px;
 
-  padding: 32px 24px;
-  background: var(--app-bg-alt);
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.96),
+    rgba(2, 6, 23, 0.96)
+  );
 
   border-right: 1px solid var(--border-soft);
+  flex-shrink: 0;
+  z-index: 1000;
 }
 
 /* LOGO */
 .sidebar .logo {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 900;
   color: var(--accent);
   margin-bottom: 36px;
@@ -27,61 +35,126 @@
   gap: 10px;
 }
 
-/* LINKS */
 .sidebar nav a {
-  display: block;
-
-  padding: 12px 18px;
+  padding: 14px 18px;
   border-radius: 14px;
-
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
-
   color: var(--text-secondary);
-
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
 }
 
-/* HOVER */
+.sidebar nav a:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--text-primary);
+}
+
+.sidebar nav a.active {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.35),
+    rgba(99, 102, 241, 0.18)
+  );
+  color: #fff;
+}
+
+/* CLOSE BUTTON (hidden by default) */
+.close-btn {
+  display: none;
+}
+
+/* =====================================================
+   MOBILE ONLY (≤768px)
+   ===================================================== */
+
+@media (max-width: 768px) {
+
+  /* Sidebar becomes slide-in drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    z-index: 2000;
+  }
+
+  /* When opened */
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Show close button */
+  .close-btn {
+    display: block;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+  }
+}
+
+/* =====================================================
+   THEME OPTIMIZATION (DARK + LIGHT MODE)
+   Paste at END — NO layout changes
+   ===================================================== */
+
+/* Sidebar background adapts to theme */
+.sidebar {
+  background: var(--app-bg-alt);
+  color: var(--text-primary);
+}
+
+/* Nav link colors */
+.sidebar nav a {
+  color: var(--text-secondary);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
+}
+
+/* Hover effect (theme-aware) */
 .sidebar nav a:hover {
   background: var(--row-hover);
   color: var(--text-primary);
-  transform: translateX(4px);
+  transform: translateX(2px);
 }
 
-/* ACTIVE */
+/* Active link */
 .sidebar nav a.active {
   background: linear-gradient(
     135deg,
     var(--accent-soft),
-    rgba(99, 102, 241, 0.18)
+    transparent
   );
-
   color: var(--text-primary);
-  font-weight: 700;
 }
 
-/* ================= MOBILE ================= */
+/* Light mode refinement */
+body.light-mode .sidebar {
+  box-shadow: 6px 0 24px rgba(15, 23, 42, 0.08);
+}
 
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    min-height: auto;
+body.light-mode .sidebar nav a.active {
+  background: linear-gradient(
+    135deg,
+    var(--accent-soft),
+    rgba(255, 255, 255, 0.6)
+  );
+}
 
-    display: flex;
-    overflow-x: auto;
-  }
-
-  .sidebar nav {
-    flex-direction: row;
-    gap: 12px;
-  }
-
-  .sidebar nav a {
-    white-space: nowrap;
+/* Touch devices — disable hover movement */
+@media (hover: none) {
+  .sidebar nav a:hover {
+    transform: none;
   }
 }

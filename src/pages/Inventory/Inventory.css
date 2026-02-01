@@ -275,3 +275,133 @@
     padding: 18px;
   }
 }
+
+/* =====================================================
+   INVENTORY — MODERN MOBILE & TABLET LAYOUT
+   Theme-safe (Dark + Light)
+   ===================================================== */
+
+/* ---------- MOBILE & TABLET ---------- */
+@media (max-width: 1024px) {
+
+  /* Page padding */
+  .inventory-content {
+    padding: 20px 16px;
+  }
+
+  /* Action bar stacks nicely */
+  .inventory-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  /* Add Product button → primary CTA */
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 15px;
+    padding: 14px 20px;
+  }
+
+  /* Search full width */
+  .inventory-search {
+    max-width: 100%;
+  }
+
+  /* Remove table look */
+  .inventory-table {
+    display: block;
+    min-width: 100%;
+  }
+
+  .inventory-table thead {
+    display: none;
+  }
+
+  .inventory-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Product card */
+  .inventory-table tr {
+    display: grid;
+    gap: 10px;
+
+    background: var(--card-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    padding: 16px;
+
+    box-shadow: var(--card-shadow);
+  }
+
+  /* Row items */
+  .inventory-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border: none;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  /* Label */
+  .inventory-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Product name emphasis */
+  .inventory-table td[data-label="Product"] {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--text-primary);
+  }
+
+  /* Status pill */
+  .status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+
+  /* Actions row */
+  .inventory-table td[data-label="Action"] {
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  /* Buttons touch friendly */
+  .edit-btn,
+  .delete-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+}
+
+/* ---------- SMALL PHONES ---------- */
+@media (max-width: 480px) {
+
+  .inventory-title {
+    font-size: 22px;
+  }
+
+  .inventory-table tr {
+    padding: 14px;
+  }
+
+  .add-btn {
+    font-size: 14px;
+  }
+}

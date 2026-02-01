@@ -1,15 +1,25 @@
 import { NavLink } from "react-router-dom";
-import "./sidebar.css";
+import "./Sidebar.css";
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, onClose }) {
   const linkClass = ({ isActive }) =>
     isActive ? "active" : "";
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+      
+      {/* ❌ CLOSE BUTTON — PHONE ONLY */}
+      <button
+        className="close-btn"
+        aria-label="Close menu"
+        onClick={onClose}
+      >
+        ✕
+      </button>
+
       <h2 className="logo">ISMA</h2>
 
-      <nav>
+      <nav onClick={onClose}>
         <NavLink to="/dashboard" className={linkClass}>
           Dashboard
         </NavLink>
