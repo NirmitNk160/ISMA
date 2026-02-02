@@ -8,7 +8,7 @@ import Sidebar from "./Sidebar";
 import StatCard from "./StatCard";
 import Progress from "./Progress";
 import { useCurrency } from "../../context/CurrencyContext";
-
+//hi
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
