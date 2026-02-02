@@ -11,35 +11,54 @@ export default function Navbar() {
   const { isAuthenticated, logout } = useAuth();
 
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  /* ================= FETCH PROFILE ================= */
+  /* ================= FETCH PROFILE (SQL) ================= */
   useEffect(() => {
     if (!isAuthenticated) {
       setProfile(null);
+      setLoading(false);
       return;
     }
 
     api
       .get("/auth/profile")
       .then((res) => setProfile(res.data))
-      .catch(() => logout());
+      .catch(() => logout())
+      .finally(() => setLoading(false));
   }, [isAuthenticated, logout]);
 
-  /* ================= VALUES ================= */
-  const username = profile?.username || "User";
-  const shopName = profile?.shop_name || "ISMA Inventory";
-  const avatarText = username.slice(0, 2).toUpperCase();
+  /* ================= DERIVED VALUES ================= */
+  const username =
+    profile?.username ||
+    profile?.email?.split("@")[0] ||
+    "User";
 
-  const hideBack =
-    location.pathname === "/" ||
-    location.pathname === "/dashboard";
+  const shopName =
+    profile?.shop_name ||
+    profile?.shopName ||
+    "ISMA Inventory";
+
+  const avatarText = username
+    .slice(0, 2)
+    .toUpperCase();
+
+  const showBack =
+    !["/", "/dashboard"].includes(location.pathname);
+
+  if (loading) return null;
 
   return (
     <nav className="navbar">
       {/* LEFT */}
       <div className="navbar-left">
-        {!hideBack && <BackButton />}
-        <h1 className="logo">{shopName}</h1>
+        {showBack && <BackButton />}
+        <h1
+          className="logo"
+          onClick={() => navigate("/dashboard")}
+        >
+          {shopName}
+        </h1>
       </div>
 
       {/* RIGHT */}
@@ -62,9 +81,10 @@ export default function Navbar() {
               👋 Welcome, {username}
             </span>
 
+            {/* AVATAR */}
             <div
               className="avatar"
-              title="Profile"
+              title={`${username} • Profile`}
               onClick={() => navigate("/profile")}
             >
               {avatarText}
