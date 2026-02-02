@@ -31,9 +31,7 @@ export default function Inventory() {
       const res = await api.get("/inventory");
       setProducts(res.data);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to load inventory"
-      );
+      setError(err.response?.data?.message || "Failed to load inventory");
     } finally {
       setLoading(false);
     }
@@ -54,9 +52,7 @@ export default function Inventory() {
       setDeleteId(null);
       fetchProducts();
     } catch (err) {
-      alert(
-        err.response?.data?.message || "Failed to delete product"
-      );
+      alert(err.response?.data?.message || "Failed to delete product");
     } finally {
       setDeleting(false);
     }
@@ -65,7 +61,7 @@ export default function Inventory() {
   /* ================= SEARCH FILTER ================= */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
+      p.name.toLowerCase().includes(search.toLowerCase()),
     );
   }, [products, search]);
 
@@ -113,15 +109,11 @@ export default function Inventory() {
             />
           </div>
 
-          {error && (
-            <div className="error-msg">❌ {error}</div>
-          )}
+          {error && <div className="error-msg">❌ {error}</div>}
 
           <div className="inventory-card">
             {loading ? (
-              <p style={{ padding: "1.5rem" }}>
-                Loading inventory…
-              </p>
+              <p style={{ padding: "1.5rem" }}>Loading inventory…</p>
             ) : (
               <table className="inventory-table">
                 <thead>
@@ -147,28 +139,20 @@ export default function Inventory() {
                         <td>{p.category}</td>
                         <td>{p.stock}</td>
                         <td>{format(Number(p.price))}</td>
-                        <td
-                          className={`status ${status.className}`}
-                        >
+                        <td className={`status ${status.className}`}>
                           {status.label}
                         </td>
                         <td>
                           <button
                             className="edit-btn"
-                            onClick={() =>
-                              navigate(
-                                `/inventory/edit/${p.id}`
-                              )
-                            }
+                            onClick={() => navigate(`/inventory/edit/${p.id}`)}
                           >
                             ✏️ Edit
                           </button>
 
                           <button
                             className="delete-btn"
-                            onClick={() =>
-                              setDeleteId(p.id)
-                            }
+                            onClick={() => setDeleteId(p._id)}
                           >
                             🗑 Delete
                           </button>
@@ -179,10 +163,7 @@ export default function Inventory() {
 
                   {filteredProducts.length === 0 && (
                     <tr>
-                      <td
-                        colSpan="7"
-                        style={{ textAlign: "center" }}
-                      >
+                      <td colSpan="7" style={{ textAlign: "center" }}>
                         No products found
                       </td>
                     </tr>
@@ -199,9 +180,7 @@ export default function Inventory() {
         <div className="modal-overlay">
           <div className="delete-modal">
             <h3>Delete Product</h3>
-            <p>
-              Are you sure you want to delete this product?
-            </p>
+            <p>Are you sure you want to delete this product?</p>
 
             <div className="modal-actions">
               <button
