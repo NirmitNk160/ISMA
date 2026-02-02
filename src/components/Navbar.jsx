@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
 import BackButton from "./BackButton";
@@ -7,10 +7,12 @@ import "./navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, logout } = useAuth();
 
   const [profile, setProfile] = useState(null);
 
+  /* ================= FETCH PROFILE ================= */
   useEffect(() => {
     if (!isAuthenticated) {
       setProfile(null);
@@ -23,18 +25,30 @@ export default function Navbar() {
       .catch(() => logout());
   }, [isAuthenticated, logout]);
 
+  /* ================= VALUES ================= */
   const username = profile?.username || "User";
-  const avatarLetter = username.charAt(0).toUpperCase();
+  const shopName = profile?.shop_name || "ISMA Inventory";
+  const avatarText = username.slice(0, 2).toUpperCase();
+
+  const hideBack =
+    location.pathname === "/" ||
+    location.pathname === "/dashboard";
 
   return (
     <nav className="navbar">
-      <BackButton />
-      <h1 className="logo">ISMA</h1>
+      {/* LEFT */}
+      <div className="navbar-left">
+        {!hideBack && <BackButton />}
+        <h1 className="logo">{shopName}</h1>
+      </div>
 
-      <div className="nav-links">
+      {/* RIGHT */}
+      <div className="navbar-right">
         {!isAuthenticated ? (
           <>
-            <button onClick={() => navigate("/login")}>Login</button>
+            <button onClick={() => navigate("/login")}>
+              Login
+            </button>
             <button
               className="nav-btn"
               onClick={() => navigate("/register")}
@@ -45,19 +59,21 @@ export default function Navbar() {
         ) : (
           <div className="welcome-box">
             <span className="welcome-text">
-              👋 Welcome {username}
+              👋 Welcome, {username}
             </span>
 
-            {/* Avatar */}
             <div
               className="avatar"
+              title="Profile"
               onClick={() => navigate("/profile")}
-              title={username}
             >
-              {avatarLetter}
+              {avatarText}
             </div>
 
-            <button className="logout-btn" onClick={logout}>
+            <button
+              className="logout-btn"
+              onClick={logout}
+            >
               Logout
             </button>
           </div>

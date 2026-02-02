@@ -3,7 +3,7 @@ import "./Dashboard.css";
 
 import api from "../../api/axios";
 import BackButton from "../../components/BackButton";
-import InventoryTopbar from "../Inventory/InventoryTopbar";
+import Navbar from "../../components/Navbar";
 import Sidebar from "./Sidebar";
 import StatCard from "./StatCard";
 import Progress from "./Progress";
@@ -30,7 +30,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="dashboard-root">
-        <InventoryTopbar />
+        <Navbar />
         <div className="dashboard-body">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className="content">Loading…</main>
@@ -41,7 +41,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-root">
-      <InventoryTopbar />
+      <Navbar />
 
       <div className="dashboard-body">
         {/* ✅ DARK OVERLAY (MOBILE ONLY VIA CSS) */}

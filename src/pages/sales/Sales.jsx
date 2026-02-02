@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
 import Sidebar from "../dashboard/Sidebar";
-import InventoryTopbar from "../Inventory/InventoryTopbar";
-import BackButton from "../../components/BackButton";
+import Navbar from "../../components/Navbar";import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";
 import "./Sales.css";
 
@@ -56,7 +55,7 @@ export default function Sales() {
   /* ================= UI ================= */
   return (
     <div className="sales-root">
-      <InventoryTopbar />
+      <Navbar />
 
       <div className="sales-body">
         <Sidebar />

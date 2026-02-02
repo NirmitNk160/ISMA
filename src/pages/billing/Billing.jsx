@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
 import Sidebar from "../dashboard/Sidebar";
-import InventoryTopbar from "../inventory/InventoryTopbar";
-import BackButton from "../../components/BackButton";
+import Navbar from "../../components/Navbar";import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";
 import { useCurrency } from "../../context/CurrencyContext";
 
@@ -120,7 +119,7 @@ export default function Billing() {
   /* -------------------- UI -------------------- */
   return (
     <div className="billing-root">
-      <InventoryTopbar />
+      <Navbar />
 
       <div className="billing-body">
         <Sidebar />
