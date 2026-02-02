@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import api from "../../api/axios";
-import InventoryTopbar from "./InventoryTopbar";
+import Navbar from "../../components/Navbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";
@@ -102,7 +102,7 @@ export default function EditProduct() {
   if (loading) {
     return (
       <div className="add-product-root">
-        <InventoryTopbar />
+        <Navbar />
         <div className="add-product-body">
           <Sidebar />
           <main className="add-product-content">
@@ -115,7 +115,7 @@ export default function EditProduct() {
 
   return (
     <div className="add-product-root">
-      <InventoryTopbar />
+      <Navbar />
 
       <div className="add-product-body">
         <Sidebar />

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../dashboard/Sidebar";
-import InventoryTopbar from "../inventory/InventoryTopbar";
-import BackButton from "../../components/BackButton";
+import Navbar from "../../components/Navbar";import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";
 import "./Settings.css";
 
@@ -39,7 +38,7 @@ export default function Settings() {
 
   return (
     <div className="settings-root">
-      <InventoryTopbar />
+      <Navbar />
 
       <div className="settings-body">
         <Sidebar />

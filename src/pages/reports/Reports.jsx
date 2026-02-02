@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import api from "../../api/axios";
 
 import Sidebar from "../dashboard/Sidebar";
-import InventoryTopbar from "../inventory/InventoryTopbar";
-import BackButton from "../../components/BackButton";
+import Navbar from "../../components/Navbar";import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useSettings } from "../../context/SettingsContext";
 
@@ -123,7 +122,7 @@ export default function Reports() {
 
   return (
     <div className="reports-root">
-      <InventoryTopbar />
+      <Navbar />
 
       <div className="reports-body">
         <Sidebar />

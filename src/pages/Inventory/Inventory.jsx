@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
 import BackButton from "../../components/BackButton";
-import InventoryTopbar from "./InventoryTopbar";
+import Navbar from "../../components/Navbar";
 import Sidebar from "../dashboard/Sidebar";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useSettings } from "../../context/SettingsContext";
@@ -85,7 +85,7 @@ export default function Inventory() {
   /* ================= UI ================= */
   return (
     <div className="inventory-root">
-      <InventoryTopbar />
+      <Navbar />
 
       <div className="inventory-body">
         <Sidebar />
