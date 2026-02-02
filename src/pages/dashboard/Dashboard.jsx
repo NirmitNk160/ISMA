@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
 import api from "../../api/axios";
@@ -10,6 +11,8 @@ import Progress from "./Progress";
 import { useCurrency } from "../../context/CurrencyContext";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,6 +22,7 @@ export default function Dashboard() {
 
   const { format } = useCurrency();
 
+  /* ================= FETCH DASHBOARD DATA ================= */
   useEffect(() => {
     api
       .get("/dashboard")
@@ -27,24 +31,29 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
+  /* ================= LOADING STATE ================= */
   if (loading) {
     return (
       <div className="dashboard-root">
         <Navbar />
         <div className="dashboard-body">
-          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-          <main className="content">Loading…</main>
+          <Sidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+          <main className="content">Loading dashboard…</main>
         </div>
       </div>
     );
   }
 
+  /* ================= UI ================= */
   return (
     <div className="dashboard-root">
       <Navbar />
 
       <div className="dashboard-body">
-        {/* ✅ DARK OVERLAY (MOBILE ONLY VIA CSS) */}
+        {/* 🔥 DARK OVERLAY (MOBILE) */}
         {sidebarOpen && (
           <div
             className="sidebar-overlay"
@@ -52,16 +61,17 @@ export default function Dashboard() {
           />
         )}
 
-        {/* ✅ SIDEBAR */}
+        {/* 🔥 SIDEBAR */}
         <Sidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
-        {/* ✅ MAIN CONTENT */}
+        {/* 🔥 MAIN CONTENT */}
         <main className="content">
+          {/* HEADER */}
           <div className="page-header">
-            {/* ☰ MENU BUTTON (CSS HIDES ON DESKTOP) */}
+            {/* ☰ MENU BUTTON (MOBILE ONLY VIA CSS) */}
             <button
               className="menu-btn"
               aria-label="Open menu"
@@ -71,11 +81,15 @@ export default function Dashboard() {
             </button>
 
             <BackButton />
+
             <h2 className="page-title">Analytics</h2>
           </div>
 
-          {error && <div className="error-msg">❌ {error}</div>}
+          {error && (
+            <div className="error-msg">❌ {error}</div>
+          )}
 
+          {/* ================= STATS ================= */}
           <section className="stats">
             <StatCard
               title="Total Revenue"
@@ -91,6 +105,7 @@ export default function Dashboard() {
             />
           </section>
 
+          {/* ================= GRID ================= */}
           <section className="grid">
             <div className="card chart">
               <h3>Monthly Recap</h3>
@@ -101,6 +116,7 @@ export default function Dashboard() {
 
             <div className="card">
               <h3>Top Products</h3>
+
               {stats?.topProducts?.length ? (
                 stats.topProducts.map((p) => (
                   <Progress

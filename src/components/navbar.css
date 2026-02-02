@@ -1,5 +1,5 @@
 /* =========================================================
-   NAVBAR — ISMA (Global)
+   NAVBAR — ISMA (Global, Clean & Professional)
    ========================================================= */
 
 .navbar {
@@ -8,37 +8,51 @@
   z-index: 1000;
 
   height: 64px;
+  width: 100%;
   padding: 0 32px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  background: var(--card-bg-glass);
-  backdrop-filter: blur(14px);
-
-  border-bottom: 1px solid var(--border-soft);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* ================= LEFT ================= */
 
-.navbar .logo {
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
   font-size: 22px;
   font-weight: 900;
-  color: var(--accent);
+  color: #38bdf8;
   cursor: pointer;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+/* Back button spacing */
+.navbar .back-btn {
+  margin-right: 6px;
 }
 
 /* ================= RIGHT ================= */
 
-.nav-links {
+.navbar-right {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
 }
 
-/* Login / Register buttons */
-.nav-links button {
+/* ================= AUTH BUTTONS ================= */
+
+.navbar-right button {
   padding: 8px 16px;
   border-radius: 10px;
 
@@ -46,25 +60,22 @@
   font-weight: 600;
   cursor: pointer;
 
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   background: transparent;
-  color: var(--text-primary);
+  color: #e5e7eb;
 
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.nav-links button:hover {
-  background: var(--row-hover);
+.navbar-right button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 /* Primary CTA */
 .nav-btn {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-strong)
-  ) !important;
-  color: var(--text-invert) !important;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
+  color: #020617 !important;
   border: none !important;
 }
 
@@ -78,57 +89,51 @@
 
 .welcome-text {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: #cbd5f5;
   white-space: nowrap;
 }
 
-/* Avatar */
+/* ================= AVATAR ================= */
+
 .avatar {
   width: 38px;
   height: 38px;
   border-radius: 50%;
 
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-strong)
-  );
-  color: var(--text-invert);
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #020617;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   font-weight: 800;
+  font-size: 14px;
   cursor: pointer;
 
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .avatar:hover {
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.45);
 }
 
-/* Logout */
+/* ================= LOGOUT ================= */
+
 .logout-btn {
   background: transparent;
-  color: var(--danger-text);
-  border: 1px solid var(--danger-border);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.5);
 }
 
 .logout-btn:hover {
-  background: rgba(239, 68, 68, 0.12);
-}
-
-/* ================= BACK BUTTON FIX ================= */
-
-.navbar .back-btn {
-  margin-right: 14px;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 /* ================= MOBILE ================= */
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .navbar {
     padding: 0 16px;
   }
@@ -138,37 +143,12 @@
   }
 }
 
-.navbar {
-  height: 64px;
-  width: 100%;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 0 32px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.logo.clickable {
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.logo {
-  font-size: 20px;
-  font-weight: 800;
-  color: #38bdf8;
-}
-
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.logo.clickable:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
