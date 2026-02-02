@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
-import BackButton from "../../components/BackButton";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../dashboard/Sidebar";
+import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useSettings } from "../../context/SettingsContext";
 
@@ -13,13 +13,15 @@ import "./Inventory.css";
 export default function Inventory() {
   const navigate = useNavigate();
   const { format } = useCurrency();
-  const { settings } = useSettings(); // 🔥 LOW STOCK THRESHOLD
+  const { settings } = useSettings();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [deleteId, setDeleteId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
   const [search, setSearch] = useState("");
 
   /* ================= FETCH PRODUCTS ================= */
@@ -31,7 +33,9 @@ export default function Inventory() {
       const res = await api.get("/inventory");
       setProducts(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load inventory");
+      setError(
+        err.response?.data?.message || "Failed to load inventory"
+      );
     } finally {
       setLoading(false);
     }
@@ -41,7 +45,7 @@ export default function Inventory() {
     fetchProducts();
   }, []);
 
-  /* ================= DELETE PRODUCT ================= */
+  /* ================= DELETE ================= */
   const confirmDelete = async () => {
     if (!deleteId || deleting) return;
 
@@ -52,28 +56,30 @@ export default function Inventory() {
       setDeleteId(null);
       fetchProducts();
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete product");
+      setError(
+        err.response?.data?.message ||
+          "Unable to delete product"
+      );
+      setDeleteId(null);
     } finally {
       setDeleting(false);
     }
   };
 
-  /* ================= SEARCH FILTER ================= */
+  /* ================= SEARCH ================= */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()),
+      p.name.toLowerCase().includes(search.toLowerCase())
     );
   }, [products, search]);
 
-  /* ================= STOCK STATUS LOGIC ================= */
+  /* ================= STOCK STATUS ================= */
   const getStatus = (stock) => {
-    if (stock === 0) {
+    if (stock === 0)
       return { label: "Out of Stock", className: "out" };
-    }
 
-    if (stock <= settings.lowStockThreshold) {
+    if (stock <= settings.lowStockThreshold)
       return { label: "Low Stock", className: "low" };
-    }
 
     return { label: "In Stock", className: "in" };
   };
@@ -101,9 +107,8 @@ export default function Inventory() {
             </button>
 
             <input
-              type="text"
-              placeholder="Search product..."
               className="inventory-search"
+              placeholder="Search product..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -113,7 +118,9 @@ export default function Inventory() {
 
           <div className="inventory-card">
             {loading ? (
-              <p style={{ padding: "1.5rem" }}>Loading inventory…</p>
+              <p style={{ padding: "1.5rem" }}>
+                Loading inventory…
+              </p>
             ) : (
               <table className="inventory-table">
                 <thead>
@@ -139,20 +146,32 @@ export default function Inventory() {
                         <td>{p.category}</td>
                         <td>{p.stock}</td>
                         <td>{format(Number(p.price))}</td>
+
                         <td className={`status ${status.className}`}>
                           {status.label}
                         </td>
+
                         <td>
                           <button
                             className="edit-btn"
-                            onClick={() => navigate(`/inventory/edit/${p.id}`)}
+                            onClick={() =>
+                              navigate(`/inventory/edit/${p.id}`)
+                            }
                           >
                             ✏️ Edit
                           </button>
 
                           <button
                             className="delete-btn"
-                            onClick={() => setDeleteId(p._id)}
+                            disabled={p.hasSales}
+                            title={
+                              p.hasSales
+                                ? "Cannot delete product with sales"
+                                : "Delete product"
+                            }
+                            onClick={() =>
+                              !p.hasSales && setDeleteId(p.id)
+                            }
                           >
                             🗑 Delete
                           </button>
@@ -175,12 +194,14 @@ export default function Inventory() {
         </main>
       </div>
 
-      {/* DELETE MODAL */}
+      {/* ================= DELETE MODAL ================= */}
       {deleteId && (
         <div className="modal-overlay">
           <div className="delete-modal">
             <h3>Delete Product</h3>
-            <p>Are you sure you want to delete this product?</p>
+            <p>
+              This action cannot be undone. Are you sure?
+            </p>
 
             <div className="modal-actions">
               <button

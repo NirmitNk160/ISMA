@@ -1,16 +1,14 @@
 /* =========================================================
-   SALES — ISMA (CLEAN FINAL)
+   SALES PAGE — ISMA
+   Uses theme.css variables
    ========================================================= */
+
+/* ================= ROOT ================= */
 
 .sales-root {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--text-primary);
-
-  /* 🔥 SAME FONT AS SETTINGS */
-  font-family: "Montserrat", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI",
-    Roboto, Arial, sans-serif;
 }
 
 /* ================= LAYOUT ================= */
@@ -38,7 +36,419 @@
 
 .sales-header h2 {
   font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* ================= EMPTY STATE ================= */
+
+.sales-content > p {
+  padding: 22px;
+  border-radius: 14px;
+  border: 1px dashed var(--border-soft);
+  background: var(--card-bg-glass);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ================= SALES CARD ================= */
+
+.sales-card {
+  background: var(--card-bg-solid);
+  border-radius: 22px;
+  padding: 22px 24px;
+  margin-bottom: 26px;
+
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+}
+
+/* ================= CARD HEADER ================= */
+
+.sales-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding-bottom: 14px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.sales-card-header span:first-child {
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--accent);
+}
+
+.sales-card-header span:last-child {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ================= TABLE ================= */
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 620px;
+}
+
+.sales-table th,
+.sales-table td {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.sales-table th {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.sales-table td {
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+}
+
+.sales-table tbody tr:hover td {
+  background: var(--row-hover);
+}
+
+/* ================= BILL TOTAL ================= */
+
+.bill-total {
+  margin-top: 18px;
+  text-align: right;
+  font-size: 20px;
   font-weight: 900;
+  letter-spacing: 0.4px;
+  color: #22c55e;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+  .sales-content {
+    padding: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sales-body {
+    flex-direction: column;
+  }
+
+  .sales-content {
+    padding: 22px 16px;
+  }
+
+  .sales-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .bill-total {
+    text-align: left;
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sales-header h2 {
+    font-size: 22px;
+  }
+
+  .sales-card {
+    padding: 18px;
+  }
+}
+
+/* =========================================================
+   SALES — HARD MOBILE FIX (NO JSX CHANGE REQUIRED)
+   ========================================================= */
+
+/* ---------- TABLET ---------- */
+@media (max-width: 1024px) {
+  .sales-content {
+    max-width: 100%;
+    padding: 24px;
+  }
+}
+
+/* ---------- PHONE ---------- */
+@media (max-width: 768px) {
+
+  /* Prevent horizontal cut */
+  .sales-root,
+  .sales-body,
+  .sales-content {
+    overflow-x: hidden;
+  }
+
+  /* Stack layout */
+  .sales-body {
+    flex-direction: column;
+  }
+
+  .sales-content {
+    padding: 18px 14px;
+  }
+
+  /* Bill card spacing */
+  .sales-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  /* Header fix */
+  .sales-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* ==========================
+     FORCE TABLE → CARD MODE
+     ========================== */
+
+  .sales-table {
+    min-width: 0;
+  }
+
+  .sales-table thead {
+    display: none;
+  }
+
+  .sales-table,
+  .sales-table tbody,
+  .sales-table tr,
+  .sales-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .sales-table tr {
+    background: var(--card-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .sales-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border: none;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  /* Fake labels (works even without data-label) */
+  .sales-table td:nth-child(1)::before { content: "Product"; }
+  .sales-table td:nth-child(2)::before { content: "Qty"; }
+  .sales-table td:nth-child(3)::before { content: "Price"; }
+  .sales-table td:nth-child(4)::before { content: "Total"; }
+
+  .sales-table td::before {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+  }
+
+  /* Total */
+  .bill-total {
+    margin-top: 14px;
+    text-align: left;
+    font-size: 18px;
+  }
+}
+
+/* ---------- SMALL PHONES ---------- */
+@media (max-width: 480px) {
+  .sales-header h2 {
+    font-size: 20px;
+  }
+
+  .sales-table td {
+    font-size: 13px;
+  }
+
+  .bill-total {
+    font-size: 16px;
+  }
+}
+/* =========================================================
+   SALES — HARD MOBILE FIX (NO JSX CHANGE REQUIRED)
+   ========================================================= */
+
+/* ---------- TABLET ---------- */
+@media (max-width: 1024px) {
+  .sales-content {
+    max-width: 100%;
+    padding: 24px;
+  }
+}
+
+/* ---------- PHONE ---------- */
+@media (max-width: 768px) {
+
+  /* Prevent horizontal cut */
+  .sales-root,
+  .sales-body,
+  .sales-content {
+    overflow-x: hidden;
+  }
+
+  /* Stack layout */
+  .sales-body {
+    flex-direction: column;
+  }
+
+  .sales-content {
+    padding: 18px 14px;
+  }
+
+  /* Bill card spacing */
+  .sales-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  /* Header fix */
+  .sales-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* ==========================
+     FORCE TABLE → CARD MODE
+     ========================== */
+
+  .sales-table {
+    min-width: 0;
+  }
+
+  .sales-table thead {
+    display: none;
+  }
+
+  .sales-table,
+  .sales-table tbody,
+  .sales-table tr,
+  .sales-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .sales-table tr {
+    background: var(--card-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .sales-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border: none;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  /* Fake labels (works even without data-label) */
+  .sales-table td:nth-child(1)::before { content: "Product"; }
+  .sales-table td:nth-child(2)::before { content: "Qty"; }
+  .sales-table td:nth-child(3)::before { content: "Price"; }
+  .sales-table td:nth-child(4)::before { content: "Total"; }
+
+  .sales-table td::before {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted);
+  }
+
+  /* Total */
+  .bill-total {
+    margin-top: 14px;
+    text-align: left;
+    font-size: 18px;
+  }
+}
+
+/* ---------- SMALL PHONES ---------- */
+@media (max-width: 480px) {
+  .sales-header h2 {
+    font-size: 20px;
+  }
+
+  .sales-table td {
+    font-size: 13px;
+  }
+
+  .bill-total {
+    font-size: 16px;
+  }
+}
+
+/* =====================================================
+   FONT WEIGHT BOOST — SALES (ISMA)
+   ONLY FONT WEIGHT — NO LAYOUT CHANGES
+   ===================================================== */
+
+/* Strong base weight everywhere */
+.sales-root,
+.sales-root * {
+  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Arial, sans-serif;
+  font-weight: 600;
+}
+
+/* Page title */
+.sales-header h2 {
+  font-weight: 900;
+}
+
+/* Card headers */
+.sales-card-header span:first-child {
+  font-weight: 800;
+}
+
+/* Table headers */
+.sales-table th {
+  font-weight: 800;
+}
+
+/* Table body text */
+.sales-table td {
+  font-weight: 600;
+}
+
+/* Bill total (important number) */
+.bill-total {
+  font-weight: 900;
+}
+
+/* Empty state text */
+.sales-content > p {
+  font-weight: 600;
 }
 
 /* ================= EMPTY STATE ================= */
@@ -97,150 +507,4 @@
 .sales-empty-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 14px 30px rgba(56, 189, 248, 0.45);
-}
-
-/* ================= SALES CARD ================= */
-
-.sales-card {
-  background: var(--card-bg-solid);
-  border-radius: 22px;
-  padding: 22px 24px;
-  margin-bottom: 26px;
-
-  border: 1px solid var(--border-color);
-  box-shadow: var(--card-shadow);
-}
-
-/* ================= CARD HEADER ================= */
-
-.sales-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding-bottom: 14px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid var(--border-soft);
-}
-
-.sales-card-header span:first-child {
-  font-weight: 800;
-  color: var(--accent);
-}
-
-.sales-card-header span:last-child {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-/* ================= TABLE ================= */
-
-.sales-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.sales-table th,
-.sales-table td {
-  padding: 14px 16px;
-  font-size: 14px;
-}
-
-.sales-table th {
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-soft);
-}
-
-.sales-table td {
-  border-bottom: 1px solid var(--border-soft);
-}
-
-.sales-table tbody tr:hover td {
-  background: var(--row-hover);
-}
-
-/* ================= BILL TOTAL ================= */
-
-.bill-total {
-  margin-top: 18px;
-  text-align: right;
-  font-size: 20px;
-  font-weight: 900;
-  color: #22c55e;
-}
-
-/* ================= RESPONSIVE ================= */
-
-@media (max-width: 768px) {
-  .sales-body {
-    flex-direction: column;
-  }
-
-  .sales-content {
-    padding: 20px 16px;
-  }
-
-  .sales-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .sales-table thead {
-    display: none;
-  }
-
-  .sales-table,
-  .sales-table tbody,
-  .sales-table tr,
-  .sales-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .sales-table tr {
-    background: var(--card-bg);
-    border: 1px solid var(--border-soft);
-    border-radius: 16px;
-    padding: 14px;
-    margin-bottom: 12px;
-  }
-
-  .sales-table td {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border: none;
-  }
-
-  .sales-table td:nth-child(1)::before {
-    content: "Product";
-  }
-
-  .sales-table td:nth-child(2)::before {
-    content: "Qty";
-  }
-
-  .sales-table td:nth-child(3)::before {
-    content: "Price";
-  }
-
-  .sales-table td:nth-child(4)::before {
-    content: "Total";
-  }
-
-  .sales-table td::before {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--text-muted);
-  }
-
-  .bill-total {
-    text-align: left;
-    font-size: 18px;
-  }
 }
