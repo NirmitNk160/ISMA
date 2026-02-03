@@ -33,9 +33,7 @@ export default function Inventory() {
       const res = await api.get("/inventory");
       setProducts(res.data);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to load inventory"
-      );
+      setError(err.response?.data?.message || "Failed to load inventory");
     } finally {
       setLoading(false);
     }
@@ -56,10 +54,7 @@ export default function Inventory() {
       setDeleteId(null);
       fetchProducts();
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Unable to delete product"
-      );
+      setError(err.response?.data?.message || "Unable to delete product");
       setDeleteId(null);
     } finally {
       setDeleting(false);
@@ -75,12 +70,9 @@ export default function Inventory() {
 
   /* ================= STOCK STATUS ================= */
   const getStatus = (stock) => {
-    if (stock === 0)
-      return { label: "Out of Stock", className: "out" };
-
+    if (stock === 0) return { label: "Out of Stock", className: "out" };
     if (stock <= settings.lowStockThreshold)
       return { label: "Low Stock", className: "low" };
-
     return { label: "In Stock", className: "in" };
   };
 
@@ -118,9 +110,7 @@ export default function Inventory() {
 
           <div className="inventory-card">
             {loading ? (
-              <p style={{ padding: "1.5rem" }}>
-                Loading inventory…
-              </p>
+              <p style={{ padding: "1.5rem" }}>Loading inventory…</p>
             ) : (
               <table className="inventory-table">
                 <thead>
@@ -169,9 +159,7 @@ export default function Inventory() {
                                 ? "Cannot delete product with sales"
                                 : "Delete product"
                             }
-                            onClick={() =>
-                              !p.hasSales && setDeleteId(p.id)
-                            }
+                            onClick={() => setDeleteId(p.id)}
                           >
                             🗑 Delete
                           </button>
@@ -194,18 +182,16 @@ export default function Inventory() {
         </main>
       </div>
 
-      {/* ================= DELETE MODAL ================= */}
+      {/* ================= DELETE CONFIRM MODAL ================= */}
       {deleteId && (
-        <div className="modal-overlay">
+        <div className="delete-overlay">
           <div className="delete-modal">
             <h3>Delete Product</h3>
-            <p>
-              This action cannot be undone. Are you sure?
-            </p>
+            <p>This action cannot be undone. Are you sure?</p>
 
-            <div className="modal-actions">
+            <div className="delete-actions">
               <button
-                className="modal-cancel"
+                className="cancel-btn"
                 onClick={() => setDeleteId(null)}
                 disabled={deleting}
               >
@@ -213,7 +199,7 @@ export default function Inventory() {
               </button>
 
               <button
-                className="modal-delete"
+                className="delete-btn"
                 onClick={confirmDelete}
                 disabled={deleting}
               >
