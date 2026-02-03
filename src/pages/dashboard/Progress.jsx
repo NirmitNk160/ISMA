@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function Progress({ label, value, max = 100 }) {
   const percentage =
     max > 0 ? Math.min((value / max) * 100, 100) : 0;
@@ -12,11 +10,7 @@ export default function Progress({ label, value, max = 100 }) {
       </div>
 
       <div className="progress-bar">
-        <div
-          style={{
-            width: `${percentage}%`,
-          }}
-        />
+        <div style={{ width: `${percentage}%` }} />
       </div>
     </div>
   );

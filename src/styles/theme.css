@@ -38,7 +38,7 @@
   --accent-strong: #4f46e5;
   --accent-soft: rgba(56, 189, 248, 0.25);
 
-  /* ---------- Primary CTA ---------- */
+  /* ---------- Primary Button ---------- */
   --btn-primary-bg: linear-gradient(135deg, #38bdf8, #4f46e5);
   --btn-primary-text: #020617;
   --btn-primary-shadow: 0 18px 45px rgba(56, 189, 248, 0.45);
@@ -62,7 +62,7 @@
 }
 
 /* =========================================================
-   LIGHT MODE (APPLE / STRIPE STYLE)
+   LIGHT MODE
    ========================================================= */
 
 body.light-mode {
@@ -101,7 +101,7 @@ body.light-mode {
 }
 
 /* =========================================================
-   GLOBAL ELEMENT NORMALIZATION
+   GLOBAL BASE
    ========================================================= */
 
 body {
@@ -110,7 +110,7 @@ body {
   transition: background var(--ease), color var(--ease);
 }
 
-/* ---------- Inputs ---------- */
+/* ================= INPUTS & SELECT ================= */
 
 input,
 textarea,
@@ -136,46 +136,83 @@ select:focus {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
-/* ---------- Primary Button ---------- */
+/* ================= SELECT OPTIONS (FIX WHITE DROPDOWN) ================= */
+
+select option {
+  background-color: #020617;
+  color: #e5e7eb;
+}
+
+select option:hover {
+  background-color: rgba(56, 189, 248, 0.2);
+}
+
+body.light-mode select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+body.light-mode select option:hover {
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+/* ================= PRIMARY BUTTON ================= */
 
 .primary-btn {
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
   border: none;
-  border-radius: 14px;
-  font-weight: 700;
+  border-radius: 16px;
+  padding: 14px 24px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
   cursor: pointer;
-  transition: transform var(--ease), box-shadow var(--ease);
+
+  box-shadow:
+    var(--btn-primary-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+  transition:
+    transform var(--ease),
+    box-shadow var(--ease),
+    filter var(--ease);
 }
 
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--btn-primary-shadow);
+  filter: brightness(1.08);
 }
 
 .primary-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* ---------- Secondary Button ---------- */
+/* ================= SECONDARY BUTTON ================= */
 
 .secondary-btn {
   background: var(--btn-secondary-bg);
   color: var(--btn-secondary-text);
   border: 1px solid var(--btn-secondary-border);
-  border-radius: 14px;
-  font-weight: 600;
+  border-radius: 16px;
+  padding: 12px 20px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background var(--ease), transform var(--ease);
+  transition: background var(--ease), border var(--ease), transform var(--ease);
 }
 
-.secondary-btn:hover {
+.secondary-btn:hover:not(:disabled) {
   background: var(--accent-soft);
+  border-color: var(--accent);
   transform: translateY(-1px);
 }
 
-/* ---------- Cards ---------- */
+.secondary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ================= CARDS ================= */
 
 .card,
 .inventory-card,
@@ -188,4 +225,13 @@ select:focus {
   border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
   transition: background var(--ease), box-shadow var(--ease);
+}
+
+/* ================= ACCESSIBILITY ================= */
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }

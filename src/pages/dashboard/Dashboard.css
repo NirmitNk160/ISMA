@@ -1,104 +1,179 @@
 /* =====================================================
-   DASHBOARD — ISMA (FINAL & STABLE)
+   DASHBOARD — ISMA (PROFESSIONAL SaaS GRADE)
    ===================================================== */
-
-/* ---------- Global Safety ---------- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
 
 /* ---------- Root ---------- */
 .dashboard-root {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--text-primary);
-  font-family: "Inter", system-ui, sans-serif;
+
+  /* Match Settings font */
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
 }
+
 
 /* ---------- Layout ---------- */
 .dashboard-body {
   display: flex;
   min-height: 100vh;
-  width: 100%;
 }
 
 /* ---------- Content ---------- */
 .content {
   flex: 1;
-  padding: 40px 48px;
-  width: 100%;
-  max-width: 100%;
-  position: relative;
-  z-index: 1;
+  padding: 48px 56px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ---------- Header ---------- */
 .page-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 32px;
+  gap: 14px;
+  margin-bottom: 40px;
 }
 
 .page-title {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 900;
+  letter-spacing: 0.4px;
 }
 
 /* ---------- Stats ---------- */
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 28px;
 }
 
-/* ---------- Card ---------- */
-.card {
-  background: linear-gradient(
-    180deg,
-    rgba(30, 41, 59, 0.85),
-    rgba(15, 23, 42, 0.9)
-  );
-  border-radius: 22px;
-  padding: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+/* ---------- Stat Cards ---------- */
+.stat-card {
+  background: linear-gradient(180deg,
+      rgba(30, 41, 59, 0.85),
+      rgba(15, 23, 42, 0.9));
+
+  border-radius: 24px;
+  padding: 28px 30px;
+
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent-soft);
+}
+
+/* ---------- Stat Text ---------- */
+.stat-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
 }
 
 /* ---------- Grid ---------- */
 .grid {
   display: grid;
   grid-template-columns: 3fr 2fr;
-  gap: 28px;
-  margin-top: 40px;
+  gap: 32px;
+  margin-top: 48px;
 }
 
-/* ---------- Chart ---------- */
+/* ---------- Cards ---------- */
+.card {
+  background: var(--card-bg);
+  border-radius: 26px;
+  padding: 30px 32px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-soft);
+}
+
+/* ---------- Card Titles ---------- */
+.card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+/* ---------- Chart Placeholder ---------- */
 .chart-placeholder {
-  height: 280px;
-  border-radius: 18px;
-  background: radial-gradient(
-    circle at top,
-    rgba(99, 102, 241, 0.3),
-    rgba(15, 23, 42, 0.9)
-  );
+  height: 300px;
+  border-radius: 20px;
+
+  background:
+    radial-gradient(circle at 30% 20%,
+      var(--accent-soft),
+      transparent 65%),
+    linear-gradient(180deg,
+      rgba(15, 23, 42, 0.85),
+      rgba(2, 6, 23, 0.95));
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  font-size: 14px;
+  color: var(--text-muted);
+  letter-spacing: 0.6px;
 }
 
-/* =====================================================
-   TABLET
-   ===================================================== */
+/* ---------- Progress ---------- */
+.progress {
+  margin-bottom: 20px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress-bar>div {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+      var(--accent),
+      var(--accent-strong));
+  box-shadow: 0 0 12px var(--accent-soft);
+  transition: width 0.4s ease;
+}
+
+/* ---------- Mobile ---------- */
 @media (max-width: 1024px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
@@ -109,41 +184,35 @@ body {
   }
 
   .content {
-    padding: 32px 24px;
+    padding: 36px 24px;
   }
 }
 
-/* =====================================================
-   MOBILE
-   ===================================================== */
 @media (max-width: 768px) {
-  .dashboard-body {
-    flex-direction: column;
-  }
-
-  .content {
-    padding: 20px 16px;
-  }
-
   .stats {
     grid-template-columns: 1fr;
   }
 
   .page-title {
-    font-size: 22px;
+    font-size: 24px;
   }
 }
 
-/* =====================================================
-   MOBILE MENU BUTTON (☰)
-   ===================================================== */
+/* ---------- Sidebar Overlay ---------- */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 900;
+}
+
+/* ---------- Mobile Menu Button ---------- */
 .menu-btn {
   display: none;
   background: none;
   border: none;
-  color: var(--text-primary);
   font-size: 26px;
-  cursor: pointer;
+  color: var(--text-primary);
 }
 
 @media (max-width: 768px) {
@@ -151,156 +220,3 @@ body {
     display: block;
   }
 }
-
-/* =====================================================
-   SIDEBAR OVERLAY
-   ===================================================== */
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 900;
-}
-
-/* =====================================================
-   DASHBOARD — THEME ALIGNMENT FIX (DARK + LIGHT)
-   Uses theme.css variables ONLY
-   ===================================================== */
-
-/* Dashboard background */
-.dashboard-root {
-  background: var(--app-bg);
-  color: var(--text-primary);
-}
-
-/* Content area */
-.content {
-  background: transparent;
-}
-
-/* Cards (stats, monthly recap, top products) */
-.card,
-.stat-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--card-shadow);
-  color: var(--text-primary);
-}
-
-/* Card titles */
-.card h3,
-.stat-title {
-  color: var(--text-secondary);
-}
-
-/* Card values */
-.stat-value {
-  color: var(--text-primary);
-}
-
-/* Chart placeholder */
-.chart-placeholder {
-  background: radial-gradient(
-    circle at top,
-    var(--accent-soft),
-    transparent 70%
-  );
-  color: var(--text-muted);
-}
-
-/* Page title */
-.page-title {
-  color: var(--text-primary);
-}
-
-/* Back button + icons */
-.page-header button,
-.page-header svg {
-  color: var(--text-primary);
-}
-
-/* Hover consistency */
-.card:hover {
-  box-shadow: var(--card-shadow);
-}
-
-/* =====================================================
-   DASHBOARD — HOVER EFFECT (DARK + LIGHT MODE)
-   Theme-aware & subtle
-   ===================================================== */
-
-/* Cards hover */
-.card,
-.stat-card {
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease;
-}
-
-/* Hover effect */
-.card:hover,
-.stat-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent-soft);
-  box-shadow:
-    0 18px 45px rgba(0, 0, 0, 0.25),
-    0 0 0 1px var(--accent-soft);
-}
-
-/* Light mode refinement */
-body.light-mode .card:hover,
-body.light-mode .stat-card:hover {
-  box-shadow:
-    0 14px 32px rgba(15, 23, 42, 0.18),
-    0 0 0 1px var(--accent-soft);
-}
-
-/* Chart placeholder hover */
-.chart-placeholder {
-  transition: background 0.3s ease, transform 0.25s ease;
-}
-
-.chart-placeholder:hover {
-  background: radial-gradient(
-    circle at top,
-    var(--accent-soft),
-    transparent 75%
-  );
-  transform: scale(1.02);
-}
-
-/* Disable hover lift on touch devices */
-@media (hover: none) {
-  .card:hover,
-  .stat-card:hover {
-    transform: none;
-    box-shadow: var(--card-shadow);
-  }
-}
-
-/* ================= HOME BUTTON ================= */
-
-.home-btn {
-  background: transparent;
-  border: none;
-  color: #38bdf8;
-  font-size: 18px;
-  cursor: pointer;
-
-  padding: 6px 10px;
-  border-radius: 8px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.home-btn:hover {
-  background: rgba(56, 189, 248, 0.15);
-  transform: translateY(-1px);
-}
-
