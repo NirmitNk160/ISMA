@@ -1,8 +1,10 @@
 /* =====================================================
-   DASHBOARD — ISMA (PROFESSIONAL SaaS GRADE)
+   DASHBOARD — ISMA (THEME-AWARE, PRO SAAS)
+   Dark + Light Optimized
    ===================================================== */
 
-/* ---------- Root ---------- */
+/* ================= ROOT ================= */
+
 .dashboard-root {
   min-height: 100vh;
   background: var(--app-bg);
@@ -10,25 +12,28 @@
 
   /* Match Settings font */
   font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
-    "Helvetica Neue", Arial, sans-serif;
+               "Helvetica Neue", Arial, sans-serif;
 }
 
+/* ================= LAYOUT ================= */
 
-/* ---------- Layout ---------- */
 .dashboard-body {
   display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
-/* ---------- Content ---------- */
+/* ================= CONTENT ================= */
+
 .content {
   flex: 1;
-  padding: 48px 56px;
+  padding: 44px 56px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* ---------- Header ---------- */
+/* ================= HEADER ================= */
+
 .page-header {
   display: flex;
   align-items: center;
@@ -37,26 +42,26 @@
 }
 
 .page-title {
-  font-size: 34px;
-  font-weight: 900;
-  letter-spacing: 0.4px;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: var(--text-primary);
 }
 
-/* ---------- Stats ---------- */
+/* ================= STATS ================= */
+
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  gap: 26px;
 }
 
-/* ---------- Stat Cards ---------- */
-.stat-card {
-  background: linear-gradient(180deg,
-      rgba(30, 41, 59, 0.85),
-      rgba(15, 23, 42, 0.9));
+/* ================= STAT CARD ================= */
 
-  border-radius: 24px;
-  padding: 28px 30px;
+.stat-card {
+  background: var(--card-bg);
+  border-radius: 22px;
+  padding: 26px 28px;
 
   border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
@@ -68,15 +73,17 @@
 }
 
 .stat-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   border-color: var(--accent-soft);
 }
 
-/* ---------- Stat Text ---------- */
+/* ================= STAT TEXT ================= */
+
 .stat-title {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.2px;
   color: var(--text-muted);
   margin-bottom: 10px;
 }
@@ -85,21 +92,25 @@
   font-size: 30px;
   font-weight: 900;
   letter-spacing: 0.3px;
+  color: var(--text-primary);
 }
 
-/* ---------- Grid ---------- */
+/* ================= GRID ================= */
+
 .grid {
   display: grid;
   grid-template-columns: 3fr 2fr;
   gap: 32px;
-  margin-top: 48px;
+  margin-top: 44px;
 }
 
-/* ---------- Cards ---------- */
+/* ================= GENERIC CARD ================= */
+
 .card {
   background: var(--card-bg);
-  border-radius: 26px;
+  border-radius: 24px;
   padding: 30px 32px;
+
   border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
 
@@ -110,49 +121,62 @@
 }
 
 .card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   border-color: var(--accent-soft);
 }
 
-/* ---------- Card Titles ---------- */
+/* ================= CARD TITLES ================= */
+
 .card h3 {
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 700;
   margin-bottom: 18px;
+  color: var(--text-primary);
 }
 
-/* ---------- Chart Placeholder ---------- */
+/* ================= CHART PLACEHOLDER ================= */
+
 .chart-placeholder {
   height: 300px;
-  border-radius: 20px;
+  border-radius: 18px;
 
   background:
-    radial-gradient(circle at 30% 20%,
+    radial-gradient(
+      circle at 30% 20%,
       var(--accent-soft),
-      transparent 65%),
-    linear-gradient(180deg,
-      rgba(15, 23, 42, 0.85),
-      rgba(2, 6, 23, 0.95));
+      transparent 65%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.08),
+      rgba(0, 0, 0, 0.25)
+    );
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   font-size: 14px;
+  font-weight: 600;
   color: var(--text-muted);
-  letter-spacing: 0.6px;
+  letter-spacing: 0.4px;
 }
 
-/* ---------- Progress ---------- */
+/* ================= PROGRESS ================= */
+
 .progress {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+
   font-size: 14px;
   font-weight: 600;
+  color: var(--text-primary);
+
   margin-bottom: 8px;
 }
 
@@ -163,17 +187,48 @@
   overflow: hidden;
 }
 
-.progress-bar>div {
+.progress-bar > div {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg,
-      var(--accent),
-      var(--accent-strong));
-  box-shadow: 0 0 12px var(--accent-soft);
+
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+
+  box-shadow: 0 0 10px var(--accent-soft);
   transition: width 0.4s ease;
 }
 
-/* ---------- Mobile ---------- */
+/* ================= SIDEBAR OVERLAY ================= */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 900;
+}
+
+/* ================= MOBILE MENU ================= */
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 26px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .menu-btn {
+    display: block;
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+
 @media (max-width: 1024px) {
   .stats {
     grid-template-columns: repeat(2, 1fr);
@@ -184,7 +239,7 @@
   }
 
   .content {
-    padding: 36px 24px;
+    padding: 32px 24px;
   }
 }
 
@@ -198,25 +253,22 @@
   }
 }
 
-/* ---------- Sidebar Overlay ---------- */
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 900;
+/* ================= LIGHT MODE REFINEMENT ================= */
+
+body.light-mode .chart-placeholder {
+  background:
+    radial-gradient(
+      circle at 30% 20%,
+      var(--accent-soft),
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.85),
+      rgba(241, 245, 249, 0.95)
+    );
 }
 
-/* ---------- Mobile Menu Button ---------- */
-.menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 26px;
-  color: var(--text-primary);
-}
-
-@media (max-width: 768px) {
-  .menu-btn {
-    display: block;
-  }
+body.light-mode .progress-bar {
+  background: rgba(15, 23, 42, 0.08);
 }

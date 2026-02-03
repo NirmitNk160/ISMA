@@ -1,10 +1,16 @@
+/* =====================================================
+   SETTINGS — ISMA (CLEAN SaaS STANDARD)
+   Dark + Light Mode (NO SUSPICIOUS UI)
+   ===================================================== */
+
 /* ================= ROOT ================= */
 
 .settings-root {
   min-height: 100vh;
   background: var(--app-bg-alt);
   color: var(--text-primary);
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+               "Helvetica Neue", Arial, sans-serif;
 }
 
 /* ================= LAYOUT ================= */
@@ -27,13 +33,12 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 34px;
+  margin-bottom: 36px;
 }
 
 .settings-header h2 {
   font-size: 28px;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 900;
 }
 
 /* ================= GRID ================= */
@@ -51,72 +56,112 @@
   backdrop-filter: blur(18px);
   border-radius: 22px;
   padding: 28px 30px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
-  overflow: visible;
 }
 
 .settings-card h3 {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 22px;
-  color: var(--text-primary);
 }
 
-/* ================= FORM ================= */
+/* ================= FORM ROW ================= */
 
 .setting-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 600;
 }
+
+/* ================= INPUTS ================= */
 
 .settings-card input,
 .settings-card select {
   min-width: 200px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--input-border);
   background: var(--input-bg);
   color: var(--text-primary);
+  font-weight: 600;
 }
 
-.settings-card input::placeholder {
-  color: var(--text-muted);
+.settings-card input:focus,
+.settings-card select:focus {
+  outline: none;
+  background: var(--input-bg-focus);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
+
+/* =====================================================
+   TOGGLE — PROFESSIONAL (FIXED)
+   ===================================================== */
 
 .settings-card input[type="checkbox"] {
+  appearance: none;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+
+  /* Default OFF */
+  background: #e5e7eb;
+  border: 1px solid #cbd5e1;
+
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+/* Knob */
+.settings-card input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
   width: 18px;
   height: 18px;
-  accent-color: var(--accent);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.25s ease;
 }
 
-/* ================= BUTTONS ================= */
-
-.danger-btn {
-  width: 100%;
-  margin-top: 14px;
-  background: var(--danger-bg);
-  color: var(--danger-text);
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* ON (LIGHT MODE) */
+.settings-card input[type="checkbox"]:checked {
+  background: rgba(37, 99, 235, 0.18);
+  border-color: rgba(37, 99, 235, 0.45);
 }
 
-.danger-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--danger-shadow);
+.settings-card input[type="checkbox"]:checked::after {
+  transform: translateX(20px);
 }
 
-.danger-btn.outline {
-  background: transparent;
-  border: 1px solid var(--danger-border);
-  color: var(--danger-border);
+/* ON (DARK MODE) */
+body:not(.light-mode)
+.settings-card input[type="checkbox"]:checked {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+  border-color: transparent;
+}
+
+/* ================= SELECT ================= */
+
+.settings-card select {
+  appearance: none;
+  background-image: var(--select-arrow);
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px;
+  padding-right: 42px;
 }
 
 /* ================= APPLY BAR ================= */
@@ -129,25 +174,22 @@
   bottom: 24px;
 }
 
+/* ================= APPLY BUTTON ================= */
+
 .apply-btn {
-  background: var(--success-bg);
-  color: var(--success-text);
-  padding: 16px 48px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
+  padding: 16px 56px;
   border-radius: 18px;
+  font-size: 15px;
   font-weight: 900;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 16px 36px rgba(34, 197, 94, 0.35);
 }
 
-.apply-btn:hover:not(:disabled) {
+.apply-btn:hover {
   transform: translateY(-2px);
-  box-shadow: var(--success-shadow);
-}
-
-.apply-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 
 /* ================= TOAST ================= */
@@ -156,25 +198,12 @@
   position: fixed;
   bottom: 32px;
   right: 32px;
-  background: var(--success-bg);
-  color: var(--success-text);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ffffff;
   padding: 16px 22px;
   border-radius: 14px;
   font-weight: 800;
   box-shadow: var(--success-shadow);
-  z-index: 999;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* ================= RESPONSIVE ================= */
@@ -185,23 +214,19 @@
   }
 }
 
-/* ================= SELECT FIX ================= */
+@media (max-width: 768px) {
+  .settings-content {
+    padding: 24px 16px;
+  }
 
-.settings-card select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 
-  background-image: var(--select-arrow);
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 18px;
-
-  padding-right: 42px;
-  cursor: pointer;
-}
-
-.settings-card select option {
-  background-color: var(--dropdown-bg);
-  color: var(--text-primary);
+  .settings-card input,
+  .settings-card select {
+    width: 100%;
+  }
 }
