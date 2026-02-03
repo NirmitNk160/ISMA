@@ -28,7 +28,6 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-
         {/* 🔥 LOGO = HOME */}
         <h1
           className="logo clickable"
@@ -40,11 +39,27 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-right">
-        {isAuthenticated && (
+        {!isAuthenticated ? (
           <>
-            <span className="welcome-text">
-              👋 Welcome, {username}
-            </span>
+
+            <button className="nav-link" onClick={() => navigate("/about")}>
+              About
+            </button>
+
+            <button
+              className="nav-link ghost"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </button>
+
+            <button className="nav-btn" onClick={() => navigate("/register")}>
+              Create Store
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="welcome-text">👋 Welcome, {username}</span>
 
             <div
               className="avatar"
