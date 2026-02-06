@@ -8,29 +8,60 @@ import "./profile.css";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, loading: authLoading } = useAuth(); // ⭐ IMPORTANT FIX
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  /* ================= SAFE PROFILE FETCH ================= */
   useEffect(() => {
-    api
-      .get("/auth/profile")
-      .then((res) => setProfile(res.data))
-      .catch((err) => {
-        if (err.response?.status === 401) logout();
-        else setError("Failed to load profile");
-      })
-      .finally(() => setLoading(false));
-  }, [logout]);
+    if (authLoading) return; // ⭐ WAIT FOR AUTH
 
-  if (loading) {
-    return <div className="profile-loading">Loading profile…</div>;
+    let mounted = true;
+
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/auth/profile");
+
+        if (mounted) {
+          setProfile(res.data);
+        }
+      } catch (err) {
+        console.error(err);
+
+        if (err.response?.status === 401) {
+          logout();
+        } else if (mounted) {
+          setError("Failed to load profile");
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading, logout]);
+
+  /* ================= LOADING GUARD ================= */
+  if (authLoading || loading) {
+    return (
+      <div className="profile-loading">
+        Loading profile…
+      </div>
+    );
   }
 
   if (!profile) {
-    return <div className="profile-loading">{error}</div>;
+    return (
+      <div className="profile-loading">
+        {error || "No profile data"}
+      </div>
+    );
   }
 
   const initials =
@@ -64,7 +95,6 @@ export default function Profile() {
 
       {/* PAGE */}
       <main className="profile-page">
-        {/* HEADER */}
         <section className="profile-header">
           <div className="profile-avatar">{initials}</div>
 
@@ -74,7 +104,6 @@ export default function Profile() {
           </div>
         </section>
 
-        {/* CARD */}
         <section className="profile-card">
           <div className="profile-grid">
             <div>
@@ -99,7 +128,6 @@ export default function Profile() {
           </div>
         </section>
 
-        {/* ACTIONS */}
         <section className="profile-actions">
           <button
             className="primary"

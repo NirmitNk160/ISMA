@@ -14,7 +14,8 @@ import { useAuth } from "../../context/AuthContext";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { format } = useCurrency();
-  const { loading: authLoading } = useAuth(); // ⭐ KEY FIX
+
+  const { loading: authLoading, isAuthenticated } = useAuth();
 
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,32 +23,35 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   /* ================= SAFE FETCH ================= */
-useEffect(() => {
-  if (authLoading) return;
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
 
-  let mounted = true;
+    let mounted = true;
 
-  const fetchData = async () => {
-    try {
-      const res = await api.get("/dashboard");
-      if (mounted) setStats(res.data);
-    } catch (err) {
-      if (mounted) setError("Failed to load dashboard data");
-    } finally {
-      if (mounted) setLoading(false);
-    }
-  };
+    const fetchData = async () => {
+      try {
+        const res = await api.get("/dashboard");
 
-  fetchData();
+        if (mounted) {
+          setStats(res.data || {});
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+        if (mounted) setError("Failed to load dashboard data");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
 
-  return () => {
-    mounted = false;
-  };
-}, [authLoading]);
+    fetchData();
 
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading, isAuthenticated]);
 
-  /* ================= LOADING ================= */
-  if (loading || authLoading) {
+  /* ================= LOADING GUARD ================= */
+  if (authLoading || loading) {
     return (
       <div className="dashboard-root">
         <Navbar />

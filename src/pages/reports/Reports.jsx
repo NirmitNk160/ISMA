@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import api from "../../api/axios";
 
 import Sidebar from "../dashboard/Sidebar";
-import Navbar from "../../components/Navbar";import BackButton from "../../components/BackButton";
+import Navbar from "../../components/Navbar";
+import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useSettings } from "../../context/SettingsContext";
+import { useAuth } from "../../context/AuthContext";
 
 import "./Reports.css";
 
@@ -12,25 +14,51 @@ export default function Reports() {
   const [inventory, setInventory] = useState([]);
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   const { settings } = useSettings();
-
-  // 🔥 currency formatter
   const { format } = useCurrency();
+  const { loading: authLoading } = useAuth(); // ⭐ IMPORTANT FIX
 
-  /* ================= FETCH DATA ================= */
+  /* ================= SAFE FETCH DATA ================= */
   useEffect(() => {
-    Promise.all([api.get("/inventory"), api.get("/sales")])
-      .then(([invRes, salesRes]) => {
-        setInventory(invRes.data);
-        setSales(salesRes.data);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    if (authLoading) return;
 
-  /* ================= DERIVED REPORT (ALL INR) ================= */
+    let mounted = true;
+
+    const fetchData = async () => {
+      try {
+        const [invRes, salesRes] = await Promise.all([
+          api.get("/inventory"),
+          api.get("/sales"),
+        ]);
+
+        if (mounted) {
+          setInventory(invRes.data);
+          setSales(salesRes.data);
+        }
+      } catch (err) {
+        console.error(err);
+        if (mounted) setError("Failed to load reports");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading]);
+
+  /* ================= DERIVED REPORT ================= */
   const report = useMemo(() => {
     const totalProducts = inventory.length;
-    const totalStock = inventory.reduce((a, b) => a + Number(b.stock || 0), 0);
+    const totalStock = inventory.reduce(
+      (a, b) => a + Number(b.stock || 0),
+      0
+    );
 
     let totalRevenueINR = 0;
     let totalItemsSold = 0;
@@ -41,7 +69,8 @@ export default function Reports() {
       totalItemsSold += Number(s.quantity || 0);
 
       salesMap[s.product_name] =
-        (salesMap[s.product_name] || 0) + Number(s.quantity || 0);
+        (salesMap[s.product_name] || 0) +
+        Number(s.quantity || 0);
     });
 
     const alerts = [];
@@ -94,7 +123,9 @@ export default function Reports() {
     const entries = Object.entries(salesMap);
     if (entries.length) {
       const totalSold = entries.reduce((a, b) => a + b[1], 0);
-      const [topName, topQty] = entries.sort((a, b) => b[1] - a[1])[0];
+      const [topName, topQty] = entries.sort(
+        (a, b) => b[1] - a[1]
+      )[0];
 
       if (topQty / totalSold > 0.6) {
         alerts.push({
@@ -118,7 +149,22 @@ export default function Reports() {
     };
   }, [inventory, sales, settings.lowStockThreshold]);
 
-  if (loading) return null;
+  /* ================= LOADING GUARD ================= */
+  if (authLoading || loading) {
+    return (
+      <div className="reports-root">
+        <Navbar />
+        <div className="reports-body">
+          <Sidebar />
+          <main className="reports-content">
+            <p style={{ padding: "2rem" }}>
+              Loading reports…
+            </p>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="reports-root">
@@ -132,6 +178,8 @@ export default function Reports() {
             <BackButton />
             <h2>Reports & Business Insights</h2>
           </div>
+
+          {error && <div className="error-msg">❌ {error}</div>}
 
           {/* SUMMARY */}
           <section className="report-summary">
@@ -165,15 +213,11 @@ export default function Reports() {
                 report.healthScore > 70
                   ? "good"
                   : report.healthScore > 40
-                    ? "warning"
-                    : "danger"
+                  ? "warning"
+                  : "danger"
               }`}
             >
-              <div
-                style={{
-                  width: `${report.healthScore}%`,
-                }}
-              />
+              <div style={{ width: `${report.healthScore}%` }} />
             </div>
 
             <p>

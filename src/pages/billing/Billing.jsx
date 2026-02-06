@@ -16,7 +16,7 @@ export default function Billing() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const { format } = useCurrency();
-  const { loading: authLoading } = useAuth();
+  const { loading: authLoading, isAuthenticated } = useAuth();
 
   const [products, setProducts] = useState([]);
   const [billItems, setBillItems] = useState([]);
@@ -28,34 +28,36 @@ export default function Billing() {
   const [error, setError] = useState("");
   const [showScanner, setShowScanner] = useState(false);
 
-  /* ================= LOAD PRODUCTS ================= */
+  /* ================= SAFE LOAD PRODUCTS ================= */
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || !isAuthenticated) return;
 
     const loadProducts = async () => {
       try {
         const res = await api.get("/inventory");
-        setProducts(res.data);
-      } catch {
+        setProducts(res.data || []);
+      } catch (err) {
+        console.error("Billing product fetch error:", err);
         setError("Failed to load products");
       }
     };
 
     loadProducts();
-  }, [authLoading]);
+  }, [authLoading, isAuthenticated]);
 
   /* ================= TEMP STOCK ================= */
   const availableStock = useMemo(() => {
     const map = {};
     products.forEach((p) => {
-      const used = billItems.find((i) => i.product_id === p.id)?.quantity || 0;
+      const used =
+        billItems.find((i) => i.product_id === p.id)?.quantity || 0;
       map[p.id] = p.stock - used;
     });
     return map;
   }, [products, billItems]);
 
   /* ================= HARDWARE SCAN ================= */
-  const handleBarcodeScan = async (e) => {
+  const handleBarcodeScan = (e) => {
     if (e.key !== "Enter") return;
 
     const code = e.target.value.trim();
@@ -77,7 +79,8 @@ export default function Billing() {
       const res = await api.get(`/inventory/barcode/${code}`);
       const product = res.data;
 
-      const remaining = availableStock[product.id] ?? product.stock;
+      const remaining =
+        availableStock[product.id] ?? product.stock;
 
       if (settings.blockOutOfStock && remaining <= 0) {
         setError("Product out of stock");
@@ -85,13 +88,15 @@ export default function Billing() {
       }
 
       setBillItems((prev) => {
-        const existing = prev.find((i) => i.product_id === product.id);
+        const existing = prev.find(
+          (i) => i.product_id === product.id
+        );
 
         if (existing) {
           return prev.map((i) =>
             i.product_id === product.id
               ? { ...i, quantity: i.quantity + 1 }
-              : i,
+              : i
           );
         }
 
@@ -107,7 +112,8 @@ export default function Billing() {
       });
 
       setError("");
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Product not found");
     }
   };
@@ -116,13 +122,15 @@ export default function Billing() {
   const addToBill = () => {
     if (!selectedProduct || quantity <= 0) return;
 
-    const product = products.find((p) => p.id === Number(selectedProduct));
+    const product = products.find(
+      (p) => p.id === Number(selectedProduct)
+    );
     if (!product) return;
 
     const remaining = availableStock[product.id];
 
     if (settings.blockOutOfStock && remaining <= 0) {
-      setError("Product is out of stock");
+      setError("Product out of stock");
       return;
     }
 
@@ -132,13 +140,15 @@ export default function Billing() {
     }
 
     setBillItems((prev) => {
-      const existing = prev.find((i) => i.product_id === product.id);
+      const existing = prev.find(
+        (i) => i.product_id === product.id
+      );
 
       if (existing) {
         return prev.map((i) =>
           i.product_id === product.id
             ? { ...i, quantity: i.quantity + quantity }
-            : i,
+            : i
         );
       }
 
@@ -161,22 +171,24 @@ export default function Billing() {
   /* ================= TOTAL ================= */
   const totalINR = billItems.reduce(
     (sum, i) => sum + i.quantity * i.priceINR,
-    0,
+    0
   );
 
   /* ================= REMOVE ================= */
   const removeItem = (id) => {
-    setBillItems((prev) => prev.filter((i) => i.product_id !== id));
+    setBillItems((prev) =>
+      prev.filter((i) => i.product_id !== id)
+    );
   };
 
   /* ================= CONFIRM BILL ================= */
   const confirmBill = async () => {
     if (!billItems.length || loading) return;
 
-    setLoading(true);
-    setError("");
-
     try {
+      setLoading(true);
+      setError("");
+
       await api.post("/billing/confirm", {
         items: billItems.map((i) => ({
           product_id: i.product_id,
@@ -189,11 +201,29 @@ export default function Billing() {
 
       setTimeout(() => navigate("/sales"), 1200);
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Billing failed");
     } finally {
       setLoading(false);
     }
   };
+
+  /* ================= LOADING GUARD ================= */
+  if (authLoading) {
+    return (
+      <div className="billing-root">
+        <Navbar />
+        <div className="billing-body">
+          <Sidebar />
+          <main className="billing-content">
+            <p style={{ padding: "2rem" }}>
+              Loading billing…
+            </p>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   /* ================= UI ================= */
   return (
@@ -210,13 +240,14 @@ export default function Billing() {
           </div>
 
           {success && (
-            <div className="success-msg">✔ Bill successful. Redirecting…</div>
+            <div className="success-msg">
+              ✔ Bill successful. Redirecting…
+            </div>
           )}
 
           {error && <div className="error-msg">❌ {error}</div>}
 
           <div className="billing-card">
-            {/* BARCODE INPUT */}
             <input
               className="barcode-input"
               placeholder="Scan barcode or type here..."
@@ -224,12 +255,13 @@ export default function Billing() {
               autoFocus
             />
 
-            {/* CAMERA SCAN BUTTON */}
-            <button className="scan-btn" onClick={() => setShowScanner(true)}>
+            <button
+              className="scan-btn"
+              onClick={() => setShowScanner(true)}
+            >
               📷 Scan with Camera
             </button>
 
-            {/* CAMERA SCANNER MODAL */}
             {showScanner && (
               <div className="scanner-modal">
                 <div className="scanner-box">
@@ -245,18 +277,29 @@ export default function Billing() {
               </div>
             )}
 
-            {/* MANUAL CONTROLS */}
             <div className="billing-controls">
               <select
                 value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
+                onChange={(e) =>
+                  setSelectedProduct(e.target.value)
+                }
               >
-                <option value="">Select product</option>
-                {products
-                  .filter((p) => availableStock[p.id] > 0)
+                <option value="">
+                  Select product
+                </option>
+
+                {(products || [])
+                  .filter(
+                    (p) =>
+                      availableStock[p.id] > 0
+                  )
                   .map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} (Stock: {availableStock[p.id]})
+                    <option
+                      key={p.id}
+                      value={p.id}
+                    >
+                      {p.name} (Stock:{" "}
+                      {availableStock[p.id]})
                     </option>
                   ))}
               </select>
@@ -265,19 +308,22 @@ export default function Billing() {
                 type="number"
                 min="1"
                 value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
+                onChange={(e) =>
+                  setQuantity(Number(e.target.value))
+                }
               />
 
               <button
                 className="add-btn"
                 onClick={addToBill}
-                disabled={!selectedProduct || quantity <= 0}
+                disabled={
+                  !selectedProduct || quantity <= 0
+                }
               >
                 Add
               </button>
             </div>
 
-            {/* BILL TABLE */}
             <table className="billing-table">
               <thead>
                 <tr>
@@ -289,42 +335,56 @@ export default function Billing() {
               </thead>
 
               <tbody>
-                {billItems.map((i) => (
-                  <tr key={i.product_id}>
-                    <td>{i.name}</td>
-                    <td>{i.quantity}</td>
-                    <td>{format(i.quantity * i.priceINR)}</td>
-                    <td>
-                      <button
-                        className="remove-btn"
-                        onClick={() => removeItem(i.product_id)}
-                      >
-                        ❌
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-
-                {!billItems.length && (
+                {billItems.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="empty-row">
+                    <td
+                      colSpan="4"
+                      className="empty-row"
+                    >
                       No items added
                     </td>
                   </tr>
+                ) : (
+                  billItems.map((i) => (
+                    <tr key={i.product_id}>
+                      <td>{i.name}</td>
+                      <td>{i.quantity}</td>
+                      <td>
+                        {format(
+                          i.quantity * i.priceINR
+                        )}
+                      </td>
+                      <td>
+                        <button
+                          className="remove-btn"
+                          onClick={() =>
+                            removeItem(i.product_id)
+                          }
+                        >
+                          ❌
+                        </button>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
 
-            {/* FOOTER */}
             <div className="billing-footer">
-              <div className="total">Total: {format(totalINR)}</div>
+              <div className="total">
+                Total: {format(totalINR)}
+              </div>
 
               <button
                 className="confirm-btn"
                 onClick={confirmBill}
-                disabled={loading || !billItems.length}
+                disabled={
+                  loading || !billItems.length
+                }
               >
-                {loading ? "Processing..." : "Confirm Bill"}
+                {loading
+                  ? "Processing..."
+                  : "Confirm Bill"}
               </button>
             </div>
           </div>

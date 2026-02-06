@@ -1,25 +1,29 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../dashboard/Sidebar";
-import Navbar from "../../components/Navbar";import BackButton from "../../components/BackButton";
+import Navbar from "../../components/Navbar";
+import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";
+import { useAuth } from "../../context/AuthContext";
+
 import "./Settings.css";
 
 export default function Settings() {
   const { settings, applySettings } = useSettings();
+  const { loading: authLoading } = useAuth();
 
-  // 📝 draft copy
-  const [draft, setDraft] = useState(settings);
-
+  const [draft, setDraft] = useState({});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // sync when navigating back to settings
+  /* ================= SYNC SETTINGS SAFELY ================= */
   useEffect(() => {
-    setDraft(settings);
-  }, [settings]);
+    if (!authLoading && settings) {
+      setDraft(settings);
+    }
+  }, [settings, authLoading]);
 
   const handleChange = (key, value) => {
-    setDraft(prev => ({
+    setDraft((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -29,12 +33,30 @@ export default function Settings() {
     setSaving(true);
 
     setTimeout(() => {
-      applySettings(draft); // 🔥 THIS is the key
+      applySettings(draft);
       setSaving(false);
       setSaved(true);
+
       setTimeout(() => setSaved(false), 2500);
-    }, 600);
+    }, 500);
   };
+
+  /* ================= LOADING GUARD ================= */
+  if (authLoading || !draft) {
+    return (
+      <div className="settings-root">
+        <Navbar />
+        <div className="settings-body">
+          <Sidebar />
+          <main className="settings-content">
+            <p style={{ padding: "2rem" }}>
+              Loading settings…
+            </p>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="settings-root">
@@ -53,33 +75,33 @@ export default function Settings() {
             {/* ACCOUNT */}
             <section className="settings-card">
               <h3>👤 Account</h3>
+
               <div className="setting-row">
                 <label>Username</label>
                 <input
-                  value={draft.username}
+                  value={draft.username || ""}
                   onChange={(e) =>
                     handleChange("username", e.target.value)
                   }
                 />
               </div>
+
               <div className="setting-row">
                 <label>Email</label>
-                <input value={draft.email} disabled />
+                <input value={draft.email || ""} disabled />
               </div>
             </section>
 
             {/* SECURITY */}
             <section className="settings-card">
               <h3>🔐 Security</h3>
+
               <div className="setting-row">
                 <label>Auto Logout (minutes)</label>
                 <select
-                  value={draft.autoLogout}
+                  value={draft.autoLogout ?? 0}
                   onChange={(e) =>
-                    handleChange(
-                      "autoLogout",
-                      Number(e.target.value)
-                    )
+                    handleChange("autoLogout", Number(e.target.value))
                   }
                 >
                   <option value={0}>Never</option>
@@ -95,12 +117,9 @@ export default function Settings() {
                 <label>Login Alerts</label>
                 <input
                   type="checkbox"
-                  checked={draft.loginAlerts}
+                  checked={draft.loginAlerts || false}
                   onChange={(e) =>
-                    handleChange(
-                      "loginAlerts",
-                      e.target.checked
-                    )
+                    handleChange("loginAlerts", e.target.checked)
                   }
                 />
               </div>
@@ -109,12 +128,13 @@ export default function Settings() {
             {/* INVENTORY */}
             <section className="settings-card">
               <h3>📦 Inventory Rules</h3>
+
               <div className="setting-row">
                 <label>Low Stock Threshold</label>
                 <input
                   type="number"
                   min="1"
-                  value={draft.lowStockThreshold}
+                  value={draft.lowStockThreshold ?? 5}
                   onChange={(e) =>
                     handleChange(
                       "lowStockThreshold",
@@ -128,7 +148,7 @@ export default function Settings() {
                 <label>Block billing when out of stock</label>
                 <input
                   type="checkbox"
-                  checked={draft.blockOutOfStock}
+                  checked={draft.blockOutOfStock || false}
                   onChange={(e) =>
                     handleChange(
                       "blockOutOfStock",
@@ -142,16 +162,14 @@ export default function Settings() {
             {/* PREFERENCES */}
             <section className="settings-card">
               <h3>⚙ Preferences</h3>
+
               <div className="setting-row">
                 <label>Dark Mode</label>
                 <input
                   type="checkbox"
-                  checked={draft.darkMode}
+                  checked={draft.darkMode || false}
                   onChange={(e) =>
-                    handleChange(
-                      "darkMode",
-                      e.target.checked
-                    )
+                    handleChange("darkMode", e.target.checked)
                   }
                 />
               </div>
@@ -159,12 +177,9 @@ export default function Settings() {
               <div className="setting-row">
                 <label>Currency</label>
                 <select
-                  value={draft.currency}
+                  value={draft.currency || "INR"}
                   onChange={(e) =>
-                    handleChange(
-                      "currency",
-                      e.target.value
-                    )
+                    handleChange("currency", e.target.value)
                   }
                 >
                   <option value="INR">₹ INR</option>

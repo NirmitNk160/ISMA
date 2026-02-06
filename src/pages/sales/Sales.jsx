@@ -6,54 +6,90 @@ import Sidebar from "../dashboard/Sidebar";
 import Navbar from "../../components/Navbar";
 import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";
+import { useAuth } from "../../context/AuthContext";
 
 import "./Sales.css";
 
 export default function Sales() {
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const { format } = useCurrency();
+  const { loading: authLoading } = useAuth(); // ⭐ KEY FIX
 
-  /* ================= FETCH SALES ================= */
+  /* ================= SAFE FETCH SALES ================= */
   useEffect(() => {
-    api.get("/sales").then((res) => {
-      const grouped = {};
+    if (authLoading) return;
 
-      res.data.forEach((row) => {
-        const billId = row.bill_id;
+    let mounted = true;
 
-        if (!grouped[billId]) {
-          grouped[billId] = {
-            bill_id: billId,
-            created_at: row.created_at,
-            items: [],
-            totalINR: 0,
-          };
-        }
+    const fetchSales = async () => {
+      try {
+        const res = await api.get("/sales");
 
-        const qty = Number(row.quantity) || 0;
-        const unitPriceINR = Number(row.unit_price) || 0;
-        const totalPriceINR =
-          Number(row.total_price) || qty * unitPriceINR;
+        const grouped = {};
 
-        grouped[billId].items.push({
-          name: row.product_name,
-          quantity: qty,
-          unitPriceINR,
-          totalPriceINR,
+        res.data.forEach((row) => {
+          const billId = row.bill_id;
+
+          if (!grouped[billId]) {
+            grouped[billId] = {
+              bill_id: billId,
+              created_at: row.created_at,
+              items: [],
+              totalINR: 0,
+            };
+          }
+
+          const qty = Number(row.quantity) || 0;
+          const unitPriceINR = Number(row.unit_price) || 0;
+          const totalPriceINR =
+            Number(row.total_price) || qty * unitPriceINR;
+
+          grouped[billId].items.push({
+            name: row.product_name,
+            quantity: qty,
+            unitPriceINR,
+            totalPriceINR,
+          });
+
+          grouped[billId].totalINR += totalPriceINR;
         });
 
-        grouped[billId].totalINR += totalPriceINR;
-      });
+        if (mounted) setBills(Object.values(grouped));
+      } catch (err) {
+        console.error(err);
+        if (mounted) setError("Failed to load sales");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
 
-      setBills(Object.values(grouped));
-      setLoading(false);
-    });
-  }, []);
+    fetchSales();
 
-  if (loading) return null;
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading]);
+
+  /* ================= LOADING GUARD ================= */
+  if (loading || authLoading) {
+    return (
+      <div className="sales-root">
+        <Navbar />
+        <div className="sales-body">
+          <Sidebar />
+          <main className="sales-content">
+            <p style={{ padding: "2rem" }}>
+              Loading sales…
+            </p>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="sales-root">
@@ -68,15 +104,17 @@ export default function Sales() {
             <h2>Sales</h2>
           </div>
 
-          {/* ================= EMPTY STATE ================= */}
+          {error && <div className="error-msg">❌ {error}</div>}
+
+          {/* EMPTY STATE */}
           {bills.length === 0 ? (
             <div className="sales-empty">
               <div className="sales-empty-card">
                 <div className="sales-empty-icon">🧾</div>
                 <h3>No Sales Yet</h3>
                 <p>
-                  You haven’t generated any bills yet.  
-                  Start billing to see your sales history here.
+                  You haven’t generated any bills yet.
+                  Start billing to see your sales history.
                 </p>
 
                 <button
@@ -88,7 +126,6 @@ export default function Sales() {
               </div>
             </div>
           ) : (
-            /* ================= SALES LIST ================= */
             bills.map((bill) => (
               <div key={bill.bill_id} className="sales-card">
                 <div className="sales-card-header">
