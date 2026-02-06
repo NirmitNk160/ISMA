@@ -115,11 +115,9 @@
 /* ================= ADD BUTTON ================= */
 
 .add-btn {
-  background: linear-gradient(
-    135deg,
-    #38bdf8,
-    #0ea5e9
-  );
+  background: linear-gradient(135deg,
+      #38bdf8,
+      #0ea5e9);
 
   color: #020617;
   border: none;
@@ -230,11 +228,9 @@
 
 /* Base button */
 .confirm-btn {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-strong)
-  );
+  background: linear-gradient(135deg,
+      var(--accent),
+      var(--accent-strong));
   color: var(--text-invert);
 
   border: none;
@@ -347,7 +343,7 @@ body.light-mode .confirm-btn:hover:not(:disabled) {
 .billing-root,
 .billing-root * {
   font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont,
-               "Segoe UI", Roboto, Arial, sans-serif;
+    "Segoe UI", Roboto, Arial, sans-serif;
   font-weight: 600;
 }
 
@@ -397,4 +393,156 @@ body.light-mode .confirm-btn:hover:not(:disabled) {
 /* Remove icon */
 .remove-btn {
   font-weight: 900;
+}
+
+/* =====================================================
+   BARCODE SCANNER INPUT — POS STYLE
+   ===================================================== */
+
+.barcode-input {
+  width: 100%;
+  margin-bottom: 22px;
+
+  padding: 16px 18px;
+  border-radius: 16px;
+
+  background: var(--input-bg);
+  border: 2px dashed var(--accent-soft);
+
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+
+  outline: none;
+
+  transition:
+    border 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.15s ease;
+}
+
+/* Focus effect (scanner ready feel) */
+.barcode-input:focus {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 4px var(--accent-soft),
+    0 8px 22px rgba(56, 189, 248, 0.25);
+
+  transform: translateY(-1px);
+}
+
+/* Placeholder styling */
+.barcode-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Light mode refinement */
+body.light-mode .barcode-input {
+  border: 2px dashed rgba(37, 99, 235, 0.3);
+}
+
+/* Mobile adjustment */
+@media (max-width: 640px) {
+  .barcode-input {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+}
+
+/* =====================================================
+   CAMERA BARCODE SCANNER UI
+   ===================================================== */
+
+/* Scan button */
+.scan-btn {
+  margin-bottom: 22px;
+  padding: 12px 22px;
+
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+
+  border: none;
+  border-radius: 14px;
+
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 26px rgba(34, 197, 94, 0.35);
+
+  transition: all 0.2s ease;
+}
+
+.scan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 36px rgba(34, 197, 94, 0.5);
+}
+
+/* Scanner modal background */
+.scanner-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Scanner container */
+.scanner-box {
+  width: 420px;
+  max-width: 90vw;
+
+  background: var(--card-bg-solid);
+  border-radius: 20px;
+  padding: 20px;
+
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+
+  text-align: center;
+}
+
+/* Close button */
+.close-btn {
+  background: #ef4444;
+  color: white;
+
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+  margin-bottom: 12px;
+
+  transition: transform 0.15s ease;
+}
+
+.close-btn:hover {
+  transform: scale(1.08);
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  .scanner-box {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .scan-btn {
+    width: 100%;
+  }
 }

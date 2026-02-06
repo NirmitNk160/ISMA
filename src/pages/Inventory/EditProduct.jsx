@@ -23,8 +23,9 @@ export default function EditProduct() {
     name: "",
     category: "",
     stock: "",
-    price: "", // shown in selected currency
+    price: "",
     description: "",
+    barcode: "", // ✅ added
   });
 
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function EditProduct() {
           stock: res.data.stock ?? "",
           price: displayPrice.toFixed(2),
           description: res.data.description ?? "",
+          barcode: res.data.barcode ?? "", // ✅ load barcode
         });
       })
       .catch(() => {
@@ -69,7 +71,6 @@ export default function EditProduct() {
       return;
     }
 
-    // 🔥 CONVERT BACK TO INR
     let priceInINR = priceInput;
     if (settings.currency !== "INR") {
       const rate = rates[settings.currency];
@@ -89,6 +90,7 @@ export default function EditProduct() {
         stock: stockInput,
         price: Math.round(priceInINR),
         description: form.description,
+        barcode: form.barcode, // ✅ send barcode
       });
 
       navigate("/inventory");
@@ -136,6 +138,7 @@ export default function EditProduct() {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
+                  placeholder="Enter product name"
                   required
                 />
               </div>
@@ -146,6 +149,7 @@ export default function EditProduct() {
                   name="category"
                   value={form.category}
                   onChange={handleChange}
+                  placeholder="Example: Electronics, Grocery"
                   required
                 />
               </div>
@@ -158,14 +162,13 @@ export default function EditProduct() {
                   name="stock"
                   value={form.stock}
                   onChange={handleChange}
+                  placeholder="Enter available quantity"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label>
-                  Price ({settings.currency})
-                </label>
+                <label>Price ({settings.currency})</label>
                 <input
                   type="number"
                   min="0"
@@ -173,7 +176,19 @@ export default function EditProduct() {
                   name="price"
                   value={form.price}
                   onChange={handleChange}
+                  placeholder={`Enter price in ${settings.currency}`}
                   required
+                />
+              </div>
+
+              {/* ⭐ Barcode Field */}
+              <div className="form-group">
+                <label>Barcode</label>
+                <input
+                  name="barcode"
+                  value={form.barcode}
+                  onChange={handleChange}
+                  placeholder="Scan or type barcode"
                 />
               </div>
 
@@ -183,6 +198,7 @@ export default function EditProduct() {
                   name="description"
                   value={form.description}
                   onChange={handleChange}
+                  placeholder="Optional product description"
                 />
               </div>
             </div>

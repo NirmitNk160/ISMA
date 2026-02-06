@@ -18,8 +18,9 @@ export default function AddProduct() {
     name: "",
     category: "",
     stock: "",
-    price: "", // USER INPUT (selected currency)
+    price: "",
     description: "",
+    barcode: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -41,7 +42,7 @@ export default function AddProduct() {
       return;
     }
 
-    // 🔥 CONVERT INPUT → INR
+    // Convert price → INR
     let priceInINR = priceInput;
     if (settings.currency !== "INR") {
       const rate = rates[settings.currency];
@@ -59,15 +60,14 @@ export default function AddProduct() {
         name: form.name,
         category: form.category,
         stock: stockInput,
-        price: Math.round(priceInINR), // store INR
+        price: Math.round(priceInINR),
         description: form.description,
+        barcode: form.barcode,
       });
 
       navigate("/inventory");
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Failed to add product"
-      );
+      setError(err.response?.data?.message || "Failed to add product");
     } finally {
       setLoading(false);
     }
@@ -96,6 +96,7 @@ export default function AddProduct() {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
+                  placeholder="Enter product name"
                   required
                 />
               </div>
@@ -106,6 +107,7 @@ export default function AddProduct() {
                   name="category"
                   value={form.category}
                   onChange={handleChange}
+                  placeholder="Example: Electronics, Grocery"
                   required
                 />
               </div>
@@ -118,14 +120,13 @@ export default function AddProduct() {
                   name="stock"
                   value={form.stock}
                   onChange={handleChange}
+                  placeholder="Enter available quantity"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label>
-                  Price ({settings.currency})
-                </label>
+                <label>Price ({settings.currency})</label>
                 <input
                   type="number"
                   min="0"
@@ -133,7 +134,18 @@ export default function AddProduct() {
                   name="price"
                   value={form.price}
                   onChange={handleChange}
+                  placeholder={`Enter price in ${settings.currency}`}
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Barcode</label>
+                <input
+                  name="barcode"
+                  value={form.barcode}
+                  onChange={handleChange}
+                  placeholder="Scan or type barcode"
                 />
               </div>
 
@@ -143,6 +155,7 @@ export default function AddProduct() {
                   name="description"
                   value={form.description}
                   onChange={handleChange}
+                  placeholder="Optional product description"
                 />
               </div>
             </div>

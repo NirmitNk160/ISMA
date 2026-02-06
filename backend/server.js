@@ -12,13 +12,10 @@ import dashboardRoutes from "./routes/dashboard.js";
 
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
+/* ================= CORS FIX ================= */
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://192.168.29.200:5173", // ✅ phone access
-    ],
+    origin: true, // allow any origin (safe for dev)
     credentials: true,
   })
 );
@@ -43,8 +40,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Internal server error" });
 });
 
-/* ================= START ================= */
+/* ================= START SERVER ================= */
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Backend running on port ${PORT}`);
 });

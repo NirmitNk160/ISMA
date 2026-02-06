@@ -7,7 +7,7 @@ const router = express.Router();
 /* ================= ADD PRODUCT ================= */
 router.post("/", verifyToken, async (req, res) => {
   try {
-    const { name, category, stock, price, description } = req.body;
+    const { name, category, stock, price, description, barcode } = req.body;
     const userId = req.user.id;
 
     if (!name || !category || stock === "" || price === "") {
@@ -22,11 +22,11 @@ router.post("/", verifyToken, async (req, res) => {
 
     await db.query(
       `
-      INSERT INTO products 
-      (user_id, name, category, stock, price, description, is_deleted)
-      VALUES (?, ?, ?, ?, ?, ?, FALSE)
+      INSERT INTO products
+      (user_id, name, category, stock, price, description, barcode, is_deleted)
+      VALUES (?, ?, ?, ?, ?, ?, ?, FALSE)
       `,
-      [userId, name, category, Number(stock), Number(price), description],
+      [userId, name, category, Number(stock), Number(price), description, barcode],
     );
 
     res.status(201).json({ message: "Product added" });
@@ -43,8 +43,8 @@ router.get("/", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT 
-        p.id, p.name, p.category, p.stock, p.price,
+      SELECT
+        p.id, p.name, p.category, p.stock, p.price, p.description, p.barcode,
         CASE
           WHEN p.stock = 0 THEN 'Out'
           WHEN p.stock < 15 THEN 'Low'
@@ -76,7 +76,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT name, category, stock, price, description
+      SELECT name, category, stock, price, description, barcode
       FROM products
       WHERE id = ? AND user_id = ? AND is_deleted = FALSE
       `,
@@ -96,7 +96,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 /* ================= UPDATE PRODUCT ================= */
 router.put("/:id", verifyToken, async (req, res) => {
   try {
-    const { name, category, stock, price, description } = req.body;
+    const { name, category, stock, price, description, barcode } = req.body;
     const userId = req.user.id;
     const productId = req.params.id;
 
@@ -113,7 +113,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     const [result] = await db.query(
       `
       UPDATE products
-      SET name = ?, category = ?, stock = ?, price = ?, description = ?
+      SET name = ?, category = ?, stock = ?, price = ?, description = ?, barcode = ?
       WHERE id = ? AND user_id = ? AND is_deleted = FALSE
       `,
       [
@@ -122,6 +122,7 @@ router.put("/:id", verifyToken, async (req, res) => {
         Number(stock),
         Number(price),
         description,
+        barcode,
         productId,
         userId,
       ],
@@ -169,7 +170,7 @@ router.get("/archived/all", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT id, name, category, stock, price, created_at
+      SELECT id, name, category, stock, price, barcode, created_at
       FROM products
       WHERE user_id = ? AND is_deleted = TRUE
       ORDER BY created_at DESC
@@ -224,5 +225,32 @@ router.delete("/permanent/:id", verifyToken, async (req, res) => {
     res.status(500).json({ message: "DB error" });
   }
 });
+
+/* ================= FIND PRODUCT BY BARCODE ================= */
+router.get("/barcode/:code", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const code = req.params.code;
+
+    const [rows] = await db.query(
+      `
+      SELECT id, name, price, stock, barcode
+      FROM products
+      WHERE barcode = ? AND user_id = ? AND is_deleted = FALSE
+      LIMIT 1
+      `,
+      [code, userId]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: "DB error" });
+  }
+});
+
 
 export default router;
