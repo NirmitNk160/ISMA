@@ -23,6 +23,7 @@ export default function Inventory() {
   const [deleting, setDeleting] = useState(false);
 
   const [search, setSearch] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
 
   /* ================= FETCH PRODUCTS ================= */
   const fetchProducts = async () => {
@@ -30,7 +31,9 @@ export default function Inventory() {
     setError("");
 
     try {
-      const res = await api.get("/inventory");
+      const url = showArchived ? "/inventory/archived/all" : "/inventory";
+
+      const res = await api.get(url);
       setProducts(res.data);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load inventory");
@@ -41,7 +44,7 @@ export default function Inventory() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [showArchived]);
 
   /* ================= DELETE ================= */
   const confirmDelete = async () => {
@@ -64,7 +67,7 @@ export default function Inventory() {
   /* ================= SEARCH ================= */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
+      p.name.toLowerCase().includes(search.toLowerCase()),
     );
   }, [products, search]);
 
@@ -96,6 +99,13 @@ export default function Inventory() {
               onClick={() => navigate("/inventory/add")}
             >
               + Add Product
+            </button>
+
+            <button
+              className="archive-toggle"
+              onClick={() => setShowArchived(!showArchived)}
+            >
+              {showArchived ? "Active Products" : "Archived Products"}
             </button>
 
             <input
@@ -142,27 +152,36 @@ export default function Inventory() {
                         </td>
 
                         <td>
-                          <button
-                            className="edit-btn"
-                            onClick={() =>
-                              navigate(`/inventory/edit/${p.id}`)
-                            }
-                          >
-                            ✏️ Edit
-                          </button>
+                          {!showArchived ? (
+                            <>
+                              <button
+                                className="edit-btn"
+                                onClick={() =>
+                                  navigate(`/inventory/edit/${p.id}`)
+                                }
+                              >
+                                ✏️ Edit
+                              </button>
 
-                          <button
-                            className="delete-btn"
-                            disabled={p.hasSales}
-                            title={
-                              p.hasSales
-                                ? "Cannot delete product with sales"
-                                : "Delete product"
-                            }
-                            onClick={() => setDeleteId(p.id)}
-                          >
-                            🗑 Delete
-                          </button>
+                              <button
+                                className="delete-btn"
+                                title="Archive product"
+                                onClick={() => setDeleteId(p.id)}
+                              >
+                                🗑 Archive
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              className="restore-btn"
+                              onClick={async () => {
+                                await api.put(`/inventory/restore/${p.id}`);
+                                fetchProducts();
+                              }}
+                            >
+                              ♻️ Restore
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
@@ -182,12 +201,17 @@ export default function Inventory() {
         </main>
       </div>
 
-      {/* ================= DELETE CONFIRM MODAL ================= */}
+      {/* ================= ARCHIVE CONFIRM MODAL ================= */}
       {deleteId && (
         <div className="delete-overlay">
           <div className="delete-modal">
-            <h3>Delete Product</h3>
-            <p>This action cannot be undone. Are you sure?</p>
+            <h3>{showArchived ? "Restore Product" : "Archive Product"}</h3>
+
+            <p>
+              {showArchived
+                ? "This product will be restored to active inventory."
+                : "This product will be archived and hidden from inventory. You can restore it anytime."}
+            </p>
 
             <div className="delete-actions">
               <button
@@ -203,7 +227,7 @@ export default function Inventory() {
                 onClick={confirmDelete}
                 disabled={deleting}
               >
-                {deleting ? "Deleting…" : "Delete"}
+                {deleting ? "Archiving…" : "Archive"}
               </button>
             </div>
           </div>

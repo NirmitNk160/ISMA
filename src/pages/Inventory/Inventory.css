@@ -9,7 +9,7 @@
   background: var(--app-bg);
   color: var(--text-primary);
   font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
-               "Helvetica Neue", Arial, sans-serif;
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 /* ================= LAYOUT ================= */
@@ -359,4 +359,73 @@
 
 .delete-actions .delete-btn {
   flex: 1;
+}
+
+/* ================= ARCHIVE TOGGLE BUTTON ================= */
+
+.archive-toggle {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+
+  border: 1px solid var(--btn-secondary-border);
+  padding: 12px 22px;
+  border-radius: 16px;
+
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.archive-toggle:hover {
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+
+/* ================= RESTORE BUTTON ================= */
+
+.restore-btn {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
+
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  padding: 8px 14px;
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.restore-btn:hover {
+  background: var(--success);
+  color: var(--text-invert);
+  transform: translateY(-1px);
+}
+
+
+/* ================= ARCHIVE MODAL IMPROVEMENT ================= */
+
+.delete-modal h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.delete-modal p {
+  line-height: 1.5;
+}
+
+
+/* ================= SMALL MOBILE FIX ================= */
+
+@media (max-width: 600px) {
+  .archive-toggle {
+    width: 100%;
+  }
 }

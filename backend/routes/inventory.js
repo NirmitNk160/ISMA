@@ -22,10 +22,11 @@ router.post("/", verifyToken, async (req, res) => {
 
     await db.query(
       `
-      INSERT INTO products (user_id, name, category, stock, price, description)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO products 
+      (user_id, name, category, stock, price, description, is_deleted)
+      VALUES (?, ?, ?, ?, ?, ?, FALSE)
       `,
-      [userId, name, category, Number(stock), Number(price), description]
+      [userId, name, category, Number(stock), Number(price), description],
     );
 
     res.status(201).json({ message: "Product added" });
@@ -42,17 +43,22 @@ router.get("/", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT id, name, category, stock, price,
+      SELECT 
+        p.id, p.name, p.category, p.stock, p.price,
         CASE
-          WHEN stock = 0 THEN 'Out'
-          WHEN stock < 15 THEN 'Low'
+          WHEN p.stock = 0 THEN 'Out'
+          WHEN p.stock < 15 THEN 'Low'
           ELSE 'In Stock'
-        END AS status
-      FROM products
-      WHERE user_id = ?
-      ORDER BY created_at DESC
+        END AS status,
+        EXISTS(
+          SELECT 1 FROM sales s 
+          WHERE s.product_id = p.id
+        ) AS hasSales
+      FROM products p
+      WHERE p.user_id = ? AND p.is_deleted = FALSE
+      ORDER BY p.created_at DESC
       `,
-      [userId]
+      [userId],
     );
 
     res.json(rows);
@@ -72,9 +78,9 @@ router.get("/:id", verifyToken, async (req, res) => {
       `
       SELECT name, category, stock, price, description
       FROM products
-      WHERE id = ? AND user_id = ?
+      WHERE id = ? AND user_id = ? AND is_deleted = FALSE
       `,
-      [productId, userId]
+      [productId, userId],
     );
 
     if (!rows.length) {
@@ -108,7 +114,7 @@ router.put("/:id", verifyToken, async (req, res) => {
       `
       UPDATE products
       SET name = ?, category = ?, stock = ?, price = ?, description = ?
-      WHERE id = ? AND user_id = ?
+      WHERE id = ? AND user_id = ? AND is_deleted = FALSE
       `,
       [
         name,
@@ -118,7 +124,7 @@ router.put("/:id", verifyToken, async (req, res) => {
         description,
         productId,
         userId,
-      ]
+      ],
     );
 
     if (!result.affectedRows) {
@@ -131,34 +137,89 @@ router.put("/:id", verifyToken, async (req, res) => {
   }
 });
 
-/* ================= DELETE PRODUCT ================= */
+/* ================= SOFT DELETE PRODUCT ================= */
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const productId = req.params.id;
 
-    // 🔒 Prevent deletion if product has sales
-    const [sales] = await db.query(
-      "SELECT id FROM sales WHERE product_id = ? LIMIT 1",
-      [productId]
-    );
-
-    if (sales.length) {
-      return res.status(400).json({
-        message: "Cannot delete product with existing sales",
-      });
-    }
-
     const [result] = await db.query(
-      "DELETE FROM products WHERE id = ? AND user_id = ?",
-      [productId, userId]
+      `
+      UPDATE products
+      SET is_deleted = TRUE
+      WHERE id = ? AND user_id = ?
+      `,
+      [productId, userId],
     );
 
     if (!result.affectedRows) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    res.json({ message: "Deleted" });
+    res.json({ message: "Product archived successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "DB error" });
+  }
+});
+
+/* ================= GET ARCHIVED PRODUCTS ================= */
+router.get("/archived/all", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [rows] = await db.query(
+      `
+      SELECT id, name, category, stock, price, created_at
+      FROM products
+      WHERE user_id = ? AND is_deleted = TRUE
+      ORDER BY created_at DESC
+      `,
+      [userId],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: "DB error" });
+  }
+});
+
+/* ================= RESTORE PRODUCT ================= */
+router.put("/restore/:id", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const productId = req.params.id;
+
+    const [result] = await db.query(
+      `
+      UPDATE products
+      SET is_deleted = FALSE
+      WHERE id = ? AND user_id = ?
+      `,
+      [productId, userId],
+    );
+
+    if (!result.affectedRows) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json({ message: "Product restored" });
+  } catch (err) {
+    res.status(500).json({ message: "DB error" });
+  }
+});
+
+/* ================= PERMANENT DELETE ================= */
+router.delete("/permanent/:id", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const productId = req.params.id;
+
+    await db.query("DELETE FROM products WHERE id=? AND user_id=?", [
+      productId,
+      userId,
+    ]);
+
+    res.json({ message: "Product permanently deleted" });
   } catch (err) {
     res.status(500).json({ message: "DB error" });
   }
