@@ -21,58 +21,20 @@ export default function Sales() {
 
   /* ================= SAFE FETCH SALES ================= */
   useEffect(() => {
-    if (authLoading) return;
-
-    let mounted = true;
-
-    const fetchSales = async () => {
+    const loadData = async () => {
       try {
-        const res = await api.get("/sales");
-
-        const grouped = {};
-
-        res.data.forEach((row) => {
-          const billId = row.bill_id;
-
-          if (!grouped[billId]) {
-            grouped[billId] = {
-              bill_id: billId,
-              created_at: row.created_at,
-              items: [],
-              totalINR: 0,
-            };
-          }
-
-          const qty = Number(row.quantity) || 0;
-          const unitPriceINR = Number(row.unit_price) || 0;
-          const totalPriceINR =
-            Number(row.total_price) || qty * unitPriceINR;
-
-          grouped[billId].items.push({
-            name: row.product_name,
-            quantity: qty,
-            unitPriceINR,
-            totalPriceINR,
-          });
-
-          grouped[billId].totalINR += totalPriceINR;
-        });
-
-        if (mounted) setBills(Object.values(grouped));
+        const res = await api.get("/endpoint");
+        setData(res.data);
       } catch (err) {
         console.error(err);
-        if (mounted) setError("Failed to load sales");
+        setError("Failed to load data");
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false); // ALWAYS
       }
     };
 
-    fetchSales();
-
-    return () => {
-      mounted = false;
-    };
-  }, [authLoading]);
+    loadData();
+  }, []);
 
   /* ================= LOADING GUARD ================= */
   if (loading || authLoading) {
@@ -82,9 +44,7 @@ export default function Sales() {
         <div className="sales-body">
           <Sidebar />
           <main className="sales-content">
-            <p style={{ padding: "2rem" }}>
-              Loading sales…
-            </p>
+            <p style={{ padding: "2rem" }}>Loading sales…</p>
           </main>
         </div>
       </div>
@@ -113,8 +73,8 @@ export default function Sales() {
                 <div className="sales-empty-icon">🧾</div>
                 <h3>No Sales Yet</h3>
                 <p>
-                  You haven’t generated any bills yet.
-                  Start billing to see your sales history.
+                  You haven’t generated any bills yet. Start billing to see your
+                  sales history.
                 </p>
 
                 <button
@@ -130,9 +90,7 @@ export default function Sales() {
               <div key={bill.bill_id} className="sales-card">
                 <div className="sales-card-header">
                   <span>🧾 {bill.bill_id}</span>
-                  <span>
-                    {new Date(bill.created_at).toLocaleString()}
-                  </span>
+                  <span>{new Date(bill.created_at).toLocaleString()}</span>
                 </div>
 
                 <table className="sales-table">
@@ -157,9 +115,7 @@ export default function Sales() {
                   </tbody>
                 </table>
 
-                <div className="bill-total">
-                  Total: {format(bill.totalINR)}
-                </div>
+                <div className="bill-total">Total: {format(bill.totalINR)}</div>
               </div>
             ))
           )}

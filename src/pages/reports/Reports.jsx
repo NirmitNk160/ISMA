@@ -22,43 +22,25 @@ export default function Reports() {
 
   /* ================= SAFE FETCH DATA ================= */
   useEffect(() => {
-    if (authLoading) return;
-
-    let mounted = true;
-
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        const [invRes, salesRes] = await Promise.all([
-          api.get("/inventory"),
-          api.get("/sales"),
-        ]);
-
-        if (mounted) {
-          setInventory(invRes.data);
-          setSales(salesRes.data);
-        }
+        const res = await api.get("/endpoint");
+        setData(res.data);
       } catch (err) {
         console.error(err);
-        if (mounted) setError("Failed to load reports");
+        setError("Failed to load data");
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false); // ALWAYS
       }
     };
 
-    fetchData();
-
-    return () => {
-      mounted = false;
-    };
-  }, [authLoading]);
+    loadData();
+  }, []);
 
   /* ================= DERIVED REPORT ================= */
   const report = useMemo(() => {
     const totalProducts = inventory.length;
-    const totalStock = inventory.reduce(
-      (a, b) => a + Number(b.stock || 0),
-      0
-    );
+    const totalStock = inventory.reduce((a, b) => a + Number(b.stock || 0), 0);
 
     let totalRevenueINR = 0;
     let totalItemsSold = 0;
@@ -69,8 +51,7 @@ export default function Reports() {
       totalItemsSold += Number(s.quantity || 0);
 
       salesMap[s.product_name] =
-        (salesMap[s.product_name] || 0) +
-        Number(s.quantity || 0);
+        (salesMap[s.product_name] || 0) + Number(s.quantity || 0);
     });
 
     const alerts = [];
@@ -123,9 +104,7 @@ export default function Reports() {
     const entries = Object.entries(salesMap);
     if (entries.length) {
       const totalSold = entries.reduce((a, b) => a + b[1], 0);
-      const [topName, topQty] = entries.sort(
-        (a, b) => b[1] - a[1]
-      )[0];
+      const [topName, topQty] = entries.sort((a, b) => b[1] - a[1])[0];
 
       if (topQty / totalSold > 0.6) {
         alerts.push({
@@ -157,9 +136,7 @@ export default function Reports() {
         <div className="reports-body">
           <Sidebar />
           <main className="reports-content">
-            <p style={{ padding: "2rem" }}>
-              Loading reports…
-            </p>
+            <p style={{ padding: "2rem" }}>Loading reports…</p>
           </main>
         </div>
       </div>
@@ -213,8 +190,8 @@ export default function Reports() {
                 report.healthScore > 70
                   ? "good"
                   : report.healthScore > 40
-                  ? "warning"
-                  : "danger"
+                    ? "warning"
+                    : "danger"
               }`}
             >
               <div style={{ width: `${report.healthScore}%` }} />

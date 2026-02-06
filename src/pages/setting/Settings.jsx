@@ -17,10 +17,20 @@ export default function Settings() {
 
   /* ================= SYNC SETTINGS SAFELY ================= */
   useEffect(() => {
-    if (!authLoading && settings) {
-      setDraft(settings);
-    }
-  }, [settings, authLoading]);
+    const loadData = async () => {
+      try {
+        const res = await api.get("/endpoint");
+        setData(res.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load data");
+      } finally {
+        setLoading(false); // ALWAYS
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleChange = (key, value) => {
     setDraft((prev) => ({
@@ -49,9 +59,7 @@ export default function Settings() {
         <div className="settings-body">
           <Sidebar />
           <main className="settings-content">
-            <p style={{ padding: "2rem" }}>
-              Loading settings…
-            </p>
+            <p style={{ padding: "2rem" }}>Loading settings…</p>
           </main>
         </div>
       </div>
@@ -80,9 +88,7 @@ export default function Settings() {
                 <label>Username</label>
                 <input
                   value={draft.username || ""}
-                  onChange={(e) =>
-                    handleChange("username", e.target.value)
-                  }
+                  onChange={(e) => handleChange("username", e.target.value)}
                 />
               </div>
 
@@ -136,10 +142,7 @@ export default function Settings() {
                   min="1"
                   value={draft.lowStockThreshold ?? 5}
                   onChange={(e) =>
-                    handleChange(
-                      "lowStockThreshold",
-                      Number(e.target.value)
-                    )
+                    handleChange("lowStockThreshold", Number(e.target.value))
                   }
                 />
               </div>
@@ -150,10 +153,7 @@ export default function Settings() {
                   type="checkbox"
                   checked={draft.blockOutOfStock || false}
                   onChange={(e) =>
-                    handleChange(
-                      "blockOutOfStock",
-                      e.target.checked
-                    )
+                    handleChange("blockOutOfStock", e.target.checked)
                   }
                 />
               </div>
@@ -168,9 +168,7 @@ export default function Settings() {
                 <input
                   type="checkbox"
                   checked={draft.darkMode || false}
-                  onChange={(e) =>
-                    handleChange("darkMode", e.target.checked)
-                  }
+                  onChange={(e) => handleChange("darkMode", e.target.checked)}
                 />
               </div>
 
@@ -178,9 +176,7 @@ export default function Settings() {
                 <label>Currency</label>
                 <select
                   value={draft.currency || "INR"}
-                  onChange={(e) =>
-                    handleChange("currency", e.target.value)
-                  }
+                  onChange={(e) => handleChange("currency", e.target.value)}
                 >
                   <option value="INR">₹ INR</option>
                   <option value="USD">$ USD</option>
@@ -203,9 +199,7 @@ export default function Settings() {
       </div>
 
       {saved && (
-        <div className="settings-toast">
-          ✅ Changes applied successfully
-        </div>
+        <div className="settings-toast">✅ Changes applied successfully</div>
       )}
     </div>
   );

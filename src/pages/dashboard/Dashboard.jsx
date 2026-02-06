@@ -24,31 +24,20 @@ export default function Dashboard() {
 
   /* ================= SAFE FETCH ================= */
   useEffect(() => {
-    if (authLoading || !isAuthenticated) return;
-
-    let mounted = true;
-
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        const res = await api.get("/dashboard");
-
-        if (mounted) {
-          setStats(res.data || {});
-        }
+        const res = await api.get("/endpoint");
+        setData(res.data);
       } catch (err) {
-        console.error("Dashboard fetch error:", err);
-        if (mounted) setError("Failed to load dashboard data");
+        console.error(err);
+        setError("Failed to load data");
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false); // ALWAYS
       }
     };
 
-    fetchData();
-
-    return () => {
-      mounted = false;
-    };
-  }, [authLoading, isAuthenticated]);
+    loadData();
+  }, []);
 
   /* ================= LOADING GUARD ================= */
   if (authLoading || loading) {
@@ -56,10 +45,7 @@ export default function Dashboard() {
       <div className="dashboard-root">
         <Navbar />
         <div className="dashboard-body">
-          <Sidebar
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-          />
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
           <main className="content">Loading dashboard…</main>
         </div>
       </div>
@@ -78,10 +64,7 @@ export default function Dashboard() {
           />
         )}
 
-        <Sidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className="content">
           <div className="page-header">
@@ -117,9 +100,7 @@ export default function Dashboard() {
           <section className="grid">
             <div className="card chart">
               <h3>Monthly Recap</h3>
-              <div className="chart-placeholder">
-                📊 Chart coming soon
-              </div>
+              <div className="chart-placeholder">📊 Chart coming soon</div>
             </div>
 
             <div className="card">

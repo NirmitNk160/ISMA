@@ -29,32 +29,20 @@ export default function Inventory() {
 
   /* ================= FETCH PRODUCTS SAFELY ================= */
   useEffect(() => {
-    if (authLoading || !isAuthenticated) return;
-
-    const fetchProducts = async () => {
+    const loadData = async () => {
       try {
-        setLoading(true);
-        setError("");
-
-        const url = showArchived
-          ? "/inventory/archived/all"
-          : "/inventory";
-
-        const res = await api.get(url);
-        setProducts(res.data || []);
+        const res = await api.get("/endpoint");
+        setData(res.data);
       } catch (err) {
-        console.error("Inventory fetch error:", err);
-        setError(
-          err.response?.data?.message ||
-            "Failed to load inventory"
-        );
+        console.error(err);
+        setError("Failed to load data");
       } finally {
-        setLoading(false);
+        setLoading(false); // ALWAYS
       }
     };
 
-    fetchProducts();
-  }, [showArchived, authLoading, isAuthenticated]);
+    loadData();
+  }, []);
 
   /* ================= DELETE ================= */
   const confirmDelete = async () => {
@@ -69,17 +57,12 @@ export default function Inventory() {
 
       // refetch safely
       const res = await api.get(
-        showArchived
-          ? "/inventory/archived/all"
-          : "/inventory"
+        showArchived ? "/inventory/archived/all" : "/inventory",
       );
       setProducts(res.data || []);
     } catch (err) {
       console.error(err);
-      setError(
-        err.response?.data?.message ||
-          "Unable to delete product"
-      );
+      setError(err.response?.data?.message || "Unable to delete product");
       setDeleteId(null);
     } finally {
       setDeleting(false);
@@ -91,16 +74,13 @@ export default function Inventory() {
     if (!products.length) return [];
 
     return products.filter((p) =>
-      p?.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
+      p?.name?.toLowerCase().includes(search.toLowerCase()),
     );
   }, [products, search]);
 
   /* ================= STOCK STATUS ================= */
   const getStatus = (stock) => {
-    if (stock === 0)
-      return { label: "Out of Stock", className: "out" };
+    if (stock === 0) return { label: "Out of Stock", className: "out" };
 
     if (stock <= settings.lowStockThreshold)
       return { label: "Low Stock", className: "low" };
@@ -116,9 +96,7 @@ export default function Inventory() {
         <div className="inventory-body">
           <Sidebar />
           <main className="inventory-content">
-            <p style={{ padding: "2rem" }}>
-              Loading inventory…
-            </p>
+            <p style={{ padding: "2rem" }}>Loading inventory…</p>
           </main>
         </div>
       </div>
@@ -136,47 +114,33 @@ export default function Inventory() {
         <main className="inventory-content">
           <div className="inventory-header">
             <BackButton />
-            <h2 className="inventory-title">
-              Inventory
-            </h2>
+            <h2 className="inventory-title">Inventory</h2>
           </div>
 
           <div className="inventory-actions">
             <button
               className="add-btn"
-              onClick={() =>
-                navigate("/inventory/add")
-              }
+              onClick={() => navigate("/inventory/add")}
             >
               + Add Product
             </button>
 
             <button
               className="archive-toggle"
-              onClick={() =>
-                setShowArchived(!showArchived)
-              }
+              onClick={() => setShowArchived(!showArchived)}
             >
-              {showArchived
-                ? "Active Products"
-                : "Archived Products"}
+              {showArchived ? "Active Products" : "Archived Products"}
             </button>
 
             <input
               className="inventory-search"
               placeholder="Search product..."
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
+              onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          {error && (
-            <div className="error-msg">
-              ❌ {error}
-            </div>
-          )}
+          {error && <div className="error-msg">❌ {error}</div>}
 
           <div className="inventory-card">
             <table className="inventory-table">
@@ -206,9 +170,7 @@ export default function Inventory() {
                   </tr>
                 ) : (
                   filteredProducts.map((p, i) => {
-                    const status = getStatus(
-                      Number(p.stock)
-                    );
+                    const status = getStatus(Number(p.stock));
 
                     return (
                       <tr key={p.id}>
@@ -216,13 +178,9 @@ export default function Inventory() {
                         <td>{p.name}</td>
                         <td>{p.category}</td>
                         <td>{p.stock}</td>
-                        <td>
-                          {format(Number(p.price))}
-                        </td>
+                        <td>{format(Number(p.price))}</td>
 
-                        <td
-                          className={`status ${status.className}`}
-                        >
+                        <td className={`status ${status.className}`}>
                           {status.label}
                         </td>
 
@@ -232,9 +190,7 @@ export default function Inventory() {
                               <button
                                 className="edit-btn"
                                 onClick={() =>
-                                  navigate(
-                                    `/inventory/edit/${p.id}`
-                                  )
+                                  navigate(`/inventory/edit/${p.id}`)
                                 }
                               >
                                 ✏️ Edit
@@ -242,9 +198,7 @@ export default function Inventory() {
 
                               <button
                                 className="delete-btn"
-                                onClick={() =>
-                                  setDeleteId(p.id)
-                                }
+                                onClick={() => setDeleteId(p.id)}
                               >
                                 🗑 Archive
                               </button>
@@ -253,9 +207,7 @@ export default function Inventory() {
                             <button
                               className="restore-btn"
                               onClick={async () => {
-                                await api.put(
-                                  `/inventory/restore/${p.id}`
-                                );
+                                await api.put(`/inventory/restore/${p.id}`);
                                 setShowArchived(true);
                               }}
                             >
@@ -279,17 +231,12 @@ export default function Inventory() {
           <div className="delete-modal">
             <h3>Archive Product</h3>
 
-            <p>
-              This product will be archived.
-              You can restore it anytime.
-            </p>
+            <p>This product will be archived. You can restore it anytime.</p>
 
             <div className="delete-actions">
               <button
                 className="cancel-btn"
-                onClick={() =>
-                  setDeleteId(null)
-                }
+                onClick={() => setDeleteId(null)}
                 disabled={deleting}
               >
                 Cancel
@@ -300,9 +247,7 @@ export default function Inventory() {
                 onClick={confirmDelete}
                 disabled={deleting}
               >
-                {deleting
-                  ? "Archiving…"
-                  : "Archive"}
+                {deleting ? "Archiving…" : "Archive"}
               </button>
             </div>
           </div>

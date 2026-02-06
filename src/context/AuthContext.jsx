@@ -46,48 +46,20 @@ export function AuthProvider({ children }) {
   /* ================= AUTO LOGOUT ================= */
 
   useEffect(() => {
-    if (!user) return;
-
-    const autoLogoutMinutes = Number(settings?.autoLogout ?? 0);
-    if (!autoLogoutMinutes) return;
-
-    const resetTimer = () => {
-      if (logoutTimerRef.current) {
-        clearTimeout(logoutTimerRef.current);
+    const loadData = async () => {
+      try {
+        const res = await api.get("/endpoint");
+        setData(res.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load data");
+      } finally {
+        setLoading(false); // ALWAYS
       }
-
-      logoutTimerRef.current = setTimeout(() => {
-        console.warn("Auto logout due to inactivity");
-        logout();
-      }, autoLogoutMinutes * 60 * 1000);
     };
 
-    const events = [
-      "mousemove",
-      "keydown",
-      "click",
-      "scroll",
-      "touchstart",
-      "touchmove",
-      "visibilitychange",
-    ];
-
-    events.forEach((event) =>
-      window.addEventListener(event, resetTimer)
-    );
-
-    resetTimer();
-
-    return () => {
-      if (logoutTimerRef.current) {
-        clearTimeout(logoutTimerRef.current);
-      }
-
-      events.forEach((event) =>
-        window.removeEventListener(event, resetTimer)
-      );
-    };
-  }, [user, settings?.autoLogout]);
+    loadData();
+  }, []);
 
   /* ================= LOGIN ================= */
 
