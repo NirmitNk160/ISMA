@@ -8,6 +8,7 @@ import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";
 import { useCurrency } from "../../context/CurrencyContext";
 import BarcodeScanner from "../../components/BarcodeScanner";
+import { useAuth } from "../../context/AuthContext";
 
 import "./Billing.css";
 
@@ -15,6 +16,7 @@ export default function Billing() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const { format } = useCurrency();
+  const { loading: authLoading } = useAuth();
 
   const [products, setProducts] = useState([]);
   const [billItems, setBillItems] = useState([]);
@@ -28,18 +30,25 @@ export default function Billing() {
 
   /* ================= LOAD PRODUCTS ================= */
   useEffect(() => {
-    api
-      .get("/inventory")
-      .then((res) => setProducts(res.data))
-      .catch(() => setError("Failed to load products"));
-  }, []);
+    if (authLoading) return;
+
+    const loadProducts = async () => {
+      try {
+        const res = await api.get("/inventory");
+        setProducts(res.data);
+      } catch {
+        setError("Failed to load products");
+      }
+    };
+
+    loadProducts();
+  }, [authLoading]);
 
   /* ================= TEMP STOCK ================= */
   const availableStock = useMemo(() => {
     const map = {};
     products.forEach((p) => {
-      const used =
-        billItems.find((i) => i.product_id === p.id)?.quantity || 0;
+      const used = billItems.find((i) => i.product_id === p.id)?.quantity || 0;
       map[p.id] = p.stock - used;
     });
     return map;
@@ -82,7 +91,7 @@ export default function Billing() {
           return prev.map((i) =>
             i.product_id === product.id
               ? { ...i, quantity: i.quantity + 1 }
-              : i
+              : i,
           );
         }
 
@@ -129,7 +138,7 @@ export default function Billing() {
         return prev.map((i) =>
           i.product_id === product.id
             ? { ...i, quantity: i.quantity + quantity }
-            : i
+            : i,
         );
       }
 
@@ -152,7 +161,7 @@ export default function Billing() {
   /* ================= TOTAL ================= */
   const totalINR = billItems.reduce(
     (sum, i) => sum + i.quantity * i.priceINR,
-    0
+    0,
   );
 
   /* ================= REMOVE ================= */
@@ -201,9 +210,7 @@ export default function Billing() {
           </div>
 
           {success && (
-            <div className="success-msg">
-              ✔ Bill successful. Redirecting…
-            </div>
+            <div className="success-msg">✔ Bill successful. Redirecting…</div>
           )}
 
           {error && <div className="error-msg">❌ {error}</div>}
@@ -218,10 +225,7 @@ export default function Billing() {
             />
 
             {/* CAMERA SCAN BUTTON */}
-            <button
-              className="scan-btn"
-              onClick={() => setShowScanner(true)}
-            >
+            <button className="scan-btn" onClick={() => setShowScanner(true)}>
               📷 Scan with Camera
             </button>
 

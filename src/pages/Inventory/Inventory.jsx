@@ -7,6 +7,7 @@ import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useSettings } from "../../context/SettingsContext";
+import { useAuth } from "../../context/AuthContext";
 
 import "./Inventory.css";
 
@@ -14,6 +15,7 @@ export default function Inventory() {
   const navigate = useNavigate();
   const { format } = useCurrency();
   const { settings } = useSettings();
+  const { loading: authLoading } = useAuth(); // ⭐ FIX
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,26 +27,34 @@ export default function Inventory() {
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
 
-  /* ================= FETCH PRODUCTS ================= */
+  /* ================= SAFE FETCH PRODUCTS ================= */
   const fetchProducts = async () => {
+    if (authLoading) return;
+
     setLoading(true);
     setError("");
 
     try {
-      const url = showArchived ? "/inventory/archived/all" : "/inventory";
+      const url = showArchived
+        ? "/inventory/archived/all"
+        : "/inventory";
 
       const res = await api.get(url);
       setProducts(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load inventory");
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to load inventory"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, [showArchived]);
+    if (!authLoading) fetchProducts();
+  }, [showArchived, authLoading]);
 
   /* ================= DELETE ================= */
   const confirmDelete = async () => {
@@ -57,7 +67,10 @@ export default function Inventory() {
       setDeleteId(null);
       fetchProducts();
     } catch (err) {
-      setError(err.response?.data?.message || "Unable to delete product");
+      setError(
+        err.response?.data?.message ||
+          "Unable to delete product"
+      );
       setDeleteId(null);
     } finally {
       setDeleting(false);
@@ -67,17 +80,37 @@ export default function Inventory() {
   /* ================= SEARCH ================= */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase()),
+      p.name?.toLowerCase().includes(search.toLowerCase())
     );
   }, [products, search]);
 
   /* ================= STOCK STATUS ================= */
   const getStatus = (stock) => {
-    if (stock === 0) return { label: "Out of Stock", className: "out" };
+    if (stock === 0)
+      return { label: "Out of Stock", className: "out" };
+
     if (stock <= settings.lowStockThreshold)
       return { label: "Low Stock", className: "low" };
+
     return { label: "In Stock", className: "in" };
   };
+
+  /* ================= LOADING GUARD ================= */
+  if (loading || authLoading) {
+    return (
+      <div className="inventory-root">
+        <Navbar />
+        <div className="inventory-body">
+          <Sidebar />
+          <main className="inventory-content">
+            <p style={{ padding: "2rem" }}>
+              Loading inventory…
+            </p>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   /* ================= UI ================= */
   return (
@@ -103,120 +136,141 @@ export default function Inventory() {
 
             <button
               className="archive-toggle"
-              onClick={() => setShowArchived(!showArchived)}
+              onClick={() =>
+                setShowArchived(!showArchived)
+              }
             >
-              {showArchived ? "Active Products" : "Archived Products"}
+              {showArchived
+                ? "Active Products"
+                : "Archived Products"}
             </button>
 
             <input
               className="inventory-search"
               placeholder="Search product..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(e.target.value)
+              }
             />
           </div>
 
-          {error && <div className="error-msg">❌ {error}</div>}
+          {error && (
+            <div className="error-msg">❌ {error}</div>
+          )}
 
           <div className="inventory-card">
-            {loading ? (
-              <p style={{ padding: "1.5rem" }}>Loading inventory…</p>
-            ) : (
-              <table className="inventory-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Stock</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
+            <table className="inventory-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Stock</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {filteredProducts.map((p, i) => {
-                    const status = getStatus(Number(p.stock));
+              <tbody>
+                {filteredProducts.map((p, i) => {
+                  const status = getStatus(
+                    Number(p.stock)
+                  );
 
-                    return (
-                      <tr key={p.id}>
-                        <td>{i + 1}</td>
-                        <td>{p.name}</td>
-                        <td>{p.category}</td>
-                        <td>{p.stock}</td>
-                        <td>{format(Number(p.price))}</td>
+                  return (
+                    <tr key={p.id}>
+                      <td>{i + 1}</td>
+                      <td>{p.name}</td>
+                      <td>{p.category}</td>
+                      <td>{p.stock}</td>
+                      <td>
+                        {format(Number(p.price))}
+                      </td>
 
-                        <td className={`status ${status.className}`}>
-                          {status.label}
-                        </td>
+                      <td
+                        className={`status ${status.className}`}
+                      >
+                        {status.label}
+                      </td>
 
-                        <td>
-                          {!showArchived ? (
-                            <>
-                              <button
-                                className="edit-btn"
-                                onClick={() =>
-                                  navigate(`/inventory/edit/${p.id}`)
-                                }
-                              >
-                                ✏️ Edit
-                              </button>
-
-                              <button
-                                className="delete-btn"
-                                title="Archive product"
-                                onClick={() => setDeleteId(p.id)}
-                              >
-                                🗑 Archive
-                              </button>
-                            </>
-                          ) : (
+                      <td>
+                        {!showArchived ? (
+                          <>
                             <button
-                              className="restore-btn"
-                              onClick={async () => {
-                                await api.put(`/inventory/restore/${p.id}`);
-                                fetchProducts();
-                              }}
+                              className="edit-btn"
+                              onClick={() =>
+                                navigate(
+                                  `/inventory/edit/${p.id}`
+                                )
+                              }
                             >
-                              ♻️ Restore
+                              ✏️ Edit
                             </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
 
-                  {filteredProducts.length === 0 && (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: "center" }}>
-                        No products found
+                            <button
+                              className="delete-btn"
+                              onClick={() =>
+                                setDeleteId(p.id)
+                              }
+                            >
+                              🗑 Archive
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            className="restore-btn"
+                            onClick={async () => {
+                              await api.put(
+                                `/inventory/restore/${p.id}`
+                              );
+                              fetchProducts();
+                            }}
+                          >
+                            ♻️ Restore
+                          </button>
+                        )}
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            )}
+                  );
+                })}
+
+                {filteredProducts.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan="7"
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      No products found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </main>
       </div>
 
-      {/* ================= ARCHIVE CONFIRM MODAL ================= */}
+      {/* DELETE MODAL */}
       {deleteId && (
         <div className="delete-overlay">
           <div className="delete-modal">
-            <h3>{showArchived ? "Restore Product" : "Archive Product"}</h3>
+            <h3>Archive Product</h3>
 
             <p>
-              {showArchived
-                ? "This product will be restored to active inventory."
-                : "This product will be archived and hidden from inventory. You can restore it anytime."}
+              This product will be archived. You
+              can restore it anytime.
             </p>
 
             <div className="delete-actions">
               <button
                 className="cancel-btn"
-                onClick={() => setDeleteId(null)}
+                onClick={() =>
+                  setDeleteId(null)
+                }
                 disabled={deleting}
               >
                 Cancel
@@ -227,7 +281,9 @@ export default function Inventory() {
                 onClick={confirmDelete}
                 disabled={deleting}
               >
-                {deleting ? "Archiving…" : "Archive"}
+                {deleting
+                  ? "Archiving…"
+                  : "Archive"}
               </button>
             </div>
           </div>

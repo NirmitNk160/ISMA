@@ -9,47 +9,55 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { settings } = useSettings(); // 🔥 read autoLogout
+  const { settings } = useSettings();
   const logoutTimerRef = useRef(null);
 
   /* ================= INITIAL AUTH CHECK ================= */
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
 
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
 
-    try {
-      const decoded = jwtDecode(token);
+      try {
+        const decoded = jwtDecode(token);
 
-      if (decoded.exp * 1000 < Date.now()) {
+        // Token expired
+        if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+          localStorage.removeItem("token");
+          setUser(null);
+        } else {
+          setUser({
+            id: decoded.id,
+            username: decoded.username,
+          });
+        }
+      } catch (err) {
+        console.warn("Invalid token:", err);
         localStorage.removeItem("token");
         setUser(null);
-      } else {
-        setUser({
-          id: decoded.id,
-          username: decoded.username,
-        });
       }
-    } catch {
-      localStorage.removeItem("token");
-      setUser(null);
-    }
 
-    setLoading(false);
+      setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
-  /* ================= AUTO LOGOUT LOGIC ================= */
+  /* ================= AUTO LOGOUT ================= */
 
   useEffect(() => {
-    // no user → no timer
     if (!user) return;
 
-    // Never auto logout
-    if (settings.autoLogout === 0) return;
+    const autoLogoutMinutes = Number(settings?.autoLogout ?? 0);
+
+    // 0 = disabled
+    if (!autoLogoutMinutes) return;
 
     const resetTimer = () => {
       if (logoutTimerRef.current) {
@@ -58,42 +66,50 @@ export function AuthProvider({ children }) {
 
       logoutTimerRef.current = setTimeout(() => {
         console.warn("Auto logout due to inactivity");
-
-        logout(); // 🔥 REAL logout
-      }, settings.autoLogout * 60 * 1000);
+        logout();
+      }, autoLogoutMinutes * 60 * 1000);
     };
 
-    // activity events
-    window.addEventListener("mousemove", resetTimer);
-    window.addEventListener("keydown", resetTimer);
-    window.addEventListener("click", resetTimer);
-    window.addEventListener("scroll", resetTimer);
+    // Activity listeners
+    const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
 
-    resetTimer(); // start timer
+    events.forEach((event) =>
+      window.addEventListener(event, resetTimer)
+    );
+
+    resetTimer();
 
     return () => {
       if (logoutTimerRef.current) {
         clearTimeout(logoutTimerRef.current);
       }
 
-      window.removeEventListener("mousemove", resetTimer);
-      window.removeEventListener("keydown", resetTimer);
-      window.removeEventListener("click", resetTimer);
-      window.removeEventListener("scroll", resetTimer);
+      events.forEach((event) =>
+        window.removeEventListener(event, resetTimer)
+      );
     };
-  }, [user, settings.autoLogout]);
+  }, [user, settings?.autoLogout]);
 
-  /* ================= AUTH ACTIONS ================= */
+  /* ================= LOGIN ================= */
 
   const login = (token) => {
-    localStorage.setItem("token", token);
-    const decoded = jwtDecode(token);
+    try {
+      localStorage.setItem("token", token);
 
-    setUser({
-      id: decoded.id,
-      username: decoded.username,
-    });
+      const decoded = jwtDecode(token);
+
+      setUser({
+        id: decoded.id,
+        username: decoded.username,
+      });
+    } catch (err) {
+      console.error("Login token error:", err);
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   };
+
+  /* ================= LOGOUT ================= */
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -103,6 +119,11 @@ export function AuthProvider({ children }) {
     }
 
     setUser(null);
+
+    // Optional redirect safeguard
+    if (window.location.pathname !== "/login") {
+      window.location.replace("/login");
+    }
   };
 
   /* ================= CONTEXT ================= */
@@ -121,6 +142,8 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+/* ================= HOOK ================= */
 
 export function useAuth() {
   return useContext(AuthContext);

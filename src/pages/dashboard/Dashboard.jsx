@@ -9,30 +9,45 @@ import Sidebar from "./Sidebar";
 import StatCard from "./StatCard";
 import Progress from "./Progress";
 import { useCurrency } from "../../context/CurrencyContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { format } = useCurrency();
+  const { loading: authLoading } = useAuth(); // ⭐ KEY FIX
 
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // ✅ MOBILE SIDEBAR STATE
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const { format } = useCurrency();
+  /* ================= SAFE FETCH ================= */
+useEffect(() => {
+  if (authLoading) return;
 
-  /* ================= FETCH DASHBOARD DATA ================= */
-  useEffect(() => {
-    api
-      .get("/dashboard")
-      .then((res) => setStats(res.data))
-      .catch(() => setError("Failed to load dashboard data"))
-      .finally(() => setLoading(false));
-  }, []);
+  let mounted = true;
 
-  /* ================= LOADING STATE ================= */
-  if (loading) {
+  const fetchData = async () => {
+    try {
+      const res = await api.get("/dashboard");
+      if (mounted) setStats(res.data);
+    } catch (err) {
+      if (mounted) setError("Failed to load dashboard data");
+    } finally {
+      if (mounted) setLoading(false);
+    }
+  };
+
+  fetchData();
+
+  return () => {
+    mounted = false;
+  };
+}, [authLoading]);
+
+
+  /* ================= LOADING ================= */
+  if (loading || authLoading) {
     return (
       <div className="dashboard-root">
         <Navbar />
@@ -47,13 +62,11 @@ export default function Dashboard() {
     );
   }
 
-  /* ================= UI ================= */
   return (
     <div className="dashboard-root">
       <Navbar />
 
       <div className="dashboard-body">
-        {/* 🔥 DARK OVERLAY (MOBILE) */}
         {sidebarOpen && (
           <div
             className="sidebar-overlay"
@@ -61,17 +74,13 @@ export default function Dashboard() {
           />
         )}
 
-        {/* 🔥 SIDEBAR */}
         <Sidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
-        {/* 🔥 MAIN CONTENT */}
         <main className="content">
-          {/* HEADER */}
           <div className="page-header">
-            {/* ☰ MENU BUTTON (MOBILE ONLY VIA CSS) */}
             <button
               className="menu-btn"
               aria-label="Open menu"
@@ -81,15 +90,11 @@ export default function Dashboard() {
             </button>
 
             <BackButton />
-
             <h2 className="page-title">Analytics</h2>
           </div>
 
-          {error && (
-            <div className="error-msg">❌ {error}</div>
-          )}
+          {error && <div className="error-msg">❌ {error}</div>}
 
-          {/* ================= STATS ================= */}
           <section className="stats">
             <StatCard
               title="Total Revenue"
@@ -105,7 +110,6 @@ export default function Dashboard() {
             />
           </section>
 
-          {/* ================= GRID ================= */}
           <section className="grid">
             <div className="card chart">
               <h3>Monthly Recap</h3>
