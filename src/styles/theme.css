@@ -235,3 +235,39 @@ input:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+
+/* GLOBAL DASHBOARD LAYOUT FIX */
+
+.dashboard-body,
+.inventory-body,
+.billing-body,
+.sales-body,
+.reports-body,
+.settings-body {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Content must grow */
+.dashboard-content,
+.inventory-content,
+.billing-content,
+.sales-content,
+.reports-content,
+.settings-content,
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+
+  .dashboard-body,
+  .inventory-body,
+  .billing-body,
+  .sales-body,
+  .reports-body,
+  .settings-body {
+    flex-direction: column;
+  }
+}

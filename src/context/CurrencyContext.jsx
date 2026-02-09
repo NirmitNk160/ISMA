@@ -6,15 +6,17 @@ const CurrencyContext = createContext();
 export function CurrencyProvider({ children }) {
   const { settings } = useSettings();
 
-  // Base currency = INR
+  /* ✅ ALWAYS SAFE CURRENCY */
+  const currency = settings?.currency || "INR";
+
+  /* ================= BASE RATES ================= */
   const [rates, setRates] = useState({
     INR: 1,
-    USD: 0.012, // fallback
-    EUR: 0.011, // fallback
+    USD: 0.012,
+    EUR: 0.011,
   });
 
-  /* ================= FETCH LIVE RATES (ON APP LOAD) ================= */
-
+  /* ================= FETCH LIVE RATES ================= */
   useEffect(() => {
     async function fetchRates() {
       try {
@@ -30,7 +32,7 @@ export function CurrencyProvider({ children }) {
             EUR: data.rates.EUR,
           });
         }
-      } catch (err) {
+      } catch {
         console.warn("Using fallback exchange rates");
       }
     }
@@ -38,33 +40,33 @@ export function CurrencyProvider({ children }) {
     fetchRates();
   }, []);
 
-  /* ================= REAL CONVERSION ================= */
-
+  /* ================= CONVERT ================= */
   const convert = (amountInINR) => {
-    if (typeof amountInINR !== "number") return 0;
+    if (!amountInINR || isNaN(amountInINR)) return 0;
 
-    const rate = rates[settings.currency] ?? 1;
-    return amountInINR * rate;
+    const rate = rates[currency] ?? 1;
+    return Number(amountInINR) * rate;
   };
 
+  /* ================= FORMAT (SAFE) ================= */
   const format = (amountInINR) => {
-    const converted = convert(amountInINR);
+    try {
+      const converted = convert(amountInINR);
 
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: settings.currency,
-      maximumFractionDigits: 2,
-    }).format(converted);
+      return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 2,
+      }).format(converted);
+    } catch (err) {
+      console.warn("Currency format fallback:", err);
+
+      return `₹${Number(amountInINR || 0).toFixed(2)}`;
+    }
   };
 
   return (
-    <CurrencyContext.Provider
-      value={{
-        convert,
-        format,
-        rates,
-      }}
-    >
+    <CurrencyContext.Provider value={{ convert, format, rates }}>
       {children}
     </CurrencyContext.Provider>
   );

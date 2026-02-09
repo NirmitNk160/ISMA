@@ -16,31 +16,56 @@ export default function Profile() {
 
   /* ================= SAFE PROFILE FETCH ================= */
   useEffect(() => {
-    const loadData = async () => {
+    if (authLoading) return; // ⭐ WAIT FOR AUTH
+
+    let mounted = true;
+
+    const fetchProfile = async () => {
       try {
-        const res = await api.get("/endpoint");
-        setData(res.data);
+        const res = await api.get("/auth/profile");
+
+        if (mounted) {
+          setProfile(res.data);
+        }
       } catch (err) {
         console.error(err);
-        setError("Failed to load data");
+
+        if (err.response?.status === 401) {
+          logout();
+        } else if (mounted) {
+          setError("Failed to load profile");
+        }
       } finally {
-        setLoading(false); // ALWAYS
+        if (mounted) setLoading(false);
       }
     };
 
-    loadData();
-  }, []);
+    fetchProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading, logout]);
 
   /* ================= LOADING GUARD ================= */
   if (authLoading || loading) {
-    return <div className="profile-loading">Loading profile…</div>;
+    return (
+      <div className="profile-loading">
+        Loading profile…
+      </div>
+    );
   }
 
   if (!profile) {
-    return <div className="profile-loading">{error || "No profile data"}</div>;
+    return (
+      <div className="profile-loading">
+        {error || "No profile data"}
+      </div>
+    );
   }
 
-  const initials = profile.username?.slice(0, 2).toUpperCase() || "U";
+  const initials =
+    profile.username?.slice(0, 2).toUpperCase() || "U";
 
   const handleLogout = () => {
     logout();
@@ -58,7 +83,10 @@ export default function Profile() {
             <span className="brand">ISMA</span>
             <span className="welcome">👋 Welcome</span>
 
-            <button className="profile-pill" onClick={() => navigate("/")}>
+            <button
+              className="profile-pill"
+              onClick={() => navigate("/")}
+            >
               🏠 Home
             </button>
           </div>
@@ -101,11 +129,17 @@ export default function Profile() {
         </section>
 
         <section className="profile-actions">
-          <button className="primary" onClick={() => navigate("/dashboard")}>
+          <button
+            className="primary"
+            onClick={() => navigate("/dashboard")}
+          >
             Back to Dashboard
           </button>
 
-          <button className="danger" onClick={handleLogout}>
+          <button
+            className="danger"
+            onClick={handleLogout}
+          >
             Logout
           </button>
         </section>

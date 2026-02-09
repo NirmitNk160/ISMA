@@ -1,58 +1,46 @@
 import { useEffect, useRef } from "react";
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
+import { Html5QrcodeScanner } from "html5-qrcode";
+import "./BarcodeScanner.css";
 
-export default function BarcodeScanner({ onScan }) {
+export default function BarcodeScanner({ onScan, onCancel }) {
   const scannerRef = useRef(null);
 
   useEffect(() => {
-    const scanner = new Html5Qrcode("reader");
+    const scanner = new Html5QrcodeScanner(
+      "scanner",
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 120 },
+        rememberLastUsedCamera: true,
+      },
+      false
+    );
+
+    scanner.render(
+      (decodedText) => {
+        scanner.clear();
+        onScan?.(decodedText);
+      },
+      () => {}
+    );
+
     scannerRef.current = scanner;
 
-    const startScanner = async () => {
-      try {
-        const devices = await Html5Qrcode.getCameras();
-        if (!devices.length) {
-          alert("No camera found");
-          return;
-        }
-
-        await scanner.start(
-          devices[0].id,
-          {
-            fps: 15,
-
-            /* ⭐ IMPORTANT */
-            formatsToSupport: [
-              Html5QrcodeSupportedFormats.EAN_13,
-              Html5QrcodeSupportedFormats.CODE_128,
-              Html5QrcodeSupportedFormats.UPC_A,
-              Html5QrcodeSupportedFormats.UPC_E,
-              Html5QrcodeSupportedFormats.QR_CODE,
-            ],
-
-            /* ⭐ Better box for barcode */
-            qrbox: { width: 350, height: 120 },
-
-            aspectRatio: 1.7,
-          },
-
-          (decodedText) => {
-            onScan(decodedText);
-            scanner.stop();
-          }
-        );
-      } catch (err) {
-        console.error(err);
-        alert("Camera start failed");
-      }
-    };
-
-    startScanner();
-
-    return () => {
-      scanner.stop().catch(() => {});
-    };
+    return () => scanner.clear().catch(() => {});
   }, [onScan]);
 
-  return <div id="reader" style={{ width: "100%" }} />;
+  const handleCancel = () => {
+    scannerRef.current?.clear();
+    onCancel?.();
+  };
+
+  return (
+    <div className="barcode-wrapper">
+      <div id="scanner"></div>
+
+      <button className="cancel-btn" onClick={handleCancel}>
+        Cancel
+      </button>
+    </div>
+  );
 }

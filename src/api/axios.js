@@ -1,34 +1,31 @@
 import axios from "axios";
 
 /*
-  AUTO-DETECT API URL:
+=========================================
+ISMA API CONFIG (FINAL)
+=========================================
 
-  - Uses VITE_API_URL if set
-  - Else uses same host (phone/laptop LAN)
-  - Else localhost fallback
+Priority:
+
+1️⃣ VITE_API_URL from .env (ngrok / production)
+2️⃣ Fallback to localhost backend
+
+IMPORTANT:
+- Restart frontend after editing .env
+- Never hardcode ngrok URL in code
 */
 
-const getBaseURL = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
-  }
-
-  const host = window.location.hostname;
-
-  if (host !== "localhost" && host !== "127.0.0.1") {
-    return `http://${host}:5000/api`;
-  }
-
-  return "http://localhost:5000/api";
-};
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: BASE_URL,
   withCredentials: true,
 });
 
-
-/* 🔐 ATTACH TOKEN TO EVERY REQUEST (CRITICAL FIX) */
+/* =========================================
+   🔐 ATTACH JWT TOKEN TO EVERY REQUEST
+========================================= */
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -42,13 +39,15 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-
-/* 🚪 HANDLE UNAUTHORIZED RESPONSES */
+/* =========================================
+   🚪 AUTO LOGOUT ON 401
+========================================= */
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
 
+    // Skip login/register routes
     const isAuthRoute =
       error.config?.url?.includes("/auth/login") ||
       error.config?.url?.includes("/auth/register");
