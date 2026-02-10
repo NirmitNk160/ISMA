@@ -16,10 +16,13 @@ import Settings from "./pages/setting/Settings";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
+// ⭐ ADD THIS IMPORT
+import BarcodeScanner from "./components/BarcodeScanner/BarcodeScanner";
+
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return null; // prevent route flicker
+  if (loading) return null;
 
   return (
     <Routes>
@@ -109,6 +112,16 @@ export default function App() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ⭐ NEW SCANNER ROUTE */}
+      <Route
+        path="/scanner"
+        element={
+          <ProtectedRoute>
+            <BarcodeScanner />
           </ProtectedRoute>
         }
       />

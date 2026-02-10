@@ -9,9 +9,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
 
-    allowedHosts: [
-      "jules-unregularised-uninstructedly.ngrok-free.dev"
-    ],
+    allowedHosts: true,
 
     cors: true,
   },

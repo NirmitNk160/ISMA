@@ -5,8 +5,11 @@ import api from "../../api/axios";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
+import BarcodeScanner from "../../components/BarcodeScanner/BarcodeScanner";
+
 import { useSettings } from "../../context/SettingsContext";
 import { useCurrency } from "../../context/CurrencyContext";
+
 import "./AddProduct.css";
 
 export default function AddProduct() {
@@ -25,11 +28,20 @@ export default function AddProduct() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
 
+  /* ================= HANDLE INPUT ================= */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /* ================= HANDLE CAMERA SCAN ================= */
+  const handleScan = (code) => {
+    setForm((prev) => ({ ...prev, barcode: code }));
+    setShowScanner(false);
+  };
+
+  /* ================= HANDLE SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -42,7 +54,6 @@ export default function AddProduct() {
       return;
     }
 
-    // Convert price → INR
     let priceInINR = priceInput;
     if (settings.currency !== "INR") {
       const rate = rates[settings.currency];
@@ -73,6 +84,7 @@ export default function AddProduct() {
     }
   };
 
+  /* ================= UI ================= */
   return (
     <div className="add-product-root">
       <Navbar />
@@ -120,7 +132,7 @@ export default function AddProduct() {
                   name="stock"
                   value={form.stock}
                   onChange={handleChange}
-                  placeholder="Enter available quantity"
+                  placeholder="Enter quantity"
                   required
                 />
               </div>
@@ -139,14 +151,41 @@ export default function AddProduct() {
                 />
               </div>
 
+              {/* ⭐ BARCODE WITH CAMERA SCANNER */}
               <div className="form-group">
                 <label>Barcode</label>
-                <input
-                  name="barcode"
-                  value={form.barcode}
-                  onChange={handleChange}
-                  placeholder="Scan or type barcode"
-                />
+
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <input
+                    name="barcode"
+                    value={form.barcode}
+                    onChange={handleChange}
+                    placeholder="Scan or type barcode"
+                    style={{ flex: 1 }}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowScanner(true)}
+                  >
+                    📷 Scan
+                  </button>
+                </div>
+
+                {showScanner && (
+                  <div className="scanner-modal">
+                    <div className="scanner-box">
+                      <button
+                        type="button"
+                        onClick={() => setShowScanner(false)}
+                      >
+                        ✖ Close
+                      </button>
+
+                      <BarcodeScanner onScan={handleScan} />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="form-group full">
@@ -155,7 +194,7 @@ export default function AddProduct() {
                   name="description"
                   value={form.description}
                   onChange={handleChange}
-                  placeholder="Optional product description"
+                  placeholder="Optional description"
                 />
               </div>
             </div>

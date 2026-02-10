@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
@@ -7,7 +7,7 @@ import Navbar from "../../components/Navbar";
 import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";
 import { useCurrency } from "../../context/CurrencyContext";
-import BarcodeScanner from "../../components/BarcodeScanner";
+import BarcodeScanner from "../../components/BarcodeScanner/BarcodeScanner";
 import { useAuth } from "../../context/AuthContext";
 
 import "./Billing.css";
@@ -17,6 +17,8 @@ export default function Billing() {
   const { settings } = useSettings();
   const { format } = useCurrency();
   const { loading: authLoading, isAuthenticated } = useAuth();
+
+  const inputRef = useRef(null);
 
   const [products, setProducts] = useState([]);
   const [billItems, setBillItems] = useState([]);
@@ -28,7 +30,7 @@ export default function Billing() {
   const [error, setError] = useState("");
   const [showScanner, setShowScanner] = useState(false);
 
-  /* ================= SAFE LOAD PRODUCTS ================= */
+  /* ================= LOAD PRODUCTS ================= */
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
 
@@ -37,7 +39,7 @@ export default function Billing() {
         const res = await api.get("/inventory");
         setProducts(res.data || []);
       } catch (err) {
-        console.error("Billing product fetch error:", err);
+        console.error(err);
         setError("Failed to load products");
       }
     };
@@ -45,18 +47,24 @@ export default function Billing() {
     loadProducts();
   }, [authLoading, isAuthenticated]);
 
+  /* ================= CLOSE SCANNER EVENT ================= */
+  useEffect(() => {
+    const closeHandler = () => setShowScanner(false);
+    window.addEventListener("closeScanner", closeHandler);
+    return () => window.removeEventListener("closeScanner", closeHandler);
+  }, []);
+
   /* ================= TEMP STOCK ================= */
   const availableStock = useMemo(() => {
     const map = {};
     products.forEach((p) => {
-      const used =
-        billItems.find((i) => i.product_id === p.id)?.quantity || 0;
+      const used = billItems.find((i) => i.product_id === p.id)?.quantity || 0;
       map[p.id] = p.stock - used;
     });
     return map;
   }, [products, billItems]);
 
-  /* ================= HARDWARE SCAN ================= */
+  /* ================= HARDWARE SCANNER INPUT ================= */
   const handleBarcodeScan = (e) => {
     if (e.key !== "Enter") return;
 
@@ -68,19 +76,52 @@ export default function Billing() {
   };
 
   /* ================= CAMERA SCAN ================= */
-  const handleCameraScan = (code) => {
+  const handleCameraScan = async (code) => {
+    // Instant UI feedback
+    setBillItems((prev) => {
+      const existing = prev.find((i) => i.barcode === code);
+
+      if (existing) {
+        return prev.map((i) =>
+          i.barcode === code ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          barcode: code,
+          name: "Loading...",
+          quantity: 1,
+          priceINR: 0,
+        },
+      ];
+    });
+
     addProductByBarcode(code);
+
+    // Close scanner immediately
     setShowScanner(false);
+
+    // Refocus barcode input
+    inputRef.current?.focus();
   };
 
-  /* ================= COMMON SCAN LOGIC ================= */
+  /* ================= MAIN BARCODE LOGIC ================= */
   const addProductByBarcode = async (code) => {
     try {
-      const res = await api.get(`/inventory/barcode/${code}`);
+      // Clean barcode (handles QR URLs too)
+      let cleanCode = code
+        .trim()
+        .replace(/\/$/, "")
+        .split("/")
+        .pop()
+        .split("?")[0];
+
+      const res = await api.get(`/inventory/barcode/${cleanCode}`);
       const product = res.data;
 
-      const remaining =
-        availableStock[product.id] ?? product.stock;
+      const remaining = availableStock[product.id] ?? product.stock;
 
       if (settings.blockOutOfStock && remaining <= 0) {
         setError("Product out of stock");
@@ -88,12 +129,11 @@ export default function Billing() {
       }
 
       setBillItems((prev) => {
-        const existing = prev.find(
-          (i) => i.product_id === product.id
-        );
+        const filtered = prev.filter((i) => i.barcode !== code);
+        const existing = filtered.find((i) => i.product_id === product.id);
 
         if (existing) {
-          return prev.map((i) =>
+          return filtered.map((i) =>
             i.product_id === product.id
               ? { ...i, quantity: i.quantity + 1 }
               : i
@@ -101,7 +141,7 @@ export default function Billing() {
         }
 
         return [
-          ...prev,
+          ...filtered,
           {
             product_id: product.id,
             name: product.name,
@@ -122,9 +162,7 @@ export default function Billing() {
   const addToBill = () => {
     if (!selectedProduct || quantity <= 0) return;
 
-    const product = products.find(
-      (p) => p.id === Number(selectedProduct)
-    );
+    const product = products.find((p) => p.id === Number(selectedProduct));
     if (!product) return;
 
     const remaining = availableStock[product.id];
@@ -140,9 +178,7 @@ export default function Billing() {
     }
 
     setBillItems((prev) => {
-      const existing = prev.find(
-        (i) => i.product_id === product.id
-      );
+      const existing = prev.find((i) => i.product_id === product.id);
 
       if (existing) {
         return prev.map((i) =>
@@ -174,11 +210,9 @@ export default function Billing() {
     0
   );
 
-  /* ================= REMOVE ================= */
+  /* ================= REMOVE ITEM ================= */
   const removeItem = (id) => {
-    setBillItems((prev) =>
-      prev.filter((i) => i.product_id !== id)
-    );
+    setBillItems((prev) => prev.filter((i) => i.product_id !== id));
   };
 
   /* ================= CONFIRM BILL ================= */
@@ -198,7 +232,6 @@ export default function Billing() {
 
       setSuccess(true);
       setBillItems([]);
-
       setTimeout(() => navigate("/sales"), 1200);
     } catch (err) {
       console.error(err);
@@ -216,9 +249,7 @@ export default function Billing() {
         <div className="billing-body">
           <Sidebar />
           <main className="billing-content">
-            <p style={{ padding: "2rem" }}>
-              Loading billing…
-            </p>
+            <p style={{ padding: "2rem" }}>Loading billing…</p>
           </main>
         </div>
       </div>
@@ -240,25 +271,21 @@ export default function Billing() {
           </div>
 
           {success && (
-            <div className="success-msg">
-              ✔ Bill successful. Redirecting…
-            </div>
+            <div className="success-msg">✔ Bill successful. Redirecting…</div>
           )}
 
           {error && <div className="error-msg">❌ {error}</div>}
 
           <div className="billing-card">
             <input
+              ref={inputRef}
               className="barcode-input"
               placeholder="Scan barcode or type here..."
               onKeyDown={handleBarcodeScan}
               autoFocus
             />
 
-            <button
-              className="scan-btn"
-              onClick={() => setShowScanner(true)}
-            >
+            <button className="scan-btn" onClick={() => setShowScanner(true)}>
               📷 Scan with Camera
             </button>
 
@@ -280,26 +307,15 @@ export default function Billing() {
             <div className="billing-controls">
               <select
                 value={selectedProduct}
-                onChange={(e) =>
-                  setSelectedProduct(e.target.value)
-                }
+                onChange={(e) => setSelectedProduct(e.target.value)}
               >
-                <option value="">
-                  Select product
-                </option>
+                <option value="">Select product</option>
 
                 {(products || [])
-                  .filter(
-                    (p) =>
-                      availableStock[p.id] > 0
-                  )
+                  .filter((p) => availableStock[p.id] > 0)
                   .map((p) => (
-                    <option
-                      key={p.id}
-                      value={p.id}
-                    >
-                      {p.name} (Stock:{" "}
-                      {availableStock[p.id]})
+                    <option key={p.id} value={p.id}>
+                      {p.name} (Stock: {availableStock[p.id]})
                     </option>
                   ))}
               </select>
@@ -308,17 +324,13 @@ export default function Billing() {
                 type="number"
                 min="1"
                 value={quantity}
-                onChange={(e) =>
-                  setQuantity(Number(e.target.value))
-                }
+                onChange={(e) => setQuantity(Number(e.target.value))}
               />
 
               <button
                 className="add-btn"
                 onClick={addToBill}
-                disabled={
-                  !selectedProduct || quantity <= 0
-                }
+                disabled={!selectedProduct || quantity <= 0}
               >
                 Add
               </button>
@@ -337,10 +349,7 @@ export default function Billing() {
               <tbody>
                 {billItems.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan="4"
-                      className="empty-row"
-                    >
+                    <td colSpan="4" className="empty-row">
                       No items added
                     </td>
                   </tr>
@@ -349,17 +358,11 @@ export default function Billing() {
                     <tr key={i.product_id}>
                       <td>{i.name}</td>
                       <td>{i.quantity}</td>
-                      <td>
-                        {format(
-                          i.quantity * i.priceINR
-                        )}
-                      </td>
+                      <td>{format(i.quantity * i.priceINR)}</td>
                       <td>
                         <button
                           className="remove-btn"
-                          onClick={() =>
-                            removeItem(i.product_id)
-                          }
+                          onClick={() => removeItem(i.product_id)}
                         >
                           ❌
                         </button>
@@ -371,20 +374,14 @@ export default function Billing() {
             </table>
 
             <div className="billing-footer">
-              <div className="total">
-                Total: {format(totalINR)}
-              </div>
+              <div className="total">Total: {format(totalINR)}</div>
 
               <button
                 className="confirm-btn"
                 onClick={confirmBill}
-                disabled={
-                  loading || !billItems.length
-                }
+                disabled={loading || !billItems.length}
               >
-                {loading
-                  ? "Processing..."
-                  : "Confirm Bill"}
+                {loading ? "Processing..." : "Confirm Bill"}
               </button>
             </div>
           </div>
