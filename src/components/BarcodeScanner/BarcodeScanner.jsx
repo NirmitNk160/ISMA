@@ -5,26 +5,17 @@ import { BarcodeFormat, DecodeHintType } from "@zxing/library";
 export default function BarcodeScanner({ onScan }) {
   const videoRef = useRef(null);
   const controlsRef = useRef(null);
-  const scannedRef = useRef(false);
+  const lastScanTimeRef = useRef(0);
 
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [torchOn, setTorchOn] = useState(false);
+  const [continuous, setContinuous] = useState(false);
 
-  /* ---------------- CAMERA LIST ---------------- */
+  /* ---------- CAMERA LIST ---------- */
   useEffect(() => {
-    const hints = new Map();
-    hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-      BarcodeFormat.CODE_128,
-      BarcodeFormat.CODE_39,
-      BarcodeFormat.EAN_13,
-      BarcodeFormat.EAN_8,
-      BarcodeFormat.UPC_A,
-      BarcodeFormat.UPC_E,
-    ]);
-
     BrowserMultiFormatReader.listVideoInputDevices()
       .then((cams) => {
         setDevices(cams);
@@ -34,7 +25,6 @@ export default function BarcodeScanner({ onScan }) {
           return;
         }
 
-        // Prefer back camera
         const back =
           cams.find((d) =>
             d.label.toLowerCase().includes("back")
@@ -45,7 +35,7 @@ export default function BarcodeScanner({ onScan }) {
       .catch(() => setError("Camera permission denied"));
   }, []);
 
-  /* ---------------- SCANNER START ---------------- */
+  /* ---------- SCANNER START ---------- */
   useEffect(() => {
     if (!selectedDevice) return;
 
@@ -54,8 +44,11 @@ export default function BarcodeScanner({ onScan }) {
     const hints = new Map();
     hints.set(DecodeHintType.POSSIBLE_FORMATS, [
       BarcodeFormat.CODE_128,
+      BarcodeFormat.CODE_39,
       BarcodeFormat.EAN_13,
+      BarcodeFormat.EAN_8,
       BarcodeFormat.UPC_A,
+      BarcodeFormat.UPC_E,
     ]);
 
     const reader = new BrowserMultiFormatReader(hints);
@@ -67,22 +60,26 @@ export default function BarcodeScanner({ onScan }) {
         controlsRef.current = controls;
         setLoading(false);
 
-        if (result && !scannedRef.current) {
-          scannedRef.current = true;
+        if (result) {
+          const now = Date.now();
+
+          // Prevent rapid duplicate scans
+          if (now - lastScanTimeRef.current < 1000) return;
+          lastScanTimeRef.current = now;
 
           const text = result.getText();
 
-          // Stop camera
-          controls.stop();
-          stopCameraStream();
-
-          // Feedback
           navigator.vibrate?.(120);
           new Audio(
             "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
           ).play().catch(() => {});
 
           onScan?.(text);
+
+          // Stop camera only if NOT continuous
+          if (!continuous) {
+            stopCameraStream();
+          }
         }
 
         if (err && err.name !== "NotFoundException") {
@@ -91,20 +88,25 @@ export default function BarcodeScanner({ onScan }) {
       }
     );
 
-    return () => stopCameraStream();
-  }, [selectedDevice, onScan]);
+    return stopCameraStream;
+  }, [selectedDevice, continuous, onScan]);
 
-  /* ---------------- STOP CAMERA ---------------- */
+  /* ---------- STOP CAMERA ---------- */
   const stopCameraStream = () => {
-    controlsRef.current?.stop();
-    const stream = videoRef.current?.srcObject;
-    if (stream) {
-      stream.getTracks().forEach((t) => t.stop());
-      videoRef.current.srcObject = null;
+    try {
+      controlsRef.current?.stop();
+
+      const stream = videoRef.current?.srcObject;
+      if (stream) {
+        stream.getTracks().forEach((t) => t.stop());
+        videoRef.current.srcObject = null;
+      }
+    } catch (e) {
+      console.log("Camera stop error:", e);
     }
   };
 
-  /* ---------------- TORCH CONTROL ---------------- */
+  /* ---------- TORCH ---------- */
   const toggleTorch = async () => {
     const stream = videoRef.current?.srcObject;
     if (!stream) return;
@@ -124,6 +126,7 @@ export default function BarcodeScanner({ onScan }) {
     setTorchOn(!torchOn);
   };
 
+  /* ---------- UI ---------- */
   return (
     <div
       style={{
@@ -139,19 +142,14 @@ export default function BarcodeScanner({ onScan }) {
       <h3>Scan Barcode</h3>
 
       {error && (
-        <p style={{ color: "red", marginBottom: 10 }}>
-          {error}
-        </p>
+        <p style={{ color: "red", marginBottom: 10 }}>{error}</p>
       )}
 
-      {/* CAMERA SELECTOR */}
+      {/* Camera selector */}
       {devices.length > 1 && (
         <select
           value={selectedDevice}
-          onChange={(e) => {
-            scannedRef.current = false;
-            setSelectedDevice(e.target.value);
-          }}
+          onChange={(e) => setSelectedDevice(e.target.value)}
           style={{
             padding: 8,
             marginBottom: 12,
@@ -167,7 +165,17 @@ export default function BarcodeScanner({ onScan }) {
         </select>
       )}
 
-      {/* TORCH BUTTON */}
+      {/* Continuous toggle */}
+      <label style={{ display: "block", marginBottom: 10 }}>
+        <input
+          type="checkbox"
+          checked={continuous}
+          onChange={() => setContinuous(!continuous)}
+        />{" "}
+        Continuous Scan Mode
+      </label>
+
+      {/* Torch */}
       <button
         onClick={toggleTorch}
         style={{
@@ -182,7 +190,6 @@ export default function BarcodeScanner({ onScan }) {
         {torchOn ? "Flash OFF" : "Flash ON"}
       </button>
 
-      {/* LOADING */}
       {loading && <p>Starting camera...</p>}
 
       <div style={{ position: "relative" }}>
@@ -194,7 +201,7 @@ export default function BarcodeScanner({ onScan }) {
           }}
         />
 
-        {/* SCAN OVERLAY */}
+        {/* Scan overlay */}
         <div
           style={{
             position: "absolute",
