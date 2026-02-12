@@ -4,22 +4,24 @@ import { BrowserMultiFormatReader } from "@zxing/browser";
 export default function BarcodeScanner({ onScan }) {
   const videoRef = useRef(null);
   const readerRef = useRef(null);
-  const lastScan = useRef(0);
+  const controlsRef = useRef(null);
+
+  const lastScanRef = useRef({ code: null, time: 0 });
 
   const [devices, setDevices] = useState([]);
   const [deviceId, setDeviceId] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  /* ---------- INIT CAMERA ---------- */
+  /* ---------- CAMERA INIT ---------- */
   useEffect(() => {
-    async function initCamera() {
+    async function init() {
       try {
-        // request permission first
+        // ask permission first
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
         });
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach(t => t.stop());
 
         const cams = await BrowserMultiFormatReader.listVideoInputDevices();
 
@@ -35,7 +37,7 @@ export default function BarcodeScanner({ onScan }) {
       }
     }
 
-    initCamera();
+    init();
   }, []);
 
   /* ---------- START SCANNER ---------- */
@@ -43,59 +45,61 @@ export default function BarcodeScanner({ onScan }) {
     if (!deviceId || !videoRef.current) return;
 
     readerRef.current = new BrowserMultiFormatReader();
-
     setLoading(true);
 
     readerRef.current.decodeFromVideoDevice(
       deviceId,
       videoRef.current,
       (result, err, controls) => {
+        controlsRef.current = controls;
         setLoading(false);
 
         if (result) {
           const text = result.getText();
           const now = Date.now();
 
-          // Prevent duplicate scans of same code
+          // Strong duplicate prevention
           if (
-            text === lastScan.current?.code &&
-            now - lastScan.current?.time < 2500
+            text === lastScanRef.current.code &&
+            now - lastScanRef.current.time < 3000
           ) {
             return;
           }
 
-          lastScan.current = {
-            code: text,
-            time: now,
-          };
+          lastScanRef.current = { code: text, time: now };
 
+          navigator.vibrate?.(80);
           onScan?.(text);
         }
 
         if (err && err.name !== "NotFoundException") {
           console.log(err);
         }
-      },
+      }
     );
 
-    return () => {
-      try {
-        readerRef.current?.stopContinuousDecode?.();
-
-        const stream = videoRef.current?.srcObject;
-        stream?.getTracks().forEach((t) => t.stop());
-      } catch {}
-    };
+    return () => stopCamera();
   }, [deviceId, onScan]);
+
+  /* ---------- STOP CAMERA ---------- */
+  const stopCamera = () => {
+    try {
+      controlsRef.current?.stop();
+
+      const stream = videoRef.current?.srcObject;
+      stream?.getTracks().forEach(t => t.stop());
+    } catch {}
+  };
 
   /* ---------- UI ---------- */
   return (
     <div style={{ textAlign: "center" }}>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
+      {/* Camera selector */}
       <select
         value={deviceId}
-        onChange={(e) => setDeviceId(e.target.value)}
+        onChange={e => setDeviceId(e.target.value)}
         style={{ padding: 8, marginBottom: 10 }}
       >
         {devices.map((d, i) => (
@@ -116,11 +120,10 @@ export default function BarcodeScanner({ onScan }) {
           style={{ width: "100%", borderRadius: 12 }}
         />
 
-        {/* Scan line */}
+        {/* scanning line */}
         <div
           style={{
             position: "absolute",
-            top: "50%",
             left: "10%",
             width: "80%",
             height: 2,
