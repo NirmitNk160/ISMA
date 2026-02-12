@@ -100,9 +100,6 @@ export default function Billing() {
 
     addProductByBarcode(code);
 
-    // Close scanner immediately
-    setShowScanner(false);
-
     // Refocus barcode input
     inputRef.current?.focus();
   };

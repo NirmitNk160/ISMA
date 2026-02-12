@@ -1,6 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 
+/*
+ FINAL STABLE SCANNER FOR ISMA
+ - True continuous scan support
+ - No auto quantity bug
+ - Proper ZXing cleanup
+ - Camera switch safe
+ - Duplicate scan protection
+ - Works with Billing page continuous mode
+*/
+
 export default function BarcodeScanner({ onScan }) {
   const videoRef = useRef(null);
   const readerRef = useRef(null);
@@ -14,9 +24,6 @@ export default function BarcodeScanner({ onScan }) {
   const [error, setError] = useState("");
   const [paused, setPaused] = useState(false);
   const [continuous, setContinuous] = useState(true);
-  const [scanFeedback, setScanFeedback] = useState(false);
-  const [playSound, setPlaySound] = useState(false);
-  const [recentScans, setRecentScans] = useState([]);
 
   /* CAMERA INIT */
   useEffect(() => {
@@ -50,7 +57,7 @@ export default function BarcodeScanner({ onScan }) {
     readerRef.current.decodeFromVideoDevice(
       deviceId,
       videoRef.current,
-      async (result, err, controls) => {
+      (result, err, controls) => {
         controlsRef.current = controls;
         setLoading(false);
 
@@ -58,29 +65,18 @@ export default function BarcodeScanner({ onScan }) {
           const text = result.getText();
           const now = Date.now();
 
-          // Strong duplicate prevention
+          /* Strong duplicate prevention */
           if (
             text === lastScanRef.current.code &&
-            now - lastScanRef.current.time < 2500
+            now - lastScanRef.current.time < 2200
           ) return;
 
           lastScanRef.current = { code: text, time: now };
 
           navigator.vibrate?.(60);
-
-          if (playSound) {
-            new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg")
-              .play()
-              .catch(() => {});
-          }
-
-          setScanFeedback(true);
-          setTimeout(() => setScanFeedback(false), 300);
-
-          setRecentScans(prev => [text, ...prev.slice(0, 4)]);
-
           onScan?.(text);
 
+          /* Stop only if continuous disabled */
           if (!continuous) setPaused(true);
         }
 
@@ -89,9 +85,9 @@ export default function BarcodeScanner({ onScan }) {
     );
 
     return stopCamera;
-  }, [deviceId, paused, continuous, playSound, onScan]);
+  }, [deviceId, paused, continuous, onScan]);
 
-  /* STOP CAMERA */
+  /* STOP CAMERA CLEANLY */
   const stopCamera = () => {
     try {
       controlsRef.current?.stop();
@@ -99,19 +95,6 @@ export default function BarcodeScanner({ onScan }) {
       stream?.getTracks().forEach(t => t.stop());
     } catch {}
   };
-
-  /* AUTOFOCUS TRY */
-  useEffect(() => {
-    const stream = videoRef.current?.srcObject;
-    if (!stream) return;
-
-    const track = stream.getVideoTracks()[0];
-    const caps = track.getCapabilities?.();
-
-    if (caps?.focusMode) {
-      track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
-    }
-  }, [deviceId]);
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -129,17 +112,13 @@ export default function BarcodeScanner({ onScan }) {
         ))}
       </select>
 
-      <div style={{ marginBottom: 8 }}>
+      <div style={{ marginBottom: 10 }}>
         <button onClick={() => setPaused(p => !p)}>
           {paused ? "Resume" : "Pause"}
         </button>
 
         <button onClick={() => setContinuous(c => !c)} style={{ marginLeft: 8 }}>
-          {continuous ? "Continuous ON" : "Continuous OFF"}
-        </button>
-
-        <button onClick={() => setPlaySound(s => !s)} style={{ marginLeft: 8 }}>
-          {playSound ? "Sound ON" : "Sound OFF"}
+          {continuous ? "Continuous ON" : "Single Scan"}
         </button>
       </div>
 
@@ -160,20 +139,11 @@ export default function BarcodeScanner({ onScan }) {
             left: "10%",
             width: "80%",
             height: 2,
-            background: scanFeedback ? "#00ff00" : "#00ff88",
+            background: "#00ff88",
             animation: "scan 2s infinite linear"
           }}
         />
       </div>
-
-      {recentScans.length > 0 && (
-        <div style={{ marginTop: 12, fontSize: 12, opacity: 0.8 }}>
-          <b>Recent scans:</b>
-          {recentScans.map((s, i) => (
-            <div key={i}>{s}</div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
