@@ -2,35 +2,38 @@ import React, { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 
 /*
-  FINAL ENHANCED ISMA BARCODE SCANNER
-  ----------------------------------
-  ✔ True continuous scanning
-  ✔ Instant scan sound (no delay)
-  ✔ Live scan counter + last scanned item display
-  ✔ Stop/Finish button to return to billing
-  ✔ Proper ZXing cleanup (no camera freeze)
-  ✔ Smooth modern UI
+  ISMA ULTRA BARCODE SCANNER – FINAL PRO VERSION
+  --------------------------------------------
+  ✔ Ultra fast scanning (lower decode delay)
+  ✔ Continuous multi-item scanning stable
+  ✔ Proper camera full stop (no tab indicator bug)
+  ✔ PhonePe-style scanning UI
+  ✔ Instant sound + vibration
+  ✔ Auto inactivity stop (battery save)
+  ✔ Scan history overlay
+  ✔ Pause / Resume
+  ✔ Sound toggle
+  ✔ Clean single-file implementation
 */
 
 export default function BarcodeScanner({ onScan, onClose }) {
   const videoRef = useRef(null);
   const readerRef = useRef(null);
   const controlsRef = useRef(null);
+  const streamRef = useRef(null);
   const beepRef = useRef(null);
+  const inactivityTimer = useRef(null);
 
   const lastScanRef = useRef({ code: null, time: 0 });
 
-  const [devices, setDevices] = useState([]);
   const [deviceId, setDeviceId] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [continuous, setContinuous] = useState(true);
+  const [devices, setDevices] = useState([]);
   const [paused, setPaused] = useState(false);
+  const [continuous, setContinuous] = useState(true);
+  const [soundOn, setSoundOn] = useState(true);
+  const [history, setHistory] = useState([]);
 
-  const [scanCount, setScanCount] = useState(0);
-  const [lastCode, setLastCode] = useState("");
-
-  /* preload instant beep */
+  /* preload sound */
   useEffect(() => {
     beepRef.current = new Audio(
       "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
@@ -38,65 +41,66 @@ export default function BarcodeScanner({ onScan, onClose }) {
     beepRef.current.preload = "auto";
   }, []);
 
-  /* CAMERA INIT */
+  /* camera init */
   useEffect(() => {
-    async function initCamera() {
+    async function init() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" }
+        const tmp = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: 640, height: 480 }
         });
-        stream.getTracks().forEach(t => t.stop());
+        tmp.getTracks().forEach(t => t.stop());
 
         const cams = await BrowserMultiFormatReader.listVideoInputDevices();
-        if (!cams.length) return setError("No camera found");
-
         setDevices(cams);
-        setDeviceId(cams[0].deviceId);
-      } catch {
-        setError("Camera permission denied");
-      }
+        if (cams.length) setDeviceId(cams[0].deviceId);
+      } catch {}
     }
 
-    initCamera();
+    init();
   }, []);
 
-  /* START SCANNER */
-  useEffect(() => {
-    if (!deviceId || !videoRef.current || paused) return;
+  /* inactivity auto-stop */
+  const resetInactivity = () => {
+    clearTimeout(inactivityTimer.current);
+    inactivityTimer.current = setTimeout(() => finish(), 60000);
+  };
 
-    readerRef.current = new BrowserMultiFormatReader();
-    setLoading(true);
+  /* start scanner */
+  useEffect(() => {
+    if (!deviceId || paused) return;
+
+    readerRef.current = new BrowserMultiFormatReader(undefined, 250);
 
     readerRef.current.decodeFromVideoDevice(
       deviceId,
       videoRef.current,
       (result, err, controls) => {
         controlsRef.current = controls;
-        setLoading(false);
+        streamRef.current = videoRef.current?.srcObject;
 
         if (result) {
+          resetInactivity();
+
           const text = result.getText();
           const now = Date.now();
 
-          /* duplicate prevention */
           if (
             text === lastScanRef.current.code &&
-            now - lastScanRef.current.time < 1800
+            now - lastScanRef.current.time < 1400
           ) return;
 
           lastScanRef.current = { code: text, time: now };
 
-          /* instant beep */
-          try {
-            beepRef.current.currentTime = 0;
-            beepRef.current.play().catch(() => {});
-          } catch {}
+          if (soundOn) {
+            try {
+              beepRef.current.currentTime = 0;
+              beepRef.current.play().catch(() => {});
+            } catch {}
+          }
 
-          navigator.vibrate?.(50);
+          navigator.vibrate?.(40);
 
-          setScanCount(c => c + 1);
-          setLastCode(text);
-
+          setHistory(h => [text, ...h.slice(0, 4)]);
           onScan?.(text);
 
           if (!continuous) setPaused(true);
@@ -107,34 +111,28 @@ export default function BarcodeScanner({ onScan, onClose }) {
     );
 
     return stopCamera;
-  }, [deviceId, paused, continuous, onScan]);
+  }, [deviceId, paused, continuous, soundOn, onScan]);
 
-  /* STOP CAMERA */
   const stopCamera = () => {
     try {
       controlsRef.current?.stop();
-      const stream = videoRef.current?.srcObject;
-      stream?.getTracks().forEach(t => t.stop());
+      streamRef.current?.getTracks().forEach(t => t.stop());
+      if (videoRef.current) videoRef.current.srcObject = null;
     } catch {}
   };
 
-  const finishScanning = () => {
+  const finish = () => {
     stopCamera();
     onClose?.();
   };
 
   return (
     <div className="scanner-root">
-      {error && <p className="scanner-error">{error}</p>}
-
-      <div className="scanner-topbar">
-        <select
-          value={deviceId}
-          onChange={e => setDeviceId(e.target.value)}
-        >
-          {devices.map((d, i) => (
+      <div className="scanner-top">
+        <select value={deviceId} onChange={e => setDeviceId(e.target.value)}>
+          {devices.map(d => (
             <option key={d.deviceId} value={d.deviceId}>
-              {d.label || `Camera ${i + 1}`}
+              {d.label || "Camera"}
             </option>
           ))}
         </select>
@@ -147,94 +145,43 @@ export default function BarcodeScanner({ onScan, onClose }) {
           {continuous ? "Continuous" : "Single"}
         </button>
 
-        <button className="finish-btn" onClick={finishScanning}>
+        <button onClick={() => setSoundOn(s => !s)}>
+          {soundOn ? "Sound ON" : "Sound OFF"}
+        </button>
+
+        <button className="finish" onClick={finish}>
           Done Billing
         </button>
       </div>
 
-      {loading && <p className="scanner-loading">Starting camera...</p>}
-
-      <div className="scanner-video-wrap">
+      <div className="video-wrap">
         <video ref={videoRef} autoPlay muted playsInline />
+        <div className="scan-frame" />
         <div className="scan-line" />
       </div>
 
-      <div className="scanner-stats">
-        <div>
-          <b>Total Scanned:</b> {scanCount}
-        </div>
-        {lastCode && (
-          <div className="last-scan">Last: {lastCode}</div>
-        )}
+      <div className="scan-history">
+        <b>Recent scans:</b>
+        {history.map((h, i) => (
+          <div key={i}>{h}</div>
+        ))}
       </div>
     </div>
   );
 }
 
-/* CSS injected automatically */
+/* PRO CSS */
 const style = document.createElement("style");
 style.innerHTML = `
-.scanner-root{
-  background:#fff;
-  padding:16px;
-  border-radius:18px;
-  box-shadow:0 10px 35px rgba(0,0,0,.18);
-}
-
-.scanner-topbar{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:10px;
-}
-
-.scanner-topbar select,
-.scanner-topbar button{
-  padding:6px 10px;
-  border-radius:8px;
-  border:none;
-  background:#f3f4f6;
-  cursor:pointer;
-}
-
-.finish-btn{
-  background:#16a34a !important;
-  color:#fff;
-}
-
-.scanner-video-wrap{
-  position:relative;
-}
-
-.scanner-video-wrap video{
-  width:100%;
-  border-radius:14px;
-}
-
-.scan-line{
-  position:absolute;
-  left:10%;
-  width:80%;
-  height:2px;
-  background:#00ff88;
-  animation:scan 2s infinite linear;
-}
-
-@keyframes scan{
-  0%{top:20%}
-  50%{top:70%}
-  100%{top:20%}
-}
-
-.scanner-stats{
-  margin-top:10px;
-  font-size:13px;
-  opacity:.9;
-}
-
-.last-scan{
-  margin-top:4px;
-  color:#16a34a;
-}
+.scanner-root{background:#000;color:#fff;padding:14px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.scanner-top{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.scanner-top button,.scanner-top select{padding:6px 10px;border-radius:8px;border:none;background:#1f2937;color:#fff}
+.finish{background:#22c55e}
+.video-wrap{position:relative;border-radius:16px;overflow:hidden}
+video{width:100%;opacity:.92}
+.scan-frame{position:absolute;inset:10%;border:2px solid rgba(0,255,150,.6);border-radius:12px}
+.scan-line{position:absolute;left:10%;width:80%;height:2px;background:#00ffa6;animation:scan 1.6s linear infinite}
+@keyframes scan{0%{top:15%}50%{top:75%}100%{top:15%}}
+.scan-history{margin-top:8px;font-size:12px;opacity:.9}
 `;
 document.head.appendChild(style);
