@@ -47,14 +47,7 @@ export default function Billing() {
     loadProducts();
   }, [authLoading, isAuthenticated]);
 
-  /* ================= CLOSE SCANNER EVENT ================= */
-  useEffect(() => {
-    const closeHandler = () => setShowScanner(false);
-    window.addEventListener("closeScanner", closeHandler);
-    return () => window.removeEventListener("closeScanner", closeHandler);
-  }, []);
-
-  /* ================= TEMP STOCK ================= */
+  /* ================= STOCK MAP ================= */
   const availableStock = useMemo(() => {
     const map = {};
     products.forEach((p) => {
@@ -64,7 +57,7 @@ export default function Billing() {
     return map;
   }, [products, billItems]);
 
-  /* ================= HARDWARE SCANNER INPUT ================= */
+  /* ================= HARDWARE SCANNER ================= */
   const handleBarcodeScan = (e) => {
     if (e.key !== "Enter") return;
 
@@ -77,13 +70,15 @@ export default function Billing() {
 
   /* ================= CAMERA SCAN ================= */
   const handleCameraScan = async (code) => {
+    setError("");
+
     // Instant UI feedback
     setBillItems((prev) => {
       const existing = prev.find((i) => i.barcode === code);
 
       if (existing) {
         return prev.map((i) =>
-          i.barcode === code ? { ...i, quantity: i.quantity + 1 } : i
+          i.barcode === code ? { ...i, quantity: i.quantity + 1 } : i,
         );
       }
 
@@ -99,16 +94,13 @@ export default function Billing() {
     });
 
     addProductByBarcode(code);
-
-    // Refocus barcode input
     inputRef.current?.focus();
   };
 
   /* ================= MAIN BARCODE LOGIC ================= */
   const addProductByBarcode = async (code) => {
     try {
-      // Clean barcode (handles QR URLs too)
-      let cleanCode = code
+      const cleanCode = code
         .trim()
         .replace(/\/$/, "")
         .split("/")
@@ -126,19 +118,25 @@ export default function Billing() {
       }
 
       setBillItems((prev) => {
-        const filtered = prev.filter((i) => i.barcode !== code);
-        const existing = filtered.find((i) => i.product_id === product.id);
+        // remove temporary loading entry safely
+        const withoutLoading = prev.filter(
+          (i) => i.barcode !== code && i.name !== "Loading...",
+        );
+
+        const existing = withoutLoading.find(
+          (i) => i.product_id === product.id,
+        );
 
         if (existing) {
-          return filtered.map((i) =>
+          return withoutLoading.map((i) =>
             i.product_id === product.id
               ? { ...i, quantity: i.quantity + 1 }
-              : i
+              : i,
           );
         }
 
         return [
-          ...filtered,
+          ...withoutLoading,
           {
             product_id: product.id,
             name: product.name,
@@ -151,6 +149,10 @@ export default function Billing() {
       setError("");
     } catch (err) {
       console.error(err);
+
+      // remove stuck loading entry if API fails
+      setBillItems((prev) => prev.filter((i) => i.name !== "Loading..."));
+
       setError("Product not found");
     }
   };
@@ -181,7 +183,7 @@ export default function Billing() {
         return prev.map((i) =>
           i.product_id === product.id
             ? { ...i, quantity: i.quantity + quantity }
-            : i
+            : i,
         );
       }
 
@@ -204,7 +206,7 @@ export default function Billing() {
   /* ================= TOTAL ================= */
   const totalINR = billItems.reduce(
     (sum, i) => sum + i.quantity * i.priceINR,
-    0
+    0,
   );
 
   /* ================= REMOVE ITEM ================= */
@@ -238,7 +240,7 @@ export default function Billing() {
     }
   };
 
-  /* ================= LOADING GUARD ================= */
+  /* ================= LOADING ================= */
   if (authLoading) {
     return (
       <div className="billing-root">
@@ -289,14 +291,10 @@ export default function Billing() {
             {showScanner && (
               <div className="scanner-modal">
                 <div className="scanner-box">
-                  <button
-                    className="close-btn"
-                    onClick={() => setShowScanner(false)}
-                  >
-                    ✖ Close
-                  </button>
-
-                  <BarcodeScanner onScan={handleCameraScan} />
+                  <BarcodeScanner
+                    onScan={handleCameraScan}
+                    onClose={() => setShowScanner(false)}
+                  />
                 </div>
               </div>
             )}
@@ -307,7 +305,6 @@ export default function Billing() {
                 onChange={(e) => setSelectedProduct(e.target.value)}
               >
                 <option value="">Select product</option>
-
                 {(products || [])
                   .filter((p) => availableStock[p.id] > 0)
                   .map((p) => (

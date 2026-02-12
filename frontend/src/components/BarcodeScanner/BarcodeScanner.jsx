@@ -2,19 +2,21 @@ import React, { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 
 /*
- FINAL STABLE SCANNER FOR ISMA
- - True continuous scan support
- - No auto quantity bug
- - Proper ZXing cleanup
- - Camera switch safe
- - Duplicate scan protection
- - Works with Billing page continuous mode
+  FINAL ENHANCED ISMA BARCODE SCANNER
+  ----------------------------------
+  ✔ True continuous scanning
+  ✔ Instant scan sound (no delay)
+  ✔ Live scan counter + last scanned item display
+  ✔ Stop/Finish button to return to billing
+  ✔ Proper ZXing cleanup (no camera freeze)
+  ✔ Smooth modern UI
 */
 
-export default function BarcodeScanner({ onScan }) {
+export default function BarcodeScanner({ onScan, onClose }) {
   const videoRef = useRef(null);
   const readerRef = useRef(null);
   const controlsRef = useRef(null);
+  const beepRef = useRef(null);
 
   const lastScanRef = useRef({ code: null, time: 0 });
 
@@ -22,8 +24,19 @@ export default function BarcodeScanner({ onScan }) {
   const [deviceId, setDeviceId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [paused, setPaused] = useState(false);
   const [continuous, setContinuous] = useState(true);
+  const [paused, setPaused] = useState(false);
+
+  const [scanCount, setScanCount] = useState(0);
+  const [lastCode, setLastCode] = useState("");
+
+  /* preload instant beep */
+  useEffect(() => {
+    beepRef.current = new Audio(
+      "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+    );
+    beepRef.current.preload = "auto";
+  }, []);
 
   /* CAMERA INIT */
   useEffect(() => {
@@ -65,18 +78,27 @@ export default function BarcodeScanner({ onScan }) {
           const text = result.getText();
           const now = Date.now();
 
-          /* Strong duplicate prevention */
+          /* duplicate prevention */
           if (
             text === lastScanRef.current.code &&
-            now - lastScanRef.current.time < 2200
+            now - lastScanRef.current.time < 1800
           ) return;
 
           lastScanRef.current = { code: text, time: now };
 
-          navigator.vibrate?.(60);
+          /* instant beep */
+          try {
+            beepRef.current.currentTime = 0;
+            beepRef.current.play().catch(() => {});
+          } catch {}
+
+          navigator.vibrate?.(50);
+
+          setScanCount(c => c + 1);
+          setLastCode(text);
+
           onScan?.(text);
 
-          /* Stop only if continuous disabled */
           if (!continuous) setPaused(true);
         }
 
@@ -87,7 +109,7 @@ export default function BarcodeScanner({ onScan }) {
     return stopCamera;
   }, [deviceId, paused, continuous, onScan]);
 
-  /* STOP CAMERA CLEANLY */
+  /* STOP CAMERA */
   const stopCamera = () => {
     try {
       controlsRef.current?.stop();
@@ -96,63 +118,123 @@ export default function BarcodeScanner({ onScan }) {
     } catch {}
   };
 
+  const finishScanning = () => {
+    stopCamera();
+    onClose?.();
+  };
+
   return (
-    <div style={{ textAlign: "center" }}>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="scanner-root">
+      {error && <p className="scanner-error">{error}</p>}
 
-      <select
-        value={deviceId}
-        onChange={e => setDeviceId(e.target.value)}
-        style={{ padding: 8, marginBottom: 10 }}
-      >
-        {devices.map((d, i) => (
-          <option key={d.deviceId} value={d.deviceId}>
-            {d.label || `Camera ${i + 1}`}
-          </option>
-        ))}
-      </select>
+      <div className="scanner-topbar">
+        <select
+          value={deviceId}
+          onChange={e => setDeviceId(e.target.value)}
+        >
+          {devices.map((d, i) => (
+            <option key={d.deviceId} value={d.deviceId}>
+              {d.label || `Camera ${i + 1}`}
+            </option>
+          ))}
+        </select>
 
-      <div style={{ marginBottom: 10 }}>
         <button onClick={() => setPaused(p => !p)}>
           {paused ? "Resume" : "Pause"}
         </button>
 
-        <button onClick={() => setContinuous(c => !c)} style={{ marginLeft: 8 }}>
-          {continuous ? "Continuous ON" : "Single Scan"}
+        <button onClick={() => setContinuous(c => !c)}>
+          {continuous ? "Continuous" : "Single"}
+        </button>
+
+        <button className="finish-btn" onClick={finishScanning}>
+          Done Billing
         </button>
       </div>
 
-      {loading && <p>Starting camera...</p>}
+      {loading && <p className="scanner-loading">Starting camera...</p>}
 
-      <div style={{ position: "relative" }}>
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          style={{ width: "100%", borderRadius: 12 }}
-        />
+      <div className="scanner-video-wrap">
+        <video ref={videoRef} autoPlay muted playsInline />
+        <div className="scan-line" />
+      </div>
 
-        <div
-          style={{
-            position: "absolute",
-            left: "10%",
-            width: "80%",
-            height: 2,
-            background: "#00ff88",
-            animation: "scan 2s infinite linear"
-          }}
-        />
+      <div className="scanner-stats">
+        <div>
+          <b>Total Scanned:</b> {scanCount}
+        </div>
+        {lastCode && (
+          <div className="last-scan">Last: {lastCode}</div>
+        )}
       </div>
     </div>
   );
 }
 
+/* CSS injected automatically */
 const style = document.createElement("style");
 style.innerHTML = `
-@keyframes scan {
-  0% { top:20%; }
-  50% { top:70%; }
-  100% { top:20%; }
-}`;
+.scanner-root{
+  background:#fff;
+  padding:16px;
+  border-radius:18px;
+  box-shadow:0 10px 35px rgba(0,0,0,.18);
+}
+
+.scanner-topbar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.scanner-topbar select,
+.scanner-topbar button{
+  padding:6px 10px;
+  border-radius:8px;
+  border:none;
+  background:#f3f4f6;
+  cursor:pointer;
+}
+
+.finish-btn{
+  background:#16a34a !important;
+  color:#fff;
+}
+
+.scanner-video-wrap{
+  position:relative;
+}
+
+.scanner-video-wrap video{
+  width:100%;
+  border-radius:14px;
+}
+
+.scan-line{
+  position:absolute;
+  left:10%;
+  width:80%;
+  height:2px;
+  background:#00ff88;
+  animation:scan 2s infinite linear;
+}
+
+@keyframes scan{
+  0%{top:20%}
+  50%{top:70%}
+  100%{top:20%}
+}
+
+.scanner-stats{
+  margin-top:10px;
+  font-size:13px;
+  opacity:.9;
+}
+
+.last-scan{
+  margin-top:4px;
+  color:#16a34a;
+}
+`;
 document.head.appendChild(style);
