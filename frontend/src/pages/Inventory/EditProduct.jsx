@@ -5,8 +5,10 @@ import api from "../../api/axios";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
+import BarcodeScanner from "../../components/BarcodeScanner/BarcodeScanner";
 import { useSettings } from "../../context/SettingsContext";
 import { useCurrency } from "../../context/CurrencyContext";
+
 import "./AddProduct.css";
 
 export default function EditProduct() {
@@ -18,6 +20,7 @@ export default function EditProduct() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -25,9 +28,10 @@ export default function EditProduct() {
     stock: "",
     price: "",
     description: "",
-    barcode: "", // ✅ added
+    barcode: "",
   });
 
+  /* LOAD PRODUCT */
   useEffect(() => {
     api
       .get(`/inventory/${id}`)
@@ -46,12 +50,10 @@ export default function EditProduct() {
           stock: res.data.stock ?? "",
           price: displayPrice.toFixed(2),
           description: res.data.description ?? "",
-          barcode: res.data.barcode ?? "", // ✅ load barcode
+          barcode: res.data.barcode ?? "",
         });
       })
-      .catch(() => {
-        setError("Failed to load product");
-      })
+      .catch(() => setError("Failed to load product"))
       .finally(() => setLoading(false));
   }, [id, settings.currency, rates]);
 
@@ -59,6 +61,13 @@ export default function EditProduct() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /* HANDLE BARCODE SCAN */
+  const handleBarcodeScan = (code) => {
+    setForm((prev) => ({ ...prev, barcode: code }));
+    setShowScanner(false);
+  };
+
+  /* SUBMIT */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -90,7 +99,7 @@ export default function EditProduct() {
         stock: stockInput,
         price: Math.round(priceInINR),
         description: form.description,
-        barcode: form.barcode, // ✅ send barcode
+        barcode: form.barcode,
       });
 
       navigate("/inventory");
@@ -138,7 +147,6 @@ export default function EditProduct() {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
-                  placeholder="Enter product name"
                   required
                 />
               </div>
@@ -149,7 +157,6 @@ export default function EditProduct() {
                   name="category"
                   value={form.category}
                   onChange={handleChange}
-                  placeholder="Example: Electronics, Grocery"
                   required
                 />
               </div>
@@ -162,7 +169,6 @@ export default function EditProduct() {
                   name="stock"
                   value={form.stock}
                   onChange={handleChange}
-                  placeholder="Enter available quantity"
                   required
                 />
               </div>
@@ -176,20 +182,30 @@ export default function EditProduct() {
                   name="price"
                   value={form.price}
                   onChange={handleChange}
-                  placeholder={`Enter price in ${settings.currency}`}
                   required
                 />
               </div>
 
-              {/* ⭐ Barcode Field */}
+              {/* ⭐ Barcode Field with Scanner */}
               <div className="form-group">
                 <label>Barcode</label>
-                <input
-                  name="barcode"
-                  value={form.barcode}
-                  onChange={handleChange}
-                  placeholder="Scan or type barcode"
-                />
+
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    name="barcode"
+                    value={form.barcode}
+                    onChange={handleChange}
+                    placeholder="Scan or type barcode"
+                  />
+
+                  <button
+                    type="button"
+                    className="secondary-btn"
+                    onClick={() => setShowScanner(true)}
+                  >
+                    📷 Scan
+                  </button>
+                </div>
               </div>
 
               <div className="form-group full">
@@ -198,7 +214,6 @@ export default function EditProduct() {
                   name="description"
                   value={form.description}
                   onChange={handleChange}
-                  placeholder="Optional product description"
                 />
               </div>
             </div>
@@ -222,6 +237,18 @@ export default function EditProduct() {
               </button>
             </div>
           </form>
+
+          {/* ⭐ Scanner Modal */}
+          {showScanner && (
+            <div className="scanner-modal">
+              <div className="scanner-box">
+                <BarcodeScanner
+                  onScan={handleBarcodeScan}
+                  onClose={() => setShowScanner(false)}
+                />
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

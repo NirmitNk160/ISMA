@@ -111,8 +111,8 @@
   outline: none;
 
   transition: border 0.2s ease,
-              box-shadow 0.2s ease,
-              background 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .form-group input::placeholder,
@@ -155,7 +155,7 @@
   cursor: pointer;
 
   transition: background 0.2s ease,
-              transform 0.15s ease;
+    transform 0.15s ease;
 }
 
 .secondary-btn:hover {
@@ -166,11 +166,9 @@
 /* ================= PRIMARY ================= */
 
 .primary-btn {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-strong)
-  );
+  background: linear-gradient(135deg,
+      var(--accent),
+      var(--accent-strong));
 
   color: var(--text-invert);
   border: none;
@@ -186,7 +184,7 @@
   box-shadow: 0 14px 34px rgba(79, 70, 229, 0.45);
 
   transition: transform 0.15s ease,
-              box-shadow 0.15s ease;
+    box-shadow 0.15s ease;
 }
 
 .primary-btn:hover:not(:disabled) {
@@ -218,5 +216,82 @@
 
   .add-product-card {
     padding: 26px 24px;
+  }
+}
+
+/* =====================================================
+   BARCODE SCANNER INTEGRATION (ADD / EDIT PRODUCT)
+   ===================================================== */
+
+/* Barcode field layout */
+
+.barcode-field {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.barcode-field input {
+  flex: 1;
+}
+
+/* Scan button */
+
+.scan-btn {
+  background: linear-gradient(135deg,
+      var(--accent),
+      var(--accent-strong));
+
+  border: none;
+  color: var(--text-invert);
+
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.scan-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+}
+
+/* Scanner modal overlay */
+
+.scanner-modal {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+/* Scanner container */
+
+.scanner-box {
+  width: 440px;
+  max-width: 96%;
+}
+
+/* Mobile optimization */
+
+@media (max-width: 480px) {
+  .barcode-field {
+    flex-direction: column;
+  }
+
+  .scan-btn {
+    width: 100%;
   }
 }

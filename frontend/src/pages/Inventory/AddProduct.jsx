@@ -30,18 +30,18 @@ export default function AddProduct() {
   const [error, setError] = useState("");
   const [showScanner, setShowScanner] = useState(false);
 
-  /* ================= HANDLE INPUT ================= */
+  /* INPUT CHANGE */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /* ================= HANDLE CAMERA SCAN ================= */
+  /* BARCODE SCAN */
   const handleScan = (code) => {
     setForm((prev) => ({ ...prev, barcode: code }));
     setShowScanner(false);
   };
 
-  /* ================= HANDLE SUBMIT ================= */
+  /* SUBMIT */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -84,7 +84,6 @@ export default function AddProduct() {
     }
   };
 
-  /* ================= UI ================= */
   return (
     <div className="add-product-root">
       <Navbar />
@@ -151,41 +150,26 @@ export default function AddProduct() {
                 />
               </div>
 
-              {/* ⭐ BARCODE WITH CAMERA SCANNER */}
+              {/* BARCODE FIELD */}
               <div className="form-group">
                 <label>Barcode</label>
 
-                <div style={{ display: "flex", gap: "10px" }}>
+                <div className="barcode-field">
                   <input
                     name="barcode"
                     value={form.barcode}
                     onChange={handleChange}
                     placeholder="Scan or type barcode"
-                    style={{ flex: 1 }}
                   />
 
                   <button
                     type="button"
+                    className="scan-btn"
                     onClick={() => setShowScanner(true)}
                   >
                     📷 Scan
                   </button>
                 </div>
-
-                {showScanner && (
-                  <div className="scanner-modal">
-                    <div className="scanner-box">
-                      <button
-                        type="button"
-                        onClick={() => setShowScanner(false)}
-                      >
-                        ✖ Close
-                      </button>
-
-                      <BarcodeScanner onScan={handleScan} />
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="form-group full">
@@ -218,6 +202,18 @@ export default function AddProduct() {
               </button>
             </div>
           </form>
+
+          {/* SCANNER MODAL */}
+          {showScanner && (
+            <div className="scanner-modal">
+              <div className="scanner-box">
+                <BarcodeScanner
+                  onScan={handleScan}
+                  onClose={() => setShowScanner(false)}
+                />
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
