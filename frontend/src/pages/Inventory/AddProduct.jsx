@@ -6,6 +6,7 @@ import Navbar from "../../components/Navbar";
 import Sidebar from "../dashboard/Sidebar";
 import BackButton from "../../components/BackButton";
 import BarcodeScanner from "../../components/BarcodeScanner/BarcodeScanner";
+import { fetchProductFromBarcode } from "../../utils/barcodeLookup";
 
 import { useSettings } from "../../context/SettingsContext";
 import { useCurrency } from "../../context/CurrencyContext";
@@ -19,29 +20,67 @@ export default function AddProduct() {
 
   const [form, setForm] = useState({
     name: "",
+    brand: "",
     category: "",
+    size: "",
     stock: "",
     price: "",
     description: "",
     barcode: "",
+    sku: "",
+    image_url: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [infoMsg, setInfoMsg] = useState(""); // ⭐ new
   const [showScanner, setShowScanner] = useState(false);
 
-  /* INPUT CHANGE */
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
+  const showInfo = (msg) => {
+    setInfoMsg(msg);
+    setTimeout(() => setInfoMsg(""), 4000);
   };
 
-  /* BARCODE SCAN */
-  const handleScan = (code) => {
-    setForm((prev) => ({ ...prev, barcode: code }));
+  /* ================= BARCODE SCAN ================= */
+  const handleScan = async (code) => {
     setShowScanner(false);
+
+    try {
+      const local = await api.get(`/inventory/barcode/${code}`);
+
+      setForm((prev) => ({
+        ...prev,
+        ...local.data,
+        barcode: code,
+      }));
+
+      showInfo("Product loaded from your inventory.");
+      return;
+    } catch {}
+
+    const online = await fetchProductFromBarcode(code);
+
+    if (online) {
+      setForm((prev) => ({
+        ...prev,
+        ...online,
+        barcode: code,
+      }));
+
+      showInfo("Product details fetched automatically.");
+    } else {
+      setForm((prev) => ({ ...prev, barcode: code }));
+
+      showInfo(
+        "Product details not found. Please enter manually — it will auto-fill next time."
+      );
+    }
   };
 
-  /* SUBMIT */
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -68,12 +107,9 @@ export default function AddProduct() {
 
     try {
       await api.post("/inventory", {
-        name: form.name,
-        category: form.category,
+        ...form,
         stock: stockInput,
         price: Math.round(priceInINR),
-        description: form.description,
-        barcode: form.barcode,
       });
 
       navigate("/inventory");
@@ -87,7 +123,6 @@ export default function AddProduct() {
   return (
     <div className="add-product-root">
       <Navbar />
-
       <div className="add-product-body">
         <Sidebar />
 
@@ -100,15 +135,29 @@ export default function AddProduct() {
           <form className="add-product-card" onSubmit={handleSubmit}>
             {error && <div className="error-msg">❌ {error}</div>}
 
+            {infoMsg && (
+              <div className="info-msg">ℹ️ {infoMsg}</div>
+            )}
+
             <div className="form-grid">
               <div className="form-group">
                 <label>Product Name</label>
                 <input
                   name="name"
+                  placeholder="Example: Sony Headphones WH-1000XM5"
                   value={form.name}
                   onChange={handleChange}
-                  placeholder="Enter product name"
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Brand</label>
+                <input
+                  name="brand"
+                  placeholder="Sony, Samsung, Nike…"
+                  value={form.brand}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -116,10 +165,20 @@ export default function AddProduct() {
                 <label>Category</label>
                 <input
                   name="category"
+                  placeholder="Electronics, Grocery, Clothing…"
                   value={form.category}
                   onChange={handleChange}
-                  placeholder="Example: Electronics, Grocery"
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Size / Variant</label>
+                <input
+                  name="size"
+                  placeholder="500ml, Large, 128GB…"
+                  value={form.size}
+                  onChange={handleChange}
                 />
               </div>
 
@@ -127,11 +186,10 @@ export default function AddProduct() {
                 <label>Stock</label>
                 <input
                   type="number"
-                  min="0"
                   name="stock"
+                  placeholder="Available quantity"
                   value={form.stock}
                   onChange={handleChange}
-                  placeholder="Enter quantity"
                   required
                 />
               </div>
@@ -140,28 +198,55 @@ export default function AddProduct() {
                 <label>Price ({settings.currency})</label>
                 <input
                   type="number"
-                  min="0"
-                  step="0.01"
+                  placeholder={`Enter price in ${settings.currency}`}
                   name="price"
                   value={form.price}
                   onChange={handleChange}
-                  placeholder={`Enter price in ${settings.currency}`}
                   required
                 />
               </div>
 
-              {/* BARCODE FIELD */}
+              <div className="form-group">
+                <label>SKU</label>
+                <input
+                  name="sku"
+                  placeholder="Optional internal code"
+                  value={form.sku}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Image URL</label>
+                <input
+                  name="image_url"
+                  placeholder="Paste product image link"
+                  value={form.image_url}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {form.image_url && (
+                <img
+                  src={form.image_url}
+                  alt="product"
+                  style={{
+                    width: 80,
+                    marginTop: 10,
+                    borderRadius: 10,
+                  }}
+                />
+              )}
+
               <div className="form-group">
                 <label>Barcode</label>
-
                 <div className="barcode-field">
                   <input
                     name="barcode"
+                    placeholder="Scan or enter barcode"
                     value={form.barcode}
                     onChange={handleChange}
-                    placeholder="Scan or type barcode"
                   />
-
                   <button
                     type="button"
                     className="scan-btn"
@@ -176,9 +261,9 @@ export default function AddProduct() {
                 <label>Description</label>
                 <textarea
                   name="description"
+                  placeholder="Short product description (optional)"
                   value={form.description}
                   onChange={handleChange}
-                  placeholder="Optional description"
                 />
               </div>
             </div>
@@ -188,22 +273,16 @@ export default function AddProduct() {
                 type="button"
                 className="secondary-btn"
                 onClick={() => navigate("/inventory")}
-                disabled={loading}
               >
                 Cancel
               </button>
 
-              <button
-                type="submit"
-                className="primary-btn"
-                disabled={loading}
-              >
+              <button type="submit" className="primary-btn" disabled={loading}>
                 {loading ? "Saving..." : "Save Product"}
               </button>
             </div>
           </form>
 
-          {/* SCANNER MODAL */}
           {showScanner && (
             <div className="scanner-modal">
               <div className="scanner-box">

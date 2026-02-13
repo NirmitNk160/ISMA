@@ -7,11 +7,23 @@ const router = express.Router();
 /* ================= ADD PRODUCT ================= */
 router.post("/", verifyToken, async (req, res) => {
   try {
-    const { name, category, stock, price, description, barcode } = req.body;
+    const {
+      name,
+      brand,
+      category,
+      size,
+      stock,
+      price,
+      description,
+      barcode,
+      sku,
+      image_url,
+    } = req.body;
+
     const userId = req.user.id;
 
     if (!name || !category || stock === "" || price === "") {
-      return res.status(400).json({ message: "All fields required" });
+      return res.status(400).json({ message: "Required fields missing" });
     }
 
     if (Number(stock) < 0 || Number(price) < 0) {
@@ -23,10 +35,22 @@ router.post("/", verifyToken, async (req, res) => {
     await db.query(
       `
       INSERT INTO products
-      (user_id, name, category, stock, price, description, barcode, is_deleted)
-      VALUES (?, ?, ?, ?, ?, ?, ?, FALSE)
+      (user_id, name, brand, category, size, stock, price, description, barcode, sku, image_url, is_deleted)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
       `,
-      [userId, name, category, Number(stock), Number(price), description, barcode],
+      [
+        userId,
+        name,
+        brand || null,
+        category,
+        size || null,
+        Number(stock),
+        Number(price),
+        description || null,
+        barcode || null,
+        sku || null,
+        image_url || null,
+      ],
     );
 
     res.status(201).json({ message: "Product added" });
@@ -44,7 +68,17 @@ router.get("/", verifyToken, async (req, res) => {
     const [rows] = await db.query(
       `
       SELECT
-        p.id, p.name, p.category, p.stock, p.price, p.description, p.barcode,
+        p.id,
+        p.name,
+        p.brand,
+        p.category,
+        p.size,
+        p.stock,
+        p.price,
+        p.description,
+        p.barcode,
+        p.image_url,
+        p.sku,
         CASE
           WHEN p.stock = 0 THEN 'Out'
           WHEN p.stock < 15 THEN 'Low'
@@ -76,7 +110,17 @@ router.get("/:id", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT name, category, stock, price, description, barcode
+      SELECT
+        name,
+        brand,
+        category,
+        size,
+        stock,
+        price,
+        description,
+        barcode,
+        sku,
+        image_url
       FROM products
       WHERE id = ? AND user_id = ? AND is_deleted = FALSE
       `,
@@ -96,12 +140,24 @@ router.get("/:id", verifyToken, async (req, res) => {
 /* ================= UPDATE PRODUCT ================= */
 router.put("/:id", verifyToken, async (req, res) => {
   try {
-    const { name, category, stock, price, description, barcode } = req.body;
+    const {
+      name,
+      brand,
+      category,
+      size,
+      stock,
+      price,
+      description,
+      barcode,
+      sku,
+      image_url,
+    } = req.body;
+
     const userId = req.user.id;
     const productId = req.params.id;
 
     if (!name || !category || stock === "" || price === "") {
-      return res.status(400).json({ message: "All fields required" });
+      return res.status(400).json({ message: "Required fields missing" });
     }
 
     if (Number(stock) < 0 || Number(price) < 0) {
@@ -112,17 +168,30 @@ router.put("/:id", verifyToken, async (req, res) => {
 
     const [result] = await db.query(
       `
-      UPDATE products
-      SET name = ?, category = ?, stock = ?, price = ?, description = ?, barcode = ?
-      WHERE id = ? AND user_id = ? AND is_deleted = FALSE
+      UPDATE products SET
+        name=?,
+        brand=?,
+        category=?,
+        size=?,
+        stock=?,
+        price=?,
+        description=?,
+        barcode=?,
+        sku=?,
+        image_url=?
+      WHERE id=? AND user_id=? AND is_deleted=FALSE
       `,
       [
         name,
+        brand || null,
         category,
+        size || null,
         Number(stock),
         Number(price),
-        description,
-        barcode,
+        description || null,
+        barcode || null,
+        sku || null,
+        image_url || null,
         productId,
         userId,
       ],
@@ -138,18 +207,14 @@ router.put("/:id", verifyToken, async (req, res) => {
   }
 });
 
-/* ================= SOFT DELETE PRODUCT ================= */
+/* ================= SOFT DELETE ================= */
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const productId = req.params.id;
 
     const [result] = await db.query(
-      `
-      UPDATE products
-      SET is_deleted = TRUE
-      WHERE id = ? AND user_id = ?
-      `,
+      `UPDATE products SET is_deleted = TRUE WHERE id=? AND user_id=?`,
       [productId, userId],
     );
 
@@ -163,27 +228,6 @@ router.delete("/:id", verifyToken, async (req, res) => {
   }
 });
 
-/* ================= GET ARCHIVED PRODUCTS ================= */
-router.get("/archived/all", verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-    const [rows] = await db.query(
-      `
-      SELECT id, name, category, stock, price, barcode, created_at
-      FROM products
-      WHERE user_id = ? AND is_deleted = TRUE
-      ORDER BY created_at DESC
-      `,
-      [userId],
-    );
-
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ message: "DB error" });
-  }
-});
-
 /* ================= RESTORE PRODUCT ================= */
 router.put("/restore/:id", verifyToken, async (req, res) => {
   try {
@@ -191,11 +235,7 @@ router.put("/restore/:id", verifyToken, async (req, res) => {
     const productId = req.params.id;
 
     const [result] = await db.query(
-      `
-      UPDATE products
-      SET is_deleted = FALSE
-      WHERE id = ? AND user_id = ?
-      `,
+      `UPDATE products SET is_deleted = FALSE WHERE id=? AND user_id=?`,
       [productId, userId],
     );
 
@@ -226,7 +266,7 @@ router.delete("/permanent/:id", verifyToken, async (req, res) => {
   }
 });
 
-/* ================= FIND PRODUCT BY BARCODE ================= */
+/* ================= FIND BY BARCODE ================= */
 router.get("/barcode/:code", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -234,12 +274,12 @@ router.get("/barcode/:code", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT id, name, price, stock, barcode
+      SELECT id, name, brand, category, size, price, stock, barcode, image_url
       FROM products
-      WHERE barcode = ? AND user_id = ? AND is_deleted = FALSE
+      WHERE barcode=? AND user_id=? AND is_deleted=FALSE
       LIMIT 1
       `,
-      [code, userId]
+      [code, userId],
     );
 
     if (!rows.length) {
@@ -252,5 +292,37 @@ router.get("/barcode/:code", verifyToken, async (req, res) => {
   }
 });
 
+/* ================= GET ARCHIVED PRODUCTS ================= */
+router.get("/archived/all", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [rows] = await db.query(
+      `
+      SELECT
+        id,
+        name,
+        brand,
+        category,
+        size,
+        stock,
+        price,
+        description,
+        barcode,
+        image_url,
+        sku
+      FROM products
+      WHERE user_id = ? AND is_deleted = TRUE
+      ORDER BY created_at DESC
+      `,
+      [userId],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "DB error" });
+  }
+});
 
 export default router;

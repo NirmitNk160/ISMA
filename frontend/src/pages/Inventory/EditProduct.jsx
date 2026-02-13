@@ -24,82 +24,68 @@ export default function EditProduct() {
 
   const [form, setForm] = useState({
     name: "",
+    brand: "",
     category: "",
+    size: "",
     stock: "",
     price: "",
     description: "",
     barcode: "",
+    sku: "",
+    image_url: "",
   });
 
   /* LOAD PRODUCT */
   useEffect(() => {
-    api
-      .get(`/inventory/${id}`)
+    api.get(`/inventory/${id}`)
       .then((res) => {
-        const priceInINR = Number(res.data.price);
+        const p = res.data;
 
-        let displayPrice = priceInINR;
+        let displayPrice = Number(p.price);
         if (settings.currency !== "INR") {
           const rate = rates[settings.currency];
-          if (rate) displayPrice = priceInINR * rate;
+          if (rate) displayPrice *= rate;
         }
 
         setForm({
-          name: res.data.name ?? "",
-          category: res.data.category ?? "",
-          stock: res.data.stock ?? "",
+          name: p.name || "",
+          brand: p.brand || "",
+          category: p.category || "",
+          size: p.size || "",
+          stock: p.stock || "",
           price: displayPrice.toFixed(2),
-          description: res.data.description ?? "",
-          barcode: res.data.barcode ?? "",
+          description: p.description || "",
+          barcode: p.barcode || "",
+          sku: p.sku || "",
+          image_url: p.image_url || "",
         });
       })
       .catch(() => setError("Failed to load product"))
       .finally(() => setLoading(false));
   }, [id, settings.currency, rates]);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
-  /* HANDLE BARCODE SCAN */
   const handleBarcodeScan = (code) => {
-    setForm((prev) => ({ ...prev, barcode: code }));
+    setForm(prev => ({ ...prev, barcode: code }));
     setShowScanner(false);
   };
 
-  /* SUBMIT */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
-    const priceInput = Number(form.price);
-    const stockInput = Number(form.stock);
-
-    if (priceInput < 0 || stockInput < 0) {
-      setError("Stock and price must be non-negative");
-      return;
-    }
-
-    let priceInINR = priceInput;
+    let priceInINR = Number(form.price);
     if (settings.currency !== "INR") {
-      const rate = rates[settings.currency];
-      if (!rate) {
-        setError("Currency rate unavailable");
-        return;
-      }
-      priceInINR = priceInput / rate;
+      priceInINR /= rates[settings.currency];
     }
 
     setSaving(true);
 
     try {
       await api.put(`/inventory/${id}`, {
-        name: form.name,
-        category: form.category,
-        stock: stockInput,
+        ...form,
         price: Math.round(priceInINR),
-        description: form.description,
-        barcode: form.barcode,
       });
 
       navigate("/inventory");
@@ -111,23 +97,12 @@ export default function EditProduct() {
   };
 
   if (loading) {
-    return (
-      <div className="add-product-root">
-        <Navbar />
-        <div className="add-product-body">
-          <Sidebar />
-          <main className="add-product-content">
-            <p style={{ padding: "2rem" }}>Loading product…</p>
-          </main>
-        </div>
-      </div>
-    );
+    return <p style={{ padding: 40 }}>Loading…</p>;
   }
 
   return (
     <div className="add-product-root">
       <Navbar />
-
       <div className="add-product-body">
         <Sidebar />
 
@@ -141,68 +116,60 @@ export default function EditProduct() {
             {error && <div className="error-msg">❌ {error}</div>}
 
             <div className="form-grid">
+
               <div className="form-group">
                 <label>Product Name</label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                />
+                <input name="name" value={form.name} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Brand</label>
+                <input name="brand" value={form.brand} onChange={handleChange} />
               </div>
 
               <div className="form-group">
                 <label>Category</label>
-                <input
-                  name="category"
-                  value={form.category}
-                  onChange={handleChange}
-                  required
-                />
+                <input name="category" value={form.category} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Size / Variant</label>
+                <input name="size" value={form.size} onChange={handleChange} />
               </div>
 
               <div className="form-group">
                 <label>Stock</label>
-                <input
-                  type="number"
-                  min="0"
-                  name="stock"
-                  value={form.stock}
-                  onChange={handleChange}
-                  required
-                />
+                <input type="number" name="stock" value={form.stock} onChange={handleChange} />
               </div>
 
               <div className="form-group">
                 <label>Price ({settings.currency})</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  name="price"
-                  value={form.price}
-                  onChange={handleChange}
-                  required
-                />
+                <input type="number" name="price" value={form.price} onChange={handleChange} />
               </div>
 
-              {/* ⭐ Barcode Field with Scanner */}
+              <div className="form-group">
+                <label>SKU</label>
+                <input name="sku" value={form.sku} onChange={handleChange} />
+              </div>
+
+              <div className="form-group">
+                <label>Image URL</label>
+                <input name="image_url" value={form.image_url} onChange={handleChange} />
+              </div>
+
+              {form.image_url && (
+                <img
+                  src={form.image_url}
+                  alt=""
+                  style={{ width: 80, borderRadius: 10, marginTop: 10 }}
+                />
+              )}
+
               <div className="form-group">
                 <label>Barcode</label>
-
                 <div className="barcode-field">
-                  <input
-                    name="barcode"
-                    value={form.barcode}
-                    onChange={handleChange}
-                    placeholder="Scan or type barcode"
-                  />
-
-                  <button
-                    type="button"
-                    className="scan-btn"
-                    onClick={() => setShowScanner(true)}
-                  >
+                  <input name="barcode" value={form.barcode} onChange={handleChange} />
+                  <button type="button" className="scan-btn" onClick={() => setShowScanner(true)}>
                     📷 Scan
                   </button>
                 </div>
@@ -210,42 +177,26 @@ export default function EditProduct() {
 
               <div className="form-group full">
                 <label>Description</label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                />
+                <textarea name="description" value={form.description} onChange={handleChange} />
               </div>
+
             </div>
 
             <div className="form-actions">
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={() => navigate("/inventory")}
-                disabled={saving}
-              >
+              <button type="button" className="secondary-btn" onClick={() => navigate("/inventory")}>
                 Cancel
               </button>
 
-              <button
-                type="submit"
-                className="primary-btn"
-                disabled={saving}
-              >
+              <button type="submit" className="primary-btn">
                 {saving ? "Updating..." : "Update Product"}
               </button>
             </div>
           </form>
 
-          {/* ⭐ Scanner Modal */}
           {showScanner && (
             <div className="scanner-modal">
               <div className="scanner-box">
-                <BarcodeScanner
-                  onScan={handleBarcodeScan}
-                  onClose={() => setShowScanner(false)}
-                />
+                <BarcodeScanner onScan={handleBarcodeScan} onClose={() => setShowScanner(false)} />
               </div>
             </div>
           )}
