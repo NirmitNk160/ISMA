@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
 import Navbar from "../../components/Navbar";
-import Sidebar from "../dashboard/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import BackButton from "../../components/BackButton";
 import BarcodeScanner from "../../components/BarcodeScanner/BarcodeScanner";
 import { fetchProductFromBarcode } from "../../utils/barcodeLookup";

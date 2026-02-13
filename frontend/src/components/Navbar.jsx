@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
-import BackButton from "./BackButton";
 import "./navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuth();
+
   const [profile, setProfile] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -27,22 +28,33 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
+      {/* LEFT */}
       <div className="navbar-left">
-        {/* 🔥 LOGO = HOME */}
         <h1
           className="logo clickable"
           onClick={() => navigate("/")}
-          title="Go to Dashboard"
+          title="Dashboard"
         >
           ISMA
         </h1>
       </div>
 
-      <div className="navbar-right">
+      {/* MOBILE HAMBURGER */}
+      <div
+        className="hamburger"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        ☰
+      </div>
+
+      {/* RIGHT */}
+      <div className={`navbar-right ${menuOpen ? "open" : ""}`}>
         {!isAuthenticated ? (
           <>
-
-            <button className="nav-link" onClick={() => navigate("/about")}>
+            <button
+              className="nav-link"
+              onClick={() => navigate("/about")}
+            >
               About
             </button>
 
@@ -53,23 +65,30 @@ export default function Navbar() {
               Login
             </button>
 
-            <button className="nav-btn" onClick={() => navigate("/register")}>
+            <button
+              className="nav-btn"
+              onClick={() => navigate("/register")}
+            >
               Create Store
             </button>
           </>
         ) : (
           <>
-            <span className="welcome-text">👋 Welcome, {username}</span>
+            <span className="welcome-text">
+              👋 {username}
+            </span>
 
             <div
               className="avatar"
-              title="Profile"
               onClick={() => navigate("/profile")}
             >
               {initials}
             </div>
 
-            <button className="logout-btn" onClick={logout}>
+            <button
+              className="logout-btn"
+              onClick={logout}
+            >
               Logout
             </button>
           </>

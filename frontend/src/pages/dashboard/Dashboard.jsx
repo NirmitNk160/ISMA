@@ -5,7 +5,7 @@ import "./Dashboard.css";
 import api from "../../api/axios";
 import BackButton from "../../components/BackButton";
 import Navbar from "../../components/Navbar";
-import Sidebar from "./Sidebar";
+import Sidebar from "../../components/Sidebar";
 import StatCard from "./StatCard";
 import Progress from "./Progress";
 import { useCurrency } from "../../context/CurrencyContext";

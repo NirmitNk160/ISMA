@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
 import Navbar from "../../components/Navbar";
-import Sidebar from "../dashboard/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";
 import { useSettings } from "../../context/SettingsContext";

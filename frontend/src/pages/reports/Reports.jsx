@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../../api/axios";
 
-import Sidebar from "../dashboard/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
 import BackButton from "../../components/BackButton";
 import { useCurrency } from "../../context/CurrencyContext";

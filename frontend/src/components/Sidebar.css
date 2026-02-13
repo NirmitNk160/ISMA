@@ -1,0 +1,151 @@
+/* =====================================================
+   SIDEBAR — PRO RESPONSIVE + DARK/LIGHT MODE READY
+   ===================================================== */
+
+/* ================= BASE ================= */
+
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  padding: 28px 22px;
+
+  background: var(--card-bg);
+  color: var(--text-primary);
+
+  border-right: 1px solid var(--border-soft);
+  flex-shrink: 0;
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* LOGO */
+
+.sidebar .logo {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--accent);
+  margin-bottom: 36px;
+}
+
+/* NAV */
+
+.sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-link {
+  padding: 14px 18px;
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  text-decoration: none;
+  color: var(--text-secondary);
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
+}
+
+/* Hover */
+
+.nav-link:hover {
+  background: var(--row-hover);
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+/* Active */
+
+.nav-link.active {
+  background: linear-gradient(
+    135deg,
+    var(--accent-soft),
+    transparent
+  );
+  color: var(--text-primary);
+}
+
+/* CLOSE BUTTON */
+
+.close-btn {
+  display: none;
+}
+
+/* =====================================================
+   MOBILE DRAWER
+   ===================================================== */
+
+@media (max-width: 768px) {
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+
+    transform: translateX(-100%);
+    z-index: 2000;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Overlay */
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(4px);
+    z-index: 1900;
+  }
+
+  /* Close button */
+
+  .close-btn {
+    display: block;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 22px;
+    cursor: pointer;
+  }
+}
+
+/* =====================================================
+   TABLET IMPROVEMENT
+   ===================================================== */
+
+@media (max-width: 1100px) {
+  .sidebar {
+    width: 220px;
+  }
+}
+
+/* =====================================================
+   LIGHT MODE ENHANCEMENT
+   ===================================================== */
+
+body.light-mode .sidebar {
+  box-shadow: 6px 0 24px rgba(15, 23, 42, 0.08);
+}
+
+/* =====================================================
+   TOUCH DEVICE OPTIMIZATION
+   ===================================================== */
+
+@media (hover: none) {
+  .nav-link:hover {
+    transform: none;
+  }
+}

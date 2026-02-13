@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
-import Sidebar from "../dashboard/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
 import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";

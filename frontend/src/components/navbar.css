@@ -1,8 +1,6 @@
 /* =====================================================
-   NAVBAR — ISMA (DARK + LIGHT MODE OPTIMIZED)
+   NAVBAR — FULLY RESPONSIVE PRO VERSION
    ===================================================== */
-
-/* ================= ROOT ================= */
 
 .navbar {
   position: sticky;
@@ -10,61 +8,33 @@
   z-index: 1000;
 
   height: 64px;
-  width: 100%;
-  padding: 0 32px;
+  padding: 0 28px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   background: var(--card-bg);
-  backdrop-filter: blur(16px);
-
   border-bottom: 1px solid var(--border-soft);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 6px 24px rgba(0,0,0,.18);
 
-  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
-               "Helvetica Neue", Arial, sans-serif;
-
-  transition: box-shadow 0.3s ease, background 0.3s ease;
+  backdrop-filter: blur(12px);
 }
 
-/* Shadow on scroll (optional JS toggle) */
-.navbar.scrolled {
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
-}
+/* LOGO */
 
-/* ================= LEFT ================= */
-
-.navbar-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-/* Brand */
 .logo {
   font-size: 22px;
   font-weight: 900;
-  letter-spacing: 0.6px;
   color: var(--accent);
   cursor: pointer;
-  white-space: nowrap;
-
-  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .logo:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
+  opacity: .85;
 }
 
-/* Back button spacing (if present) */
-.navbar .back-btn {
-  margin-right: 6px;
-}
-
-/* ================= RIGHT ================= */
+/* RIGHT */
 
 .navbar-right {
   display: flex;
@@ -72,125 +42,123 @@
   gap: 14px;
 }
 
-/* ================= WELCOME ================= */
+/* BUTTONS */
 
-.welcome-box {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.navbar-right button {
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  cursor: pointer;
 }
 
-.welcome-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
+.navbar-right button:hover {
+  background: var(--accent-soft);
 }
 
-/* ================= AVATAR ================= */
+/* CTA */
+
+.nav-btn {
+  background: var(--btn-primary-bg) !important;
+  color: var(--btn-primary-text) !important;
+  border: none !important;
+}
+
+/* AVATAR */
 
 .avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-
   background: linear-gradient(
     135deg,
     var(--accent),
     var(--accent-strong)
   );
-
-  color: var(--text-invert);
-  font-weight: 800;
-  font-size: 14px;
-
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 6px 18px var(--accent-soft);
-
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.avatar:hover {
-  transform: scale(1.08);
-  box-shadow: 0 10px 26px var(--accent-soft);
+/* WELCOME */
+
+.welcome-text {
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
-/* ================= BUTTONS ================= */
-
-.navbar-right button {
-  padding: 8px 16px;
-  border-radius: 12px;
-
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-
-  border: 1px solid var(--border-soft);
-  background: transparent;
-  color: var(--text-primary);
-
-  transition:
-    background 0.2s ease,
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.navbar-right button:hover {
-  background: var(--accent-soft);
-  transform: translateY(-1px);
-}
-
-/* Primary CTA (if used) */
-.nav-btn {
-  background: var(--btn-primary-bg) !important;
-  color: var(--btn-primary-text) !important;
-  border: none !important;
-  box-shadow: var(--btn-primary-shadow);
-}
-
-/* ================= LOGOUT ================= */
+/* LOGOUT */
 
 .logout-btn {
-  background: transparent;
+  border-color: rgba(248,113,113,.5);
   color: var(--danger);
-  border: 1px solid rgba(248, 113, 113, 0.5);
 }
 
-.logout-btn:hover {
-  background: rgba(248, 113, 113, 0.15);
+/* HAMBURGER */
+
+.hamburger {
+  display: none;
+  font-size: 26px;
+  cursor: pointer;
 }
 
-/* ================= LIGHT MODE TUNING ================= */
-
-body.light-mode .navbar {
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-}
-
-body.light-mode .welcome-text {
-  color: var(--text-muted);
-}
-
-body.light-mode .navbar-right button {
-  border-color: var(--border-strong);
-}
-
-body.light-mode .logout-btn {
-  border-color: rgba(239, 68, 68, 0.4);
-}
-
-/* ================= MOBILE ================= */
+/* =====================================
+   MOBILE RESPONSIVE
+===================================== */
 
 @media (max-width: 768px) {
-  .navbar {
-    padding: 0 16px;
+
+  .hamburger {
+    display: block;
+  }
+
+  .navbar-right {
+    position: absolute;
+    top: 64px;
+    right: 0;
+
+    background: var(--card-bg);
+    border-left: 1px solid var(--border-soft);
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    padding: 18px 22px;
+    gap: 12px;
+
+    transform: translateX(100%);
+    transition: transform .3s ease;
+  }
+
+  .navbar-right.open {
+    transform: translateX(0);
   }
 
   .welcome-text {
     display: none;
+  }
+
+  .navbar {
+    padding: 0 18px;
+  }
+}
+
+/* SMALL PHONE */
+
+@media (max-width: 480px) {
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
   }
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../dashboard/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
 import BackButton from "../../components/BackButton";
 import { useSettings } from "../../context/SettingsContext";
