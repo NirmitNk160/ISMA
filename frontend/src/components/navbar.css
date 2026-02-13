@@ -2,7 +2,7 @@
    NAVBAR — CLEAN RESPONSIVE FINAL FIX
    ===================================================== */
 
-  body {
+body {
   overflow-x: hidden;
 }
 
@@ -22,7 +22,10 @@
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
-  
+  width: 100vw;
+
+
+
 }
 
 /* LEFT SECTION */
@@ -87,11 +90,9 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-strong)
-  );
+  background: linear-gradient(135deg,
+      var(--accent),
+      var(--accent-strong));
   color: white;
   display: flex;
   align-items: center;
@@ -129,20 +130,29 @@
 @media (max-width: 768px) {
 
   .navbar {
-    flex-direction: column;
+    flex-direction: flex ;
+    justify-content: center;
     align-items: stretch;
     gap: 10px;
     padding: 12px 18px;
-  }
+    }
 
   .navbar-left {
-    justify-content: center;
+    justify-content: left;
+     flex-wrap: wrap;
+     gap: 10px;
+     width: 100%;
+    }
+
+  .logo {
+    font-size: 20px;
   }
 
   .navbar-right {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    justify-content: right;
+     flex-wrap: wrap;
+     gap: 10px;
+     width: 100%;
   }
 
   .welcome-text {
@@ -153,6 +163,11 @@
     width: 32px;
     height: 32px;
     font-size: 12px;
+    }
+
+  .logout-btn {
+    border-color: rgba(248, 113, 113, .4);
+    color: var(--danger);
   }
 }
 
