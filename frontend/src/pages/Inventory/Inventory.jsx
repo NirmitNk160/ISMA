@@ -20,12 +20,13 @@ export default function Inventory() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [archiveId, setArchiveId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
-  const [deleting, setDeleting] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
 
-  /* ================= FETCH PRODUCTS ================= */
+  /* FETCH PRODUCTS */
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
 
@@ -34,12 +35,14 @@ export default function Inventory() {
         setLoading(true);
         setError("");
 
-        const url = showArchived ? "/inventory/archived/all" : "/inventory";
+        const url = showArchived
+          ? "/inventory/archived/all"
+          : "/inventory";
 
         const res = await api.get(url);
         setProducts(res.data || []);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to load inventory");
+      } catch {
+        setError("Failed to load inventory");
       } finally {
         setLoading(false);
       }
@@ -48,40 +51,58 @@ export default function Inventory() {
     fetchProducts();
   }, [showArchived, authLoading, isAuthenticated]);
 
-  /* ================= ARCHIVE ================= */
-  const confirmDelete = async () => {
+  /* ARCHIVE */
+  const confirmArchive = async () => {
     try {
-      setDeleting(true);
-
-      await api.delete(`/inventory/${deleteId}`);
-
-      const res = await api.get(
-        showArchived ? "/inventory/archived/all" : "/inventory",
-      );
-
-      setProducts(res.data || []);
-      setDeleteId(null);
+      setProcessing(true);
+      await api.delete(`/inventory/${archiveId}`);
+      setProducts(prev => prev.filter(p => p.id !== archiveId));
+      setArchiveId(null);
     } catch {
-      setError("Unable to archive product");
+      setError("Archive failed");
     } finally {
-      setDeleting(false);
+      setProcessing(false);
     }
   };
 
-  /* ================= SEARCH ================= */
+  /* PERMANENT DELETE */
+  const confirmDelete = async () => {
+    try {
+      setProcessing(true);
+      await api.delete(`/inventory/permanent/${deleteId}`);
+      setProducts(prev => prev.filter(p => p.id !== deleteId));
+      setDeleteId(null);
+    } catch {
+      setError("Delete failed");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  /* RESTORE */
+  const restoreProduct = async (id) => {
+    try {
+      await api.put(`/inventory/restore/${id}`);
+      setProducts(prev => prev.filter(p => p.id !== id));
+    } catch {
+      setError("Restore failed");
+    }
+  };
+
+  /* SEARCH */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      `${p.name} ${p.brand ?? ""}`.toLowerCase().includes(search.toLowerCase()),
+      `${p.name} ${p.brand ?? ""}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
     );
   }, [products, search]);
 
-  /* ================= STATUS ================= */
+  /* STATUS */
   const getStatus = (stock) => {
     if (stock === 0) return { label: "Out", className: "out" };
-
     if (stock <= settings.lowStockThreshold)
       return { label: "Low", className: "low" };
-
     return { label: "In", className: "in" };
   };
 
@@ -154,102 +175,124 @@ export default function Inventory() {
               </thead>
 
               <tbody>
-                {filteredProducts.length === 0 ? (
-                  <tr>
-                    <td colSpan="9" style={{ textAlign: "center" }}>
-                      No products found
-                    </td>
-                  </tr>
-                ) : (
-                  filteredProducts.map((p, i) => {
-                    const status = getStatus(Number(p.stock));
+                {filteredProducts.map((p, i) => {
+                  const status = getStatus(Number(p.stock));
 
-                    return (
-                      <tr key={p.id}>
-                        <td data-label="#">{i + 1}</td>
+                  return (
+                    <tr key={p.id}>
+                      <td>{i + 1}</td>
 
-                        <td data-label="Product">{p.name}</td>
+                      <td className="product-cell">
+                        <img
+                          src={p.image_url || "/placeholder.png"}
+                          alt=""
+                          className="product-thumb"
+                        />
+                        {p.name}
+                      </td>
 
-                        <td data-label="Brand">{p.brand || "-"}</td>
+                      <td>{p.brand || "-"}</td>
+                      <td>{p.category}</td>
+                      <td>{p.size || "-"}</td>
+                      <td>{p.stock}</td>
+                      <td>{format(Number(p.price))}</td>
 
-                        <td data-label="Category">{p.category}</td>
+                      <td className={`status ${status.className}`}>
+                        {status.label}
+                      </td>
 
-                        <td data-label="Size">{p.size || "-"}</td>
+                      <td>
+                        {!showArchived ? (
+                          <>
+                            <button
+                              className="edit-btn"
+                              onClick={() =>
+                                navigate(`/inventory/edit/${p.id}`)
+                              }
+                            >
+                              ✏️ Edit
+                            </button>
 
-                        <td data-label="Stock">{p.stock}</td>
-
-                        <td data-label="Price">{format(Number(p.price))}</td>
-
-                        <td
-                          data-label="Status"
-                          className={`status ${status.className}`}
-                        >
-                          {status.label}
-                        </td>
-
-                        <td data-label="Action">
-                          {!showArchived ? (
-                            <>
-                              <button
-                                className="edit-btn"
-                                onClick={() =>
-                                  navigate(`/inventory/edit/${p.id}`)
-                                }
-                              >
-                                ✏️ Edit
-                              </button>
-
-                              <button
-                                className="delete-btn"
-                                onClick={() => setDeleteId(p.id)}
-                              >
-                                🗑 Archive
-                              </button>
-                            </>
-                          ) : (
+                            <button
+                              className="delete-btn"
+                              onClick={() => setArchiveId(p.id)}
+                            >
+                              🗄️ Archive
+                            </button>
+                          </>
+                        ) : (
+                          <>
                             <button
                               className="restore-btn"
-                              onClick={async () => {
-                                try {
-                                  await api.put(`/inventory/restore/${p.id}`);
-
-                                  // Remove restored item from current list instantly
-                                  setProducts((prev) =>
-                                    prev.filter((item) => item.id !== p.id),
-                                  );
-                                } catch {
-                                  setError("Restore failed");
-                                }
-                              }}
+                              onClick={() => restoreProduct(p.id)}
                             >
                               ♻️ Restore
                             </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
+
+                            <button
+                              className="delete-btn"
+                              onClick={() => setDeleteId(p.id)}
+                            >
+                              ❌ Delete
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </main>
       </div>
 
-      {/* DELETE MODAL */}
-      {deleteId && (
+      {/* ARCHIVE MODAL */}
+      {archiveId && (
         <div className="delete-overlay">
           <div className="delete-modal">
             <h3>Archive Product</h3>
             <p>This product will be archived.</p>
 
             <div className="delete-actions">
-              <button className="cancel-btn" onClick={() => setDeleteId(null)}>
+              <button
+                className="cancel-btn"
+                onClick={() => setArchiveId(null)}
+              >
                 Cancel
               </button>
 
-              <button className="delete-btn" onClick={confirmDelete}>
-                {deleting ? "Archiving…" : "Archive"}
+              <button
+                className="delete-btn"
+                onClick={confirmArchive}
+              >
+                {processing ? "Archiving…" : "Archive"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE MODAL */}
+      {deleteId && (
+        <div className="delete-overlay">
+          <div className="delete-modal">
+            <h3>Delete Permanently</h3>
+            <p>This action cannot be undone.</p>
+
+            <div className="delete-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setDeleteId(null)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="delete-btn"
+                onClick={confirmDelete}
+              >
+                {processing ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>
