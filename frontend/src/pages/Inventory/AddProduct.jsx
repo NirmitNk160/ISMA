@@ -227,15 +227,8 @@ export default function AddProduct() {
               </div>
 
               {form.image_url && (
-                <img
-                  src={form.image_url}
-                  alt="product"
-                  style={{
-                    width: 80,
-                    marginTop: 10,
-                    borderRadius: 10,
-                  }}
-                />
+                <img src={form.image_url} className="product-preview" />
+
               )}
 
               <div className="form-group">

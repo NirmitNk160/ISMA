@@ -37,7 +37,8 @@ export default function EditProduct() {
 
   /* LOAD PRODUCT */
   useEffect(() => {
-    api.get(`/inventory/${id}`)
+    api
+      .get(`/inventory/${id}`)
       .then((res) => {
         const p = res.data;
 
@@ -68,7 +69,7 @@ export default function EditProduct() {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleBarcodeScan = (code) => {
-    setForm(prev => ({ ...prev, barcode: code }));
+    setForm((prev) => ({ ...prev, barcode: code }));
     setShowScanner(false);
   };
 
@@ -116,7 +117,6 @@ export default function EditProduct() {
             {error && <div className="error-msg">❌ {error}</div>}
 
             <div className="form-grid">
-
               <div className="form-group">
                 <label>Product Name</label>
                 <input name="name" value={form.name} onChange={handleChange} />
@@ -124,12 +124,20 @@ export default function EditProduct() {
 
               <div className="form-group">
                 <label>Brand</label>
-                <input name="brand" value={form.brand} onChange={handleChange} />
+                <input
+                  name="brand"
+                  value={form.brand}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="form-group">
                 <label>Category</label>
-                <input name="category" value={form.category} onChange={handleChange} />
+                <input
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="form-group">
@@ -139,12 +147,22 @@ export default function EditProduct() {
 
               <div className="form-group">
                 <label>Stock</label>
-                <input type="number" name="stock" value={form.stock} onChange={handleChange} />
+                <input
+                  type="number"
+                  name="stock"
+                  value={form.stock}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="form-group">
                 <label>Price ({settings.currency})</label>
-                <input type="number" name="price" value={form.price} onChange={handleChange} />
+                <input
+                  type="number"
+                  name="price"
+                  value={form.price}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="form-group">
@@ -154,22 +172,30 @@ export default function EditProduct() {
 
               <div className="form-group">
                 <label>Image URL</label>
-                <input name="image_url" value={form.image_url} onChange={handleChange} />
+                <input
+                  name="image_url"
+                  value={form.image_url}
+                  onChange={handleChange}
+                />
               </div>
 
               {form.image_url && (
-                <img
-                  src={form.image_url}
-                  alt=""
-                  style={{ width: 80, borderRadius: 10, marginTop: 10 }}
-                />
+                <img src={form.image_url} className="product-preview" />
               )}
 
               <div className="form-group">
                 <label>Barcode</label>
                 <div className="barcode-field">
-                  <input name="barcode" value={form.barcode} onChange={handleChange} />
-                  <button type="button" className="scan-btn" onClick={() => setShowScanner(true)}>
+                  <input
+                    name="barcode"
+                    value={form.barcode}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="scan-btn"
+                    onClick={() => setShowScanner(true)}
+                  >
                     📷 Scan
                   </button>
                 </div>
@@ -177,13 +203,20 @@ export default function EditProduct() {
 
               <div className="form-group full">
                 <label>Description</label>
-                <textarea name="description" value={form.description} onChange={handleChange} />
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                />
               </div>
-
             </div>
 
             <div className="form-actions">
-              <button type="button" className="secondary-btn" onClick={() => navigate("/inventory")}>
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => navigate("/inventory")}
+              >
                 Cancel
               </button>
 
@@ -196,7 +229,10 @@ export default function EditProduct() {
           {showScanner && (
             <div className="scanner-modal">
               <div className="scanner-box">
-                <BarcodeScanner onScan={handleBarcodeScan} onClose={() => setShowScanner(false)} />
+                <BarcodeScanner
+                  onScan={handleBarcodeScan}
+                  onClose={() => setShowScanner(false)}
+                />
               </div>
             </div>
           )}
