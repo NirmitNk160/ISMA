@@ -75,7 +75,7 @@ export default function AddProduct() {
       setForm((prev) => ({ ...prev, barcode: code }));
 
       showInfo(
-        "Product details not found. Please enter manually — it will auto-fill next time."
+        "Product details not found. Please enter manually — it will auto-fill next time.",
       );
     }
   };
@@ -135,9 +135,7 @@ export default function AddProduct() {
           <form className="add-product-card" onSubmit={handleSubmit}>
             {error && <div className="error-msg">❌ {error}</div>}
 
-            {infoMsg && (
-              <div className="info-msg">ℹ️ {infoMsg}</div>
-            )}
+            {infoMsg && <div className="info-msg">ℹ️ {infoMsg}</div>}
 
             <div className="form-grid">
               <div className="form-group">
@@ -228,7 +226,6 @@ export default function AddProduct() {
 
               {form.image_url && (
                 <img src={form.image_url} className="product-preview" />
-
               )}
 
               <div className="form-group">

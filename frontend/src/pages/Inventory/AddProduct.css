@@ -196,25 +196,29 @@
 }
 
 
-/* ================= BARCODE FIELD ================= */
+/* ================= BARCODE FIELD FIX ================= */
 
 .barcode-field {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 12px;
   width: 100%;
-  height: 48px;
 }
 
 .barcode-field input {
   flex: 1;
-  min-width: 0;
+  height: 48px;
 }
 
+/* Scan button wrapper */
 .barcode-field .scan-btn {
-  height: 100%;
-  display: flex;
-  align-items: center;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.form-group {
+  position: relative;
+  z-index: 1;
 }
 
 
@@ -278,8 +282,16 @@
 @media (max-width: 520px) {
   .barcode-field {
     flex-direction: column;
-    align-items: stretch;
+    gap: 10px;
   }
+
+  .barcode-field input,
+  .barcode-field .scan-btn {
+    width: 100%;
+    height: 46px;
+  }
+}
+
 
   .scan-btn {
     width: 100%;

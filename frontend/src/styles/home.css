@@ -1,14 +1,25 @@
 /* =========================================================
    HOME — THEME AWARE (DARK + LIGHT)
-   Uses theme.css variables
+   Clean Responsive Final Version
    ========================================================= */
 
 /* ================= GLOBAL ================= */
+
 * {
   box-sizing: border-box;
 }
 
+body {
+  overflow-x: hidden;
+}
+
+button {
+  min-height: 44px;
+}
+
+
 /* ================= NAVBAR ================= */
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -18,6 +29,7 @@
 
   background: var(--card-bg-glass);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-soft);
 }
 
@@ -36,10 +48,8 @@
   padding: 10px 18px;
   border-radius: 10px;
   border: 1px solid var(--border-soft);
-
   background: transparent;
   color: var(--text-primary);
-
   cursor: pointer;
   font-weight: 600;
   transition: transform var(--ease), box-shadow var(--ease);
@@ -56,10 +66,12 @@
   box-shadow: var(--btn-primary-shadow);
 }
 
+
 /* ================= HERO ================= */
+
 .hero {
   text-align: center;
-  padding: 80px 20px 60px;
+  padding: clamp(50px, 8vw, 90px) 20px 60px;
   max-width: 900px;
   margin: auto;
 }
@@ -76,13 +88,37 @@
   line-height: 1.6;
 }
 
+
+/* ================= TYPING TEXT ================= */
+
+.typing-text {
+  font-size: clamp(26px, 6vw, 42px);
+  color: var(--text-primary);
+
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+
+  border-right: 3px solid var(--accent);
+  padding-right: 6px;
+
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+
 /* ================= HERO BUTTONS ================= */
+
 .hero-buttons {
   margin-top: 30px;
   display: flex;
   justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .hero-buttons button {
@@ -91,7 +127,6 @@
   font-size: 15px;
   cursor: pointer;
   min-width: 180px;
-
   border: none;
   transition: transform var(--ease), box-shadow var(--ease);
 }
@@ -112,13 +147,14 @@
   box-shadow: var(--btn-primary-shadow);
 }
 
+
 /* ================= USER BOX ================= */
+
 .user-box {
   margin-top: 30px;
   background: var(--card-bg);
-  padding: 30px;
+  padding: clamp(20px, 4vw, 30px);
   border-radius: var(--card-radius);
-
   border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
 }
@@ -128,142 +164,8 @@
   color: var(--text-primary);
 }
 
+
 /* ================= DASHBOARD ACTIONS ================= */
-.dashboard-actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.dashboard-actions .primary {
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-}
-
-.dashboard-actions .secondary {
-  background: var(--btn-secondary-bg);
-  color: var(--btn-secondary-text);
-  border: 1px solid var(--btn-secondary-border);
-}
-
-/* ================= FEATURES ================= */
-.features {
-  padding: 60px 30px;
-}
-
-.features h3 {
-  text-align: center;
-  color: var(--text-primary);
-  margin-bottom: 40px;
-  font-size: 26px;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  max-width: 1100px;
-  margin: auto;
-}
-
-.feature-card {
-  background: var(--card-bg);
-  padding: 26px;
-  border-radius: var(--card-radius);
-  text-align: center;
-
-  color: var(--text-primary);
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--card-shadow);
-
-  transition: transform var(--ease);
-}
-
-.feature-card:hover {
-  transform: translateY(-6px);
-}
-
-.feature-card h4 {
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
-/* ================= FOOTER ================= */
-.footer {
-  text-align: center;
-  padding: 30px 20px;
-  font-size: 14px;
-  color: var(--text-muted);
-}
-
-/* ================= TYPING TEXT ================= */
-.typing-text {
-  font-size: clamp(28px, 5vw, 42px);
-  color: var(--text-primary);
-
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 3px solid var(--accent);
-  width: 0;
-
-  padding-right: 6px;
-  margin: auto;
-
-  animation: typing 4s steps(50, end) forwards,
-             blink 0.7s infinite;
-}
-
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes blink {
-  50% { border-color: transparent; }
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 16px 20px;
-  }
-
-  .nav-links {
-    margin-top: 10px;
-  }
-
-  .hero {
-    padding: 60px 16px 40px;
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-links {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .hero-buttons button {
-    width: 100%;
-    min-width: unset;
-  }
-
-  .feature-card {
-    padding: 22px;
-  }
-
-  .dashboard-actions {
-    flex-direction: column;
-  }
-
-  .dashboard-actions button {
-    width: 100%;
-  }
-}
-
-/* ================= DASHBOARD ACTION BUTTONS ================= */
 
 .dashboard-actions {
   display: flex;
@@ -280,7 +182,6 @@
   font-weight: 600;
   cursor: pointer;
   border: none;
-
   transition:
     transform var(--ease),
     box-shadow var(--ease),
@@ -288,7 +189,6 @@
     color var(--ease);
 }
 
-/* ===== PRIMARY (CTA) ===== */
 .dashboard-actions .primary {
   background: var(--btn-primary-bg);
   color: var(--btn-primary-text);
@@ -299,7 +199,6 @@
   transform: translateY(-2px);
 }
 
-/* ===== SECONDARY ===== */
 .dashboard-actions .secondary {
   background: var(--btn-secondary-bg);
   color: var(--btn-secondary-text);
@@ -309,4 +208,134 @@
 .dashboard-actions .secondary:hover {
   background: var(--accent-soft);
   transform: translateY(-1px);
+}
+
+
+/* ================= FEATURES ================= */
+
+.features {
+  padding: clamp(40px, 6vw, 70px) 20px;
+}
+
+.features h3 {
+  text-align: center;
+  color: var(--text-primary);
+  margin-bottom: 40px;
+  font-size: 26px;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(16px, 3vw, 24px);
+  max-width: 1100px;
+  margin: auto;
+}
+
+.feature-card {
+  background: var(--card-bg);
+  padding: 26px;
+  border-radius: var(--card-radius);
+  text-align: center;
+  color: var(--text-primary);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.feature-card h4 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+
+/* ================= FOOTER ================= */
+
+.footer {
+  text-align: center;
+  padding: 24px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 16px 20px;
+  }
+
+  .nav-links {
+    margin-top: 10px;
+  }
+
+  .hero {
+    padding: 60px 16px 40px;
+  }
+}
+
+@media (max-width: 700px) {
+  .navbar {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .logo {
+    font-size: 22px;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .nav-links button {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dashboard-actions button {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-buttons button {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .feature-card {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero {
+    padding: 40px 14px;
+  }
+
+  .feature-card {
+    padding: 18px;
+  }
+
+  .user-box {
+    padding: 18px;
+  }
 }
