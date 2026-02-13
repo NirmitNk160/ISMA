@@ -17,62 +17,19 @@ button {
   min-height: 44px;
 }
 
-
-/* ================= NAVBAR ================= */
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 40px;
-  flex-wrap: wrap;
-
-  background: var(--card-bg-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-soft);
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 16px;
 }
-
-.logo {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--accent);
-}
-
-.nav-links {
-  display: flex;
-  gap: 12px;
-}
-
-.nav-links button {
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: 1px solid var(--border-soft);
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-weight: 600;
-  transition: transform var(--ease), box-shadow var(--ease);
-}
-
-.nav-btn {
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-  border: none;
-}
-
-.nav-links button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--btn-primary-shadow);
-}
-
 
 /* ================= HERO ================= */
 
 .hero {
   text-align: center;
   padding: clamp(50px, 8vw, 90px) 20px 60px;
-  max-width: 900px;
+  max-width: min(900px, 95%);
   margin: auto;
 }
 
@@ -267,13 +224,6 @@ button {
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 768px) {
-  .navbar {
-    padding: 16px 20px;
-  }
-
-  .nav-links {
-    margin-top: 10px;
-  }
 
   .hero {
     padding: 60px 16px 40px;
@@ -281,11 +231,7 @@ button {
 }
 
 @media (max-width: 700px) {
-  .navbar {
-    flex-direction: column;
-    gap: 12px;
-    padding: 16px;
-  }
+
 
   .logo {
     font-size: 22px;

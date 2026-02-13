@@ -1,23 +1,35 @@
 /* =====================================================
-   NAVBAR — CLEAN DASHBOARD STYLE (NO DROPDOWN)
+   NAVBAR — CLEAN RESPONSIVE FINAL FIX
    ===================================================== */
+
+  body {
+  overflow-x: hidden;
+}
+
 
 .navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
 
-  height: 64px;
-  padding: 0 28px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
 
+  padding: 12px 24px;
+  min-height: 64px;
+
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
-  backdrop-filter: blur(12px);
+  
+}
+
+/* LEFT SECTION */
+
+.navbar-left {
+  display: flex;
+  align-items: center;
 }
 
 /* LOGO */
@@ -33,6 +45,7 @@
 .logo:hover {
   opacity: .85;
 }
+
 
 /* RIGHT SECTION */
 
@@ -74,20 +87,17 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-
   background: linear-gradient(
     135deg,
     var(--accent),
     var(--accent-strong)
   );
-
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
   cursor: pointer;
-
   transition: transform .2s;
 }
 
@@ -105,24 +115,38 @@
 /* LOGOUT */
 
 .logout-btn {
-  border-color: rgba(248,113,113,.4);
+  border-color: rgba(248, 113, 113, .4);
   color: var(--danger);
 }
 
 .logout-btn:hover {
-  background: rgba(248,113,113,.15);
+  background: rgba(248, 113, 113, .15);
 }
 
-/* ================= MOBILE ================= */
+
+/* ================= TABLET ================= */
 
 @media (max-width: 768px) {
 
-  .welcome-text {
-    display: none;
+  .navbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 18px;
+  }
+
+  .navbar-left {
+    justify-content: center;
   }
 
   .navbar-right {
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 10px;
+  }
+
+  .welcome-text {
+    display: none;
   }
 
   .avatar {
@@ -130,13 +154,10 @@
     height: 32px;
     font-size: 12px;
   }
-
-  .navbar {
-    padding: 0 18px;
-  }
 }
 
-/* SMALL PHONE */
+
+/* ================= SMALL PHONE ================= */
 
 @media (max-width: 480px) {
 
@@ -147,5 +168,9 @@
   .navbar-right button {
     padding: 6px 10px;
     font-size: 12px;
+  }
+
+  .navbar-right {
+    width: 100%;
   }
 }
