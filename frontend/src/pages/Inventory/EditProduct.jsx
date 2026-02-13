@@ -190,7 +190,7 @@ export default function EditProduct() {
               <div className="form-group">
                 <label>Barcode</label>
 
-                <div style={{ display: "flex", gap: 8 }}>
+                <div className="barcode-field">
                   <input
                     name="barcode"
                     value={form.barcode}
@@ -200,7 +200,7 @@ export default function EditProduct() {
 
                   <button
                     type="button"
-                    className="secondary-btn"
+                    className="scan-btn"
                     onClick={() => setShowScanner(true)}
                   >
                     📷 Scan

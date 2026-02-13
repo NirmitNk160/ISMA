@@ -146,7 +146,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
         </button>
 
         <button className="finish" onClick={finish}>
-          Done Billing
+          Close Scanner
         </button>
       </div>
 
