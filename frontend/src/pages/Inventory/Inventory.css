@@ -443,3 +443,111 @@
   border-radius: 8px;
   background: #ddd;
 }
+
+/* ================= LOADING ================= */
+
+.loading-state {
+  padding: 40px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ================= NO DATA ================= */
+
+.no-data {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ================= ARCHIVE BUTTON ================= */
+
+.archive-btn {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.archive-btn:hover {
+  background: var(--accent);
+  color: var(--text-invert);
+}
+
+/* ================= MODAL ================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: var(--card-bg);
+  border-radius: 18px;
+  padding: 28px;
+  width: 380px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+
+.modal h3 {
+  margin-bottom: 10px;
+}
+
+.modal p {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-actions button {
+  flex: 1;
+}
+
+/* ================= MOBILE TABLE FIX ================= */
+
+@media (max-width: 1024px) {
+
+  .inventory-table thead {
+    display: none;
+  }
+
+  .inventory-table tbody tr {
+    display: block;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .inventory-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border: none;
+  }
+
+  .inventory-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+}

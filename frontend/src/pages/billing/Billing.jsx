@@ -248,7 +248,7 @@ export default function Billing() {
         <div className="billing-body">
           <Sidebar />
           <main className="billing-content">
-            <p style={{ padding: "2rem" }}>Loading billing…</p>
+            <p className="billing-loading">Loading billing…</p>
           </main>
         </div>
       </div>

@@ -1,8 +1,9 @@
 /* =====================================================
-   SIDEBAR — PRO RESPONSIVE + DARK/LIGHT MODE READY
+   SIDEBAR — FINAL FIXED VERSION
+   Removes dashboard gap + Fully responsive
    ===================================================== */
 
-/* ================= BASE ================= */
+/* ================= BASE DESKTOP ================= */
 
 .sidebar {
   width: 260px;
@@ -27,7 +28,7 @@
   margin-bottom: 36px;
 }
 
-/* NAV */
+/* NAVIGATION */
 
 .sidebar nav {
   display: flex;
@@ -41,8 +42,8 @@
 
   font-size: 15px;
   font-weight: 600;
-
   text-decoration: none;
+
   color: var(--text-secondary);
 
   transition:
@@ -51,15 +52,11 @@
     transform 0.2s ease;
 }
 
-/* Hover */
-
 .nav-link:hover {
   background: var(--row-hover);
   color: var(--text-primary);
   transform: translateX(2px);
 }
-
-/* Active */
 
 .nav-link.active {
   background: linear-gradient(
@@ -70,23 +67,24 @@
   color: var(--text-primary);
 }
 
-/* CLOSE BUTTON */
+/* CLOSE BUTTON (hidden desktop) */
 
 .close-btn {
   display: none;
 }
 
 /* =====================================================
-   MOBILE DRAWER
+   MOBILE SIDEBAR (MAIN FIX)
    ===================================================== */
 
 @media (max-width: 768px) {
 
   .sidebar {
-    position: fixed;
+    position: fixed;      /* KEY FIX */
     top: 0;
     left: 0;
     height: 100vh;
+    width: 260px;
 
     transform: translateX(-100%);
     z-index: 2000;
@@ -101,7 +99,7 @@
   .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0,0,0,.45);
     backdrop-filter: blur(4px);
     z-index: 1900;
   }
@@ -123,7 +121,7 @@
 }
 
 /* =====================================================
-   TABLET IMPROVEMENT
+   TABLET ADJUSTMENT
    ===================================================== */
 
 @media (max-width: 1100px) {
@@ -133,7 +131,7 @@
 }
 
 /* =====================================================
-   LIGHT MODE ENHANCEMENT
+   LIGHT MODE REFINEMENT
    ===================================================== */
 
 body.light-mode .sidebar {
@@ -141,7 +139,7 @@ body.light-mode .sidebar {
 }
 
 /* =====================================================
-   TOUCH DEVICE OPTIMIZATION
+   TOUCH DEVICE IMPROVEMENT
    ===================================================== */
 
 @media (hover: none) {

@@ -56,11 +56,8 @@ export default function Dashboard() {
       <div className="dashboard-root">
         <Navbar />
         <div className="dashboard-body">
-          <Sidebar
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-          />
-          <main className="content">Loading dashboard…</main>
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+          <main className="content dashboard-loading">Loading dashboard…</main>
         </div>
       </div>
     );
@@ -78,10 +75,7 @@ export default function Dashboard() {
           />
         )}
 
-        <Sidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className="content">
           <div className="page-header">
@@ -117,9 +111,7 @@ export default function Dashboard() {
           <section className="grid">
             <div className="card chart">
               <h3>Monthly Recap</h3>
-              <div className="chart-placeholder">
-                📊 Chart coming soon
-              </div>
+              <div className="chart-placeholder">📊 Chart coming soon</div>
             </div>
 
             <div className="card">

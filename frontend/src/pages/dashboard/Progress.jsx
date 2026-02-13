@@ -10,7 +10,10 @@ export default function Progress({ label, value, max = 100 }) {
       </div>
 
       <div className="progress-bar">
-        <div style={{ width: `${percentage}%` }} />
+        <div
+          className="progress-fill"
+          style={{ "--progress": `${percentage}%` }}
+        />
       </div>
     </div>
   );

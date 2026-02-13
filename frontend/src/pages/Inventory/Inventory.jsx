@@ -106,14 +106,15 @@ export default function Inventory() {
     return { label: "In", className: "in" };
   };
 
+  /* LOADING SCREEN */
   if (authLoading || loading) {
     return (
       <div className="inventory-root">
         <Navbar />
         <div className="inventory-body">
           <Sidebar />
-          <main className="inventory-content">
-            <p style={{ padding: "2rem" }}>Loading inventory…</p>
+          <main className="inventory-content loading-state">
+            Loading inventory…
           </main>
         </div>
       </div>
@@ -175,72 +176,85 @@ export default function Inventory() {
               </thead>
 
               <tbody>
-                {filteredProducts.map((p, i) => {
-                  const status = getStatus(Number(p.stock));
+                {filteredProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" className="no-data">
+                      No products found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredProducts.map((p, i) => {
+                    const status = getStatus(Number(p.stock));
 
-                  return (
-                    <tr key={p.id}>
-                      <td>{i + 1}</td>
+                    return (
+                      <tr key={p.id}>
+                        <td data-label="#">{i + 1}</td>
 
-                      <td className="product-cell">
-                        <img
-                          src={p.image_url || "/placeholder.png"}
-                          alt=""
-                          className="product-thumb"
-                        />
-                        {p.name}
-                      </td>
+                        <td data-label="Product" className="product-cell">
+                          <img
+                            src={p.image_url || "/placeholder.png"}
+                            alt=""
+                            className="product-thumb"
+                          />
+                          {p.name}
+                        </td>
 
-                      <td>{p.brand || "-"}</td>
-                      <td>{p.category}</td>
-                      <td>{p.size || "-"}</td>
-                      <td>{p.stock}</td>
-                      <td>{format(Number(p.price))}</td>
+                        <td data-label="Brand">{p.brand || "-"}</td>
+                        <td data-label="Category">{p.category}</td>
+                        <td data-label="Size">{p.size || "-"}</td>
+                        <td data-label="Stock">{p.stock}</td>
+                        <td data-label="Price">
+                          {format(Number(p.price))}
+                        </td>
 
-                      <td className={`status ${status.className}`}>
-                        {status.label}
-                      </td>
+                        <td
+                          data-label="Status"
+                          className={`status ${status.className}`}
+                        >
+                          {status.label}
+                        </td>
 
-                      <td>
-                        {!showArchived ? (
-                          <>
-                            <button
-                              className="edit-btn"
-                              onClick={() =>
-                                navigate(`/inventory/edit/${p.id}`)
-                              }
-                            >
-                              ✏️ Edit
-                            </button>
+                        <td data-label="Action">
+                          {!showArchived ? (
+                            <>
+                              <button
+                                className="edit-btn"
+                                onClick={() =>
+                                  navigate(`/inventory/edit/${p.id}`)
+                                }
+                              >
+                                ✏️ Edit
+                              </button>
 
-                            <button
-                              className="delete-btn"
-                              onClick={() => setArchiveId(p.id)}
-                            >
-                              🗄️ Archive
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              className="restore-btn"
-                              onClick={() => restoreProduct(p.id)}
-                            >
-                              ♻️ Restore
-                            </button>
+                              <button
+                                className="archive-btn"
+                                onClick={() => setArchiveId(p.id)}
+                              >
+                                🗄️ Archive
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                className="restore-btn"
+                                onClick={() => restoreProduct(p.id)}
+                              >
+                                ♻️ Restore
+                              </button>
 
-                            <button
-                              className="delete-btn"
-                              onClick={() => setDeleteId(p.id)}
-                            >
-                              ❌ Delete
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                              <button
+                                className="delete-btn"
+                                onClick={() => setDeleteId(p.id)}
+                              >
+                                ❌ Delete
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -249,12 +263,12 @@ export default function Inventory() {
 
       {/* ARCHIVE MODAL */}
       {archiveId && (
-        <div className="delete-overlay">
-          <div className="delete-modal">
+        <div className="modal-overlay">
+          <div className="modal">
             <h3>Archive Product</h3>
-            <p>This product will be archived.</p>
+            <p>This product will be archived safely.</p>
 
-            <div className="delete-actions">
+            <div className="modal-actions">
               <button
                 className="cancel-btn"
                 onClick={() => setArchiveId(null)}
@@ -262,10 +276,7 @@ export default function Inventory() {
                 Cancel
               </button>
 
-              <button
-                className="delete-btn"
-                onClick={confirmArchive}
-              >
+              <button className="archive-btn" onClick={confirmArchive}>
                 {processing ? "Archiving…" : "Archive"}
               </button>
             </div>
@@ -275,12 +286,12 @@ export default function Inventory() {
 
       {/* DELETE MODAL */}
       {deleteId && (
-        <div className="delete-overlay">
-          <div className="delete-modal">
+        <div className="modal-overlay">
+          <div className="modal">
             <h3>Delete Permanently</h3>
-            <p>This action cannot be undone.</p>
+            <p>This cannot be undone.</p>
 
-            <div className="delete-actions">
+            <div className="modal-actions">
               <button
                 className="cancel-btn"
                 onClick={() => setDeleteId(null)}
@@ -288,10 +299,7 @@ export default function Inventory() {
                 Cancel
               </button>
 
-              <button
-                className="delete-btn"
-                onClick={confirmDelete}
-              >
+              <button className="delete-btn" onClick={confirmDelete}>
                 {processing ? "Deleting…" : "Delete"}
               </button>
             </div>

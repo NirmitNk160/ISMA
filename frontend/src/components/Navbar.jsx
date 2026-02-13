@@ -9,7 +9,6 @@ export default function Navbar() {
   const { isAuthenticated, logout } = useAuth();
 
   const [profile, setProfile] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -28,40 +27,23 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      {/* LEFT */}
+
+      {/* LOGO */}
       <div className="navbar-left">
-        <h1
-          className="logo clickable"
-          onClick={() => navigate("/")}
-          title="Dashboard"
-        >
+        <h1 className="logo" onClick={() => navigate("/")}>
           ISMA
         </h1>
       </div>
 
-      {/* MOBILE HAMBURGER */}
-      <div
-        className="hamburger"
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        ☰
-      </div>
-
       {/* RIGHT */}
-      <div className={`navbar-right ${menuOpen ? "open" : ""}`}>
+      <div className="navbar-right">
         {!isAuthenticated ? (
           <>
-            <button
-              className="nav-link"
-              onClick={() => navigate("/about")}
-            >
+            <button onClick={() => navigate("/about")}>
               About
             </button>
 
-            <button
-              className="nav-link ghost"
-              onClick={() => navigate("/login")}
-            >
+            <button onClick={() => navigate("/login")}>
               Login
             </button>
 
@@ -81,6 +63,7 @@ export default function Navbar() {
             <div
               className="avatar"
               onClick={() => navigate("/profile")}
+              title="Profile"
             >
               {initials}
             </div>

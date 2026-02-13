@@ -1,17 +1,19 @@
 /* =====================================================
-   BILLING — ISMA
-   Money-first, clean, theme-aware
+   BILLING — FINAL PROFESSIONAL VERSION
+   Responsive + Dark/Light Theme Optimized
    ===================================================== */
 
-/* ================= ROOT ================= */
+/* ROOT */
 
 .billing-root {
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--text-primary);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
-/* ================= LAYOUT ================= */
+/* LAYOUT */
 
 .billing-body {
   display: flex;
@@ -19,61 +21,95 @@
 
 .billing-content {
   flex: 1;
-  padding: 40px 48px;
+  padding: 36px 44px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 
 .billing-header {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 28px;
+  margin-bottom: 26px;
 }
 
 .billing-header h2 {
   font-size: 26px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
+  font-weight: 900;
 }
 
-/* ================= STATUS ================= */
+/* LOADING */
+
+.billing-loading {
+  padding: 40px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* STATUS */
 
 .success-msg,
 .error-msg {
   margin-bottom: 18px;
   padding: 14px 18px;
   border-radius: 14px;
-  font-size: 14px;
   font-weight: 700;
 }
 
 .success-msg {
   background: var(--success-bg);
   color: var(--success-text);
-  box-shadow: var(--success-shadow);
 }
 
 .error-msg {
   background: var(--danger-bg);
   color: var(--danger-text);
-  box-shadow: var(--danger-shadow);
 }
 
-/* ================= CARD ================= */
+/* CARD */
 
 .billing-card {
-  background: var(--card-bg-solid);
-  border-radius: 24px;
-  padding: 28px 30px;
-
-  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  border-radius: 22px;
+  padding: 26px;
+  border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
 }
 
-/* ================= CONTROLS ================= */
+/* BARCODE INPUT */
+
+.barcode-input {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px dashed var(--accent-soft);
+  background: var(--input-bg);
+  font-weight: 600;
+}
+
+/* SCAN BUTTON */
+
+.scan-btn {
+  margin-bottom: 22px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.scan-btn:hover {
+  background: var(--accent);
+  color: var(--text-invert);
+}
+
+/* CONTROLS */
 
 .billing-controls {
   display: grid;
@@ -86,84 +122,36 @@
 .billing-controls input {
   padding: 14px 16px;
   border-radius: 14px;
-
   background: var(--input-bg);
   border: 1px solid var(--input-border);
-
   color: var(--text-primary);
-  font-size: 14px;
-  outline: none;
-
-  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
-.billing-controls select:focus,
-.billing-controls input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-.billing-controls select {
-  appearance: none;
-  background-image: var(--select-arrow);
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 18px;
-  padding-right: 42px;
-}
-
-/* ================= ADD BUTTON ================= */
+/* ADD BUTTON */
 
 .add-btn {
-  background: linear-gradient(135deg,
-      #38bdf8,
-      #0ea5e9);
-
-  color: #020617;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   border: none;
-
-  padding: 14px;
   border-radius: 16px;
-
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: 0.6px;
-
+  font-weight: 800;
   cursor: pointer;
-
-  box-shadow:
-    0 10px 30px rgba(56, 189, 248, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
-
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    filter 0.15s ease;
 }
 
 .add-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.08);
-  box-shadow:
-    0 18px 44px rgba(56, 189, 248, 0.7);
-}
-
-.add-btn:active {
-  transform: translateY(0);
+  filter: brightness(1.05);
 }
 
 .add-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+  opacity: .6;
 }
 
-
-/* ================= TABLE ================= */
+/* TABLE */
 
 .billing-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 .billing-table th,
@@ -176,145 +164,78 @@
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
   color: var(--text-muted);
-}
-
-.billing-table td {
-  font-size: 15px;
 }
 
 .billing-table tbody tr:hover td {
   background: var(--row-hover);
 }
 
-/* ================= REMOVE ================= */
+/* REMOVE BUTTON */
 
 .remove-btn {
-  background: transparent;
   border: none;
-
+  background: transparent;
   font-size: 18px;
-  font-weight: 900;
-  color: #ef4444;
-
   cursor: pointer;
-  transition: transform 0.15s ease;
 }
 
-.remove-btn:hover {
-  transform: scale(1.25);
-}
-
-/* ================= FOOTER ================= */
+/* FOOTER */
 
 .billing-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 28px;
+  margin-top: 24px;
 }
 
 .total {
   font-size: 22px;
   font-weight: 900;
-  letter-spacing: 0.4px;
 }
 
-/* =====================================================
-   CONFIRM BILL BUTTON — ISMA (Primary CTA)
-   Dark + Light Mode Optimized
-   ===================================================== */
+/* CONFIRM BUTTON */
 
-/* Base button */
 .confirm-btn {
-  background: linear-gradient(135deg,
-      var(--accent),
-      var(--accent-strong));
-  color: var(--text-invert);
-
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   border: none;
-  border-radius: 18px;
-
-  padding: 14px 36px;
-  min-width: 160px;
-
-  font-size: 14px;
+  border-radius: 16px;
+  padding: 14px 34px;
   font-weight: 900;
-  letter-spacing: 0.6px;
-
   cursor: pointer;
-  text-align: center;
-
-  box-shadow:
-    0 14px 32px rgba(56, 189, 248, 0.35),
-    0 0 0 1px var(--accent-soft);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
 }
 
-/* Hover */
-.confirm-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.05);
-  box-shadow:
-    0 20px 44px rgba(56, 189, 248, 0.55),
-    0 0 0 1px var(--accent);
-}
-
-/* Active */
-.confirm-btn:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow:
-    0 10px 22px rgba(56, 189, 248, 0.35);
-}
-
-/* Disabled */
 .confirm-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  filter: grayscale(0.2);
-  box-shadow: none;
+  opacity: .6;
 }
 
-/* =====================================================
-   LIGHT MODE REFINEMENT
-   ===================================================== */
+/* SCANNER MODAL */
 
-body.light-mode .confirm-btn {
-  color: #ffffff;
-  box-shadow:
-    0 12px 28px rgba(37, 99, 235, 0.35),
-    0 0 0 1px rgba(37, 99, 235, 0.25);
+.scanner-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
 }
 
-body.light-mode .confirm-btn:hover:not(:disabled) {
-  box-shadow:
-    0 18px 40px rgba(37, 99, 235, 0.45),
-    0 0 0 1px rgba(37, 99, 235, 0.45);
+.scanner-box {
+  width: 420px;
+  max-width: 92vw;
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 20px;
 }
 
-/* =====================================================
-   MOBILE — FULL WIDTH CTA
-   ===================================================== */
+/* RESPONSIVE */
 
-@media (max-width: 640px) {
-  .confirm-btn {
-    width: 100%;
-    padding: 16px;
-    font-size: 15px;
-    border-radius: 16px;
-  }
-}
-
-/* ================= RESPONSIVE ================= */
-
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .billing-content {
-    padding: 28px;
+    padding: 24px;
   }
 
   .billing-controls {
@@ -325,221 +246,11 @@ body.light-mode .confirm-btn:hover:not(:disabled) {
 @media (max-width: 640px) {
   .billing-footer {
     flex-direction: column;
-    align-items: stretch;
     gap: 16px;
   }
 
   .confirm-btn {
     width: 100%;
-  }
-}
-
-/* =====================================================
-   FONT WEIGHT BOOST — BILLING (ISMA)
-   ONLY FONT WEIGHT — NO LAYOUT CHANGES
-   ===================================================== */
-
-/* Strong base weight everywhere */
-.billing-root,
-.billing-root * {
-  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, Arial, sans-serif;
-  font-weight: 600;
-}
-
-/* Page title */
-.billing-header h2 {
-  font-weight: 900;
-}
-
-/* Status messages */
-.success-msg,
-.error-msg {
-  font-weight: 800;
-}
-
-/* Card content */
-.billing-card {
-  font-weight: 600;
-}
-
-/* Controls (inputs & selects) */
-.billing-controls input,
-.billing-controls select {
-  font-weight: 600;
-}
-
-/* Table headers */
-.billing-table th {
-  font-weight: 800;
-}
-
-/* Table values */
-.billing-table td {
-  font-weight: 600;
-}
-
-/* Total amount */
-.total {
-  font-weight: 900;
-}
-
-/* Primary actions */
-.add-btn,
-.confirm-btn {
-  font-weight: 900;
-}
-
-/* Remove icon */
-.remove-btn {
-  font-weight: 900;
-}
-
-/* =====================================================
-   BARCODE SCANNER INPUT — POS STYLE
-   ===================================================== */
-
-.barcode-input {
-  width: 100%;
-  margin-bottom: 22px;
-
-  padding: 16px 18px;
-  border-radius: 16px;
-
-  background: var(--input-bg);
-  border: 2px dashed var(--accent-soft);
-
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-
-  outline: none;
-
-  transition:
-    border 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.15s ease;
-}
-
-/* Focus effect (scanner ready feel) */
-.barcode-input:focus {
-  border-color: var(--accent);
-  box-shadow:
-    0 0 0 4px var(--accent-soft),
-    0 8px 22px rgba(56, 189, 248, 0.25);
-
-  transform: translateY(-1px);
-}
-
-/* Placeholder styling */
-.barcode-input::placeholder {
-  color: var(--text-muted);
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
-
-/* Light mode refinement */
-body.light-mode .barcode-input {
-  border: 2px dashed rgba(37, 99, 235, 0.3);
-}
-
-/* Mobile adjustment */
-@media (max-width: 640px) {
-  .barcode-input {
-    padding: 14px 16px;
-    font-size: 14px;
-  }
-}
-
-/* =====================================================
-   CAMERA BARCODE SCANNER UI
-   ===================================================== */
-
-/* Scan button */
-.scan-btn {
-  margin-bottom: 22px;
-  padding: 12px 22px;
-
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
-
-  border: none;
-  border-radius: 14px;
-
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 10px 26px rgba(34, 197, 94, 0.35);
-
-  transition: all 0.2s ease;
-}
-
-.scan-btn:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 16px 36px rgba(34, 197, 94, 0.5);
-}
-
-/* Scanner modal background */
-.scanner-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 3000;
-
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(6px);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Scanner container */
-.scanner-box {
-  width: 420px;
-  max-width: 90vw;
-
-  background: var(--card-bg-solid);
-  border-radius: 20px;
-  padding: 20px;
-
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--border-color);
-
-  text-align: center;
-}
-
-/* Close button */
-.close-btn {
-  background: #ef4444;
-  color: white;
-
-  border: none;
-  padding: 8px 16px;
-  border-radius: 10px;
-
-  font-size: 13px;
-  font-weight: 800;
-
-  cursor: pointer;
-  margin-bottom: 12px;
-
-  transition: transform 0.15s ease;
-}
-
-.close-btn:hover {
-  transform: scale(1.08);
-}
-
-/* Mobile tweaks */
-@media (max-width: 640px) {
-  .scanner-box {
-    width: 95%;
-    padding: 16px;
   }
 
   .scan-btn {
