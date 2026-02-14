@@ -1,50 +1,50 @@
 /* =========================================================
-   HOME — THEME AWARE (DARK + LIGHT)
-   Clean Responsive Final Version
+   HOME — FULL RESPONSIVE FINAL VERSION
+   Theme-safe • Mobile-first • Fluid layout
    ========================================================= */
 
-/* ================= GLOBAL ================= */
+/* ================= GLOBAL FIX ================= */
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+}
+
+/* Prevent horizontal scroll bugs */
 body {
   overflow-x: hidden;
 }
 
+/* Buttons accessibility */
 button {
   min-height: 44px;
-}
-
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: auto;
-  padding: 0 16px;
 }
 
 /* ================= HERO ================= */
 
 .hero {
+  width: 100%;
   text-align: center;
   padding: clamp(50px, 8vw, 90px) 20px 60px;
-  max-width: min(900px, 95%);
-  margin: auto;
 }
 
 .hero h2 {
-  font-size: clamp(28px, 5vw, 42px);
+  font-size: clamp(26px, 5vw, 42px);
   color: var(--text-primary);
 }
 
 .hero p {
   margin-top: 16px;
-  font-size: clamp(15px, 2.5vw, 18px);
+  font-size: clamp(15px, 2.3vw, 18px);
   color: var(--text-secondary);
   line-height: 1.6;
 }
-
 
 /* ================= TYPING TEXT ================= */
 
@@ -66,7 +66,6 @@ button {
   50% { border-color: transparent; }
 }
 
-
 /* ================= HERO BUTTONS ================= */
 
 .hero-buttons {
@@ -85,7 +84,7 @@ button {
   cursor: pointer;
   min-width: 180px;
   border: none;
-  transition: transform var(--ease), box-shadow var(--ease);
+  transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .hero-buttons .primary {
@@ -104,11 +103,15 @@ button {
   box-shadow: var(--btn-primary-shadow);
 }
 
-
 /* ================= USER BOX ================= */
 
 .user-box {
   margin-top: 30px;
+  width: 100%;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+
   background: var(--card-bg);
   padding: clamp(20px, 4vw, 30px);
   border-radius: var(--card-radius);
@@ -120,7 +123,6 @@ button {
   margin-bottom: 10px;
   color: var(--text-primary);
 }
-
 
 /* ================= DASHBOARD ACTIONS ================= */
 
@@ -139,11 +141,7 @@ button {
   font-weight: 600;
   cursor: pointer;
   border: none;
-  transition:
-    transform var(--ease),
-    box-shadow var(--ease),
-    background var(--ease),
-    color var(--ease);
+  transition: .2s;
 }
 
 .dashboard-actions .primary {
@@ -152,25 +150,16 @@ button {
   box-shadow: var(--btn-primary-shadow);
 }
 
-.dashboard-actions .primary:hover {
-  transform: translateY(-2px);
-}
-
 .dashboard-actions .secondary {
   background: var(--btn-secondary-bg);
   color: var(--btn-secondary-text);
   border: 1px solid var(--btn-secondary-border);
 }
 
-.dashboard-actions .secondary:hover {
-  background: var(--accent-soft);
-  transform: translateY(-1px);
-}
-
-
 /* ================= FEATURES ================= */
 
 .features {
+  width: 100%;
   padding: clamp(40px, 6vw, 70px) 20px;
 }
 
@@ -185,7 +174,7 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: clamp(16px, 3vw, 24px);
-  max-width: 1100px;
+  max-width: 1200px;
   margin: auto;
 }
 
@@ -194,10 +183,12 @@ button {
   padding: 26px;
   border-radius: var(--card-radius);
   text-align: center;
+
   color: var(--text-primary);
   border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
-  transition: transform var(--ease), box-shadow var(--ease);
+
+  transition: transform .2s ease, box-shadow .2s ease;
 }
 
 .feature-card:hover {
@@ -210,42 +201,21 @@ button {
   font-size: 18px;
 }
 
-
 /* ================= FOOTER ================= */
 
 .footer {
+  width: 100%;
   text-align: center;
   padding: 24px 16px;
   font-size: 13px;
   color: var(--text-muted);
 }
 
-
-/* ================= RESPONSIVE ================= */
+/* ================= MOBILE RESPONSIVE ================= */
 
 @media (max-width: 768px) {
-
   .hero {
     padding: 60px 16px 40px;
-  }
-}
-
-@media (max-width: 700px) {
-
-
-  .logo {
-    font-size: 22px;
-  }
-
-  .nav-links {
-    width: 100%;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .nav-links button {
-    flex: 1;
-    min-width: 120px;
   }
 }
 

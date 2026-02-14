@@ -327,7 +327,58 @@
   .chart-placeholder {
     height: 200px;
   }
+
+  .dashboard-body {
+    flex-direction: row;
+  }
+
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+  }
+
 }
+
+/* =====================================================
+   MOBILE ONLY (UNDER 600px)
+   Sidebar stays visible until this breakpoint
+   ===================================================== */
+
+@media (max-width: 600px) {
+
+  /* Show hamburger only here */
+  .menu-btn {
+    display: block;
+  }
+
+  /* Stack stats */
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  /* Reduce padding */
+  .content {
+    padding: 20px 14px;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .chart-placeholder {
+    height: 200px;
+  }
+}
+
 
 /* ===== SMALL PHONE ===== */
 

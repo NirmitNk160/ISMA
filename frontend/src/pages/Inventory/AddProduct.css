@@ -1,10 +1,10 @@
 /* =====================================================
-   ISMA — ADD / EDIT PRODUCT FORM
-   Clean layout • Consistent hierarchy • Stable UI
+   ISMA — ADD / EDIT PRODUCT FORM (FINAL FIXED)
+   Responsive • Stable layout • Scan button fixed
    ===================================================== */
 
 
-/* ================= ROOT LAYOUT ================= */
+/* ================= ROOT ================= */
 
 .add-product-root {
   min-height: 100vh;
@@ -17,11 +17,14 @@
   display: flex;
 }
 
+/* MAIN CONTENT */
+
 .add-product-content {
   flex: 1;
   padding: 40px 48px;
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
+  width: 100%;
 }
 
 
@@ -41,27 +44,14 @@
 }
 
 
-/* ================= FORM CARD ================= */
+/* ================= CARD ================= */
 
 .add-product-card {
   background: var(--card-bg-solid);
   border-radius: 26px;
-  padding: 32px 34px;
+  padding: 32px;
   border: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
-}
-
-
-/* ================= ERROR MESSAGE ================= */
-
-.error-msg {
-  margin-bottom: 18px;
-  padding: 14px 18px;
-  border-radius: 14px;
-  background: var(--danger-bg);
-  color: var(--danger-text);
-  font-weight: 700;
-  box-shadow: var(--danger-shadow);
 }
 
 
@@ -77,6 +67,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .form-group.full {
@@ -106,16 +97,12 @@
   color: var(--text-primary);
   font-size: 15px;
   outline: none;
-
-  transition:
-    border 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+  width: 100%;
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: var(--text-muted);
+.form-group textarea {
+  min-height: 110px;
+  resize: vertical;
 }
 
 .form-group input:focus,
@@ -125,13 +112,65 @@
   background: var(--input-bg-focus);
 }
 
-.form-group textarea {
-  min-height: 110px;
-  resize: vertical;
+
+/* =====================================================
+   ⭐ BARCODE FIELD (MAIN FIX)
+   ===================================================== */
+
+.barcode-field {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  height:48px;
+  margin-bottom: 55px;
+}
+
+.barcode-field input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* SCAN BUTTON */
+
+.scan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 20px;
+  height: 48px;
+
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+
+  color: var(--text-invert);
+
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
+
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  box-shadow: 0 10px 26px rgba(79, 70, 229, 0.35);
+  transition: 0.2s ease;
+}
+
+.scan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(79, 70, 229, 0.55);
 }
 
 
-/* ================= FORM ACTION BUTTONS ================= */
+/* ================= FORM ACTIONS ================= */
 
 .form-actions {
   display: flex;
@@ -139,9 +178,6 @@
   gap: 16px;
   margin-top: 32px;
 }
-
-
-/* ---------- Secondary Button ---------- */
 
 .secondary-btn {
   background: transparent;
@@ -151,123 +187,32 @@
   border-radius: 14px;
   font-weight: 700;
   cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.15s ease;
 }
 
 .secondary-btn:hover {
   background: var(--row-hover);
-  transform: translateY(-1px);
 }
 
-
-/* ---------- Primary Button ---------- */
-
 .primary-btn {
-  background: linear-gradient(135deg,
-      var(--accent),
-      var(--accent-strong));
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-strong)
+  );
   color: var(--text-invert);
   border: none;
   padding: 14px 28px;
   border-radius: 16px;
   font-weight: 900;
-  font-size: 14px;
-  letter-spacing: 0.6px;
   cursor: pointer;
-
-  box-shadow: 0 14px 34px rgba(79, 70, 229, 0.45);
-
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.primary-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 46px rgba(79, 70, 229, 0.65);
-}
-
-.primary-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 
-/* ================= BARCODE FIELD FIX ================= */
+/* =====================================================
+   RESPONSIVE FIXES
+   ===================================================== */
 
-.barcode-field {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-}
-
-.barcode-field input {
-  flex: 1;
-  height: 48px;
-}
-
-/* Scan button wrapper */
-.barcode-field .scan-btn {
-  height: 48px;
-  flex-shrink: 0;
-}
-
-.form-group {
-  position: relative;
-  z-index: 1;
-}
-
-
-/* ================= SCAN BUTTON ================= */
-
-.scan-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-
-  background: linear-gradient(135deg,
-      var(--accent),
-      var(--accent-strong));
-
-  color: var(--text-invert);
-  border: none;
-  padding: 12px 18px;
-  border-radius: 14px;
-
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-
-  cursor: pointer;
-  white-space: nowrap;
-
-  box-shadow: 0 10px 26px rgba(79, 70, 229, 0.35);
-
-  transition: all 0.2s ease;
-}
-
-.scan-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 36px rgba(79, 70, 229, 0.55);
-}
-
-.scan-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
-}
-
-.scan-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-
-/* ================= RESPONSIVE ================= */
+/* Tablet */
 
 @media (max-width: 900px) {
   .add-product-content {
@@ -279,25 +224,20 @@
   }
 }
 
-@media (max-width: 520px) {
+/* Mobile — scan button fix */
+
+@media (max-width: 600px) {
   .barcode-field {
     flex-direction: column;
-    gap: 10px;
   }
 
-  .barcode-field input,
-  .barcode-field .scan-btn {
+  .scan-btn {
     width: 100%;
     height: 46px;
   }
 }
 
-
-  .scan-btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
+/* Small phone */
 
 @media (max-width: 480px) {
   .page-title {
@@ -305,48 +245,6 @@
   }
 
   .add-product-card {
-    padding: 26px 24px;
+    padding: 24px;
   }
 }
-
-/* ================= PLACEHOLDER STYLING ================= */
-
-/* Standard placeholder */
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  opacity: 0.85;
-
-  transition: opacity 0.2s ease;
-}
-
-/* Fade placeholder when typing */
-.form-group input:focus::placeholder,
-.form-group textarea:focus::placeholder {
-  opacity: 0.4;
-}
-
-/* Disabled inputs placeholder */
-.form-group input:disabled::placeholder {
-  opacity: 0.5;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  caret-color: var(--accent);
-}
-
-/* Professional info message */
-.info-msg {
-  background: rgba(59, 130, 246, 0.12);
-  color: var(--accent);
-  padding: 12px 16px;
-  border-radius: 14px;
-  margin-bottom: 16px;
-  font-weight: 600;
-  border: 1px solid var(--accent-soft);
-}
-

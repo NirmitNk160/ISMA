@@ -72,129 +72,125 @@ export default function Register() {
         navigate("/login", { replace: true });
       }, 1200);
     } catch (err) {
-      setMessage(
-        err.response?.data?.message || "❌ Backend not reachable"
-      );
+      setMessage(err.response?.data?.message || "❌ Backend not reachable");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <h2>Register Your Shop</h2>
+    <div className="auth-page">
+      <div className="auth-container">
+        <h2>Register Your Shop</h2>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="shop_name"
-          placeholder="Shop Name"
-          autoFocus
-          value={form.shop_name}
-          onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              ownerRef.current?.focus();
-            }
-          }}
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            name="shop_name"
+            placeholder="Shop Name"
+            autoFocus
+            value={form.shop_name}
+            onChange={handleChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                ownerRef.current?.focus();
+              }
+            }}
+          />
 
-        <input
-          ref={ownerRef}
-          name="owner_name"
-          placeholder="Owner Name"
-          value={form.owner_name}
-          onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              usernameRef.current?.focus();
-            }
-          }}
-        />
+          <input
+            ref={ownerRef}
+            name="owner_name"
+            placeholder="Owner Name"
+            value={form.owner_name}
+            onChange={handleChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                usernameRef.current?.focus();
+              }
+            }}
+          />
 
-        <input
-          ref={usernameRef}
-          name="username"
-          placeholder="Username"
-          value={form.username}
-          onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              mobileRef.current?.focus();
-            }
-          }}
-        />
+          <input
+            ref={usernameRef}
+            name="username"
+            placeholder="Username"
+            value={form.username}
+            onChange={handleChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                mobileRef.current?.focus();
+              }
+            }}
+          />
 
-        <input
-          ref={mobileRef}
-          name="mobile"
-          placeholder="Mobile Number"
-          value={form.mobile}
-          onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              emailRef.current?.focus();
-            }
-          }}
-        />
+          <input
+            ref={mobileRef}
+            name="mobile"
+            placeholder="Mobile Number"
+            value={form.mobile}
+            onChange={handleChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                emailRef.current?.focus();
+              }
+            }}
+          />
 
-        <input
-          ref={emailRef}
-          type="email"
-          name="email"
-          placeholder="Gmail"
-          value={form.email}
-          onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              passwordRef.current?.focus();
-            }
-          }}
-        />
+          <input
+            ref={emailRef}
+            type="email"
+            name="email"
+            placeholder="Gmail"
+            value={form.email}
+            onChange={handleChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                passwordRef.current?.focus();
+              }
+            }}
+          />
 
-        <input
-          ref={passwordRef}
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              confirmRef.current?.focus();
-            }
-          }}
-        />
+          <input
+            ref={passwordRef}
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                confirmRef.current?.focus();
+              }
+            }}
+          />
 
-        <input
-          ref={confirmRef}
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          value={form.confirmPassword}
-          onChange={handleChange}
-        />
+          <input
+            ref={confirmRef}
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={form.confirmPassword}
+            onChange={handleChange}
+          />
 
-        <button
-          className="primary-btn"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
+          <button className="primary-btn" type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
 
-      {message && <p className="indicator">{message}</p>}
+        {message && <p className="indicator">{message}</p>}
 
-      <p>
-        Already have an account?
-        <span onClick={() => navigate("/login")}> Login here</span>
-      </p>
+        <p>
+          Already have an account?
+          <span onClick={() => navigate("/login")}> Login here</span>
+        </p>
+      </div>
     </div>
   );
 }

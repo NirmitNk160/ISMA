@@ -38,59 +38,52 @@ export default function Login() {
 
       navigate("/", { replace: true });
     } catch (err) {
-      setMessage(
-        err.response?.data?.message || "❌ Backend not reachable"
-      );
+      setMessage(err.response?.data?.message || "❌ Backend not reachable");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container">
-      <h2>ISMA Login</h2>
+    <div className="auth-page">
+      <div className="auth-container">
+        <h2>ISMA Login</h2>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Gmail"
-          value={email}
-          autoFocus
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              passwordRef.current?.focus();
-            }
-          }}
-        />
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Gmail"
+            value={email}
+            autoFocus
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                passwordRef.current?.focus();
+              }
+            }}
+          />
 
-        <input
-          ref={passwordRef}
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            ref={passwordRef}
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button
-          className="primary-btn"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          <button className="primary-btn" type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
 
-      {message && <p className="indicator">{message}</p>}
+        {message && <p className="indicator">{message}</p>}
 
-      <p>
-        New shop?
-        <span onClick={() => navigate("/register")}>
-          {" "}
-          Register your shop
-        </span>
-      </p>
+        <p>
+          New shop?
+          <span onClick={() => navigate("/register")}> Register your shop</span>
+        </p>
+      </div>
     </div>
   );
 }
