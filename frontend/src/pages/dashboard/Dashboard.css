@@ -401,3 +401,65 @@
     padding: 18px;
   }
 }
+
+/* ========================================
+   LOW STOCK ALERT CARD (PREMIUM STYLE)
+   ======================================== */
+
+.low-stock-card {
+  background: linear-gradient(145deg,
+      rgba(255, 120, 120, 0.08),
+      rgba(255, 80, 80, 0.03));
+
+  border: 1px solid rgba(255, 90, 90, 0.25);
+  border-radius: 22px;
+  padding: 26px 28px;
+  margin-top: 30px;
+
+  box-shadow: 0 8px 28px rgba(255, 80, 80, 0.08);
+}
+
+/* Title */
+
+.low-stock-card h3 {
+  font-weight: 800;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Product row */
+
+.low-stock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-soft);
+
+  margin-bottom: 10px;
+}
+
+/* Name */
+
+.low-stock-name {
+  font-weight: 600;
+}
+
+/* Stock badge */
+
+.low-stock-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  background: rgba(255, 80, 80, 0.15);
+  color: #ff6b6b;
+}

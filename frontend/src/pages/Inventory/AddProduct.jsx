@@ -29,6 +29,7 @@ export default function AddProduct() {
     barcode: "",
     sku: "",
     image_url: "",
+    min_stock: 5,
   });
 
   const [loading, setLoading] = useState(false);
@@ -189,6 +190,17 @@ export default function AddProduct() {
                   value={form.stock}
                   onChange={handleChange}
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Minimum Stock Alert</label>
+                <input
+                  type="number"
+                  name="min_stock"
+                  placeholder="Alert threshold (default 5)"
+                  value={form.min_stock}
+                  onChange={handleChange}
                 />
               </div>
 

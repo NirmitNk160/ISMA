@@ -33,6 +33,7 @@ export default function EditProduct() {
     barcode: "",
     sku: "",
     image_url: "",
+    min_stock: "5",
   });
 
   /* LOAD PRODUCT */
@@ -59,6 +60,7 @@ export default function EditProduct() {
           barcode: p.barcode || "",
           sku: p.sku || "",
           image_url: p.image_url || "",
+          min_stock: p.min_stock ?? 5,
         });
       })
       .catch(() => setError("Failed to load product"))
@@ -151,6 +153,17 @@ export default function EditProduct() {
                   type="number"
                   name="stock"
                   value={form.stock}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Minimum Stock Alert</label>
+                <input
+                  type="number"
+                  name="min_stock"
+                  placeholder="Alert threshold (default 5)"
+                  value={form.min_stock}
                   onChange={handleChange}
                 />
               </div>

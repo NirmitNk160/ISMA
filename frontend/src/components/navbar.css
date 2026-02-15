@@ -25,6 +25,8 @@ body {
   background: var(--card-bg);
   border-bottom: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 /* LEFT */

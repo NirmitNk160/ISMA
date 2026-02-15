@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [lowStock, setLowStock] = useState([]);
 
   /* ================= SAFE FETCH ================= */
   useEffect(() => {
@@ -42,6 +43,11 @@ export default function Dashboard() {
         if (mounted) setLoading(false);
       }
     };
+
+    api
+      .get("/inventory/low-stock")
+      .then((res) => setLowStock(res.data))
+      .catch(() => {});
 
     fetchData();
 
@@ -107,6 +113,19 @@ export default function Dashboard() {
               value={Number(stats?.activeProducts ?? 0)}
             />
           </section>
+
+          {lowStock.length > 0 && (
+            <section className="low-stock-card">
+              <h3>⚠️ Low Stock Alerts</h3>
+
+              {lowStock.map((p) => (
+                <div key={p.id} className="low-stock-item">
+                  <span className="low-stock-name">{p.name}</span>
+                  <span className="low-stock-badge">{p.stock} left</span>
+                </div>
+              ))}
+            </section>
+          )}
 
           <section className="grid">
             <div className="card chart">

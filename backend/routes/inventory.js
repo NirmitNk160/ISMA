@@ -18,6 +18,7 @@ router.post("/", verifyToken, async (req, res) => {
       barcode,
       sku,
       image_url,
+      min_stock = 5,
     } = req.body;
 
     const userId = req.user.id;
@@ -35,7 +36,7 @@ router.post("/", verifyToken, async (req, res) => {
     await db.query(
       `
       INSERT INTO products
-      (user_id, name, brand, category, size, stock, price, description, barcode, sku, image_url, is_deleted)
+      (user_id, name, brand, category, size, stock, price, description, barcode, sku, image_url, min_stock, is_deleted)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
       `,
       [
@@ -50,6 +51,7 @@ router.post("/", verifyToken, async (req, res) => {
         barcode || null,
         sku || null,
         image_url || null,
+        Number(min_stock),
       ],
     );
 
@@ -102,6 +104,30 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
+/* ================= LOW STOCK ALERT ================= */
+router.get("/low-stock", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [rows] = await db.query(
+      `
+      SELECT id, name, stock, min_stock
+      FROM products
+      WHERE user_id = ?
+        AND is_deleted = FALSE
+        AND stock <= min_stock
+      ORDER BY stock ASC
+      `,
+      [userId],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Low stock error:", err);
+    res.status(500).json({ message: "Failed to fetch low stock products" });
+  }
+});
+
 /* ================= GET SINGLE PRODUCT ================= */
 router.get("/:id", verifyToken, async (req, res) => {
   try {
@@ -120,7 +146,8 @@ router.get("/:id", verifyToken, async (req, res) => {
         description,
         barcode,
         sku,
-        image_url
+        image_url,
+        min_stock
       FROM products
       WHERE id = ? AND user_id = ? AND is_deleted = FALSE
       `,
@@ -151,6 +178,7 @@ router.put("/:id", verifyToken, async (req, res) => {
       barcode,
       sku,
       image_url,
+      min_stock = 5,
     } = req.body;
 
     const userId = req.user.id;
@@ -178,7 +206,8 @@ router.put("/:id", verifyToken, async (req, res) => {
         description=?,
         barcode=?,
         sku=?,
-        image_url=?
+        image_url=?,
+        min_stock=?
       WHERE id=? AND user_id=? AND is_deleted=FALSE
       `,
       [
@@ -192,6 +221,7 @@ router.put("/:id", verifyToken, async (req, res) => {
         barcode || null,
         sku || null,
         image_url || null,
+        Number(min_stock),
         productId,
         userId,
       ],
@@ -203,6 +233,7 @@ router.put("/:id", verifyToken, async (req, res) => {
 
     res.json({ message: "Product updated" });
   } catch (err) {
+    console.error("Update error:", err);
     res.status(500).json({ message: "DB error" });
   }
 });
