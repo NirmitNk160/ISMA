@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const { settings } = useSettings();
@@ -43,6 +44,35 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
+  /* ================= FETCH PROFILE ================= */
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setProfile(data);
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+      }
+    };
+
+    if (user) fetchProfile();
+  }, [user]);
+
   /* ================= AUTO LOGOUT ================= */
 
   useEffect(() => {
@@ -56,10 +86,13 @@ export function AuthProvider({ children }) {
         clearTimeout(logoutTimerRef.current);
       }
 
-      logoutTimerRef.current = setTimeout(() => {
-        console.warn("Auto logout due to inactivity");
-        logout();
-      }, autoLogoutMinutes * 60 * 1000);
+      logoutTimerRef.current = setTimeout(
+        () => {
+          console.warn("Auto logout due to inactivity");
+          logout();
+        },
+        autoLogoutMinutes * 60 * 1000,
+      );
     };
 
     const events = [
@@ -72,9 +105,7 @@ export function AuthProvider({ children }) {
       "visibilitychange",
     ];
 
-    events.forEach((event) =>
-      window.addEventListener(event, resetTimer)
-    );
+    events.forEach((event) => window.addEventListener(event, resetTimer));
 
     resetTimer();
 
@@ -83,9 +114,7 @@ export function AuthProvider({ children }) {
         clearTimeout(logoutTimerRef.current);
       }
 
-      events.forEach((event) =>
-        window.removeEventListener(event, resetTimer)
-      );
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
     };
   }, [user, settings?.autoLogout]);
 
@@ -131,6 +160,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        profile,
         isAuthenticated: !!user,
         loading,
         login,

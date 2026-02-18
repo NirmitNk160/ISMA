@@ -34,6 +34,7 @@ export default function EditProduct() {
     sku: "",
     image_url: "",
     min_stock: "5",
+    expiry_date: "",
   });
 
   /* LOAD PRODUCT */
@@ -61,6 +62,9 @@ export default function EditProduct() {
           sku: p.sku || "",
           image_url: p.image_url || "",
           min_stock: p.min_stock ?? 5,
+          expiry_date: p.expiry_date
+            ? new Date(p.expiry_date).toISOString().split("T")[0]
+            : "",
         });
       })
       .catch(() => setError("Failed to load product"))
@@ -164,6 +168,16 @@ export default function EditProduct() {
                   name="min_stock"
                   placeholder="Alert threshold (default 5)"
                   value={form.min_stock}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Expiry Date</label>
+                <input
+                  type="date"
+                  name="expiry_date"
+                  value={form.expiry_date}
                   onChange={handleChange}
                 />
               </div>

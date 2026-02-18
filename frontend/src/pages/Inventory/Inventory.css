@@ -551,3 +551,25 @@
     color: var(--text-muted);
   }
 }
+
+.expiry-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.expired {
+  background: rgba(255,80,80,0.2);
+  color: #ff6b6b;
+}
+
+.expiring {
+  background: rgba(255,200,80,0.2);
+  color: #facc15;
+}
+
+.safe {
+  background: rgba(80,255,150,0.15);
+  color: #4ade80;
+}

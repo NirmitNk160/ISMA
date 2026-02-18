@@ -1,7 +1,8 @@
 /* =====================================================
-   DASHBOARD — FINAL RESPONSIVE PRO VERSION
-   Fully Mobile + Tablet + Desktop Optimized
+   DASHBOARD — OPTIMIZED PRO VERSION
+   Clean • Responsive • Performance Friendly
    ===================================================== */
+
 
 /* ================= ROOT ================= */
 
@@ -13,6 +14,7 @@
     "Helvetica Neue", Arial, sans-serif;
 }
 
+
 /* ================= LAYOUT ================= */
 
 .dashboard-body {
@@ -21,24 +23,12 @@
   width: 100%;
 }
 
-/* ================= MAIN CONTENT ================= */
-
 .content {
   flex: 1;
   padding: 40px 48px;
-  width: 100%;
   min-width: 0;
-  /* prevents flex overflow gap */
 }
 
-/* Loading */
-
-.dashboard-loading {
-  padding: 60px 20px;
-  text-align: center;
-  font-weight: 600;
-  color: var(--text-muted);
-}
 
 /* ================= HEADER ================= */
 
@@ -46,16 +36,14 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 
 .page-title {
   font-size: 28px;
   font-weight: 900;
-  letter-spacing: 0.3px;
+  letter-spacing: .3px;
 }
-
-/* Sidebar menu button */
 
 .menu-btn {
   display: none;
@@ -66,23 +54,24 @@
   color: var(--text-primary);
 }
 
-/* ================= STATS GRID ================= */
+
+/* ================= LOADING ================= */
+
+.dashboard-loading {
+  padding: 60px 20px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+
+/* ================= STATS ================= */
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
-
-/* ================= STATS GRID ================= */
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-/* ================= STAT CARD ================= */
 
 .stat-card {
   background: var(--card-bg);
@@ -95,16 +84,12 @@
   flex-direction: column;
   justify-content: center;
 
-  min-height: 110px;
-
-  transition: transform .2s ease, box-shadow .2s ease;
+  transition: transform .2s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-4px);
 }
-
-/* TEXT */
 
 .stat-title {
   font-size: 12px;
@@ -118,71 +103,10 @@
 .stat-value {
   font-size: 26px;
   font-weight: 900;
-  line-height: 1.2;
-}
-
-/* =====================================================
-   TABLET
-   ===================================================== */
-
-@media (max-width: 992px) {
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .stat-card {
-    padding: 22px;
-  }
-
-  .stat-value {
-    font-size: 24px;
-  }
-}
-
-/* =====================================================
-   MOBILE FIX (MAIN IMPROVEMENT)
-   ===================================================== */
-
-@media (max-width: 768px) {
-
-  .stats {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .stat-card {
-    padding: 20px;
-    border-radius: 18px;
-    min-height: auto;
-    backdrop-filter: blur(10px);
-  }
-
-  .stat-title {
-    font-size: 11px;
-  }
-
-  .stat-value {
-    font-size: 22px;
-  }
-}
-
-/* =====================================================
-   SMALL PHONE (EXTRA POLISH)
-   ===================================================== */
-
-@media (max-width: 480px) {
-
-  .stat-card {
-    padding: 18px;
-  }
-
-  .stat-value {
-    font-size: 20px;
-  }
 }
 
 
-/* ================= MAIN GRID ================= */
+/* ================= GRID ================= */
 
 .grid {
   display: grid;
@@ -190,6 +114,7 @@
   gap: 28px;
   margin-top: 36px;
 }
+
 
 /* ================= CARD ================= */
 
@@ -199,8 +124,7 @@
   padding: 28px;
   border: 1px solid var(--border-soft);
   box-shadow: var(--card-shadow);
-
-  transition: transform 0.2s ease;
+  transition: transform .2s ease;
 }
 
 .card:hover {
@@ -212,20 +136,20 @@
   margin-bottom: 16px;
 }
 
+
 /* ================= CHART ================= */
 
 .chart-placeholder {
   height: 260px;
   border-radius: 18px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: var(--row-hover);
   color: var(--text-muted);
   font-weight: 600;
 }
+
 
 /* ================= PROGRESS ================= */
 
@@ -251,175 +175,27 @@
   height: 100%;
   width: var(--progress);
   border-radius: 999px;
-
-  background: linear-gradient(90deg,
-      var(--accent),
-      var(--accent-strong));
-
-  transition: width 0.4s ease;
-}
-
-/* ================= SIDEBAR OVERLAY ================= */
-
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, .5);
-  z-index: 900;
-}
-
-/* =====================================================
-   RESPONSIVE BREAKPOINTS
-   ===================================================== */
-
-/* ===== LAPTOP SMALL ===== */
-
-@media (max-width: 1200px) {
-  .content {
-    padding: 32px 28px;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ===== TABLET ===== */
-
-@media (max-width: 992px) {
-  .stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .content {
-    padding: 28px 22px;
-  }
-}
-
-/* ===== MOBILE ===== */
-
-@media (max-width: 768px) {
-
-  .menu-btn {
-    display: block;
-  }
-
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
-  .content {
-    padding: 24px 16px;
-  }
-
-  .page-title {
-    font-size: 22px;
-  }
-
-  .stat-value {
-    font-size: 22px;
-  }
-
-  .card {
-    padding: 20px;
-  }
-
-  .chart-placeholder {
-    height: 200px;
-  }
-
-  .dashboard-body {
-    flex-direction: row;
-  }
-
-  .sidebar {
-    width: 240px;
-    min-width: 240px;
-  }
-
-}
-
-/* =====================================================
-   MOBILE ONLY (UNDER 600px)
-   Sidebar stays visible until this breakpoint
-   ===================================================== */
-
-@media (max-width: 600px) {
-
-  /* Show hamburger only here */
-  .menu-btn {
-    display: block;
-  }
-
-  /* Stack stats */
-  .stats {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  /* Reduce padding */
-  .content {
-    padding: 20px 14px;
-  }
-
-  .page-title {
-    font-size: 22px;
-  }
-
-  .stat-value {
-    font-size: 22px;
-  }
-
-  .card {
-    padding: 18px;
-  }
-
-  .chart-placeholder {
-    height: 200px;
-  }
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transition: width .4s ease;
 }
 
 
-/* ===== SMALL PHONE ===== */
-
-@media (max-width: 480px) {
-
-  .page-header {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .content {
-    padding: 18px 12px;
-  }
-
-  .stat-value {
-    font-size: 20px;
-  }
-
-  .card {
-    padding: 18px;
-  }
-}
-
-/* ========================================
-   LOW STOCK ALERT CARD (PREMIUM STYLE)
-   ======================================== */
+/* ================= ALERT CARDS ================= */
 
 .low-stock-card {
-  background: linear-gradient(145deg,
-      rgba(255, 120, 120, 0.08),
-      rgba(255, 80, 80, 0.03));
-
-  border: 1px solid rgba(255, 90, 90, 0.25);
-  border-radius: 22px;
-  padding: 26px 28px;
   margin-top: 30px;
+  padding: 26px 28px;
+  border-radius: 22px;
 
-  box-shadow: 0 8px 28px rgba(255, 80, 80, 0.08);
+  background: linear-gradient(
+    145deg,
+    rgba(255,120,120,0.08),
+    rgba(255,80,80,0.03)
+  );
+
+  border: 1px solid rgba(255,90,90,.25);
+  box-shadow: 0 8px 28px rgba(255,80,80,.08);
 }
-
-/* Title */
 
 .low-stock-card h3 {
   font-weight: 800;
@@ -429,37 +205,86 @@
   gap: 10px;
 }
 
-/* Product row */
-
 .low-stock-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   padding: 12px 14px;
-  border-radius: 12px;
-
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--border-soft);
-
   margin-bottom: 10px;
-}
 
-/* Name */
+  border-radius: 12px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border-soft);
+}
 
 .low-stock-name {
   font-weight: 600;
 }
 
-/* Stock badge */
-
 .low-stock-badge {
   padding: 4px 12px;
   border-radius: 999px;
-
   font-size: 12px;
   font-weight: 700;
 
-  background: rgba(255, 80, 80, 0.15);
+  background: rgba(255,80,80,.15);
   color: #ff6b6b;
+}
+
+
+/* ================= SIDEBAR OVERLAY ================= */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 900;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+/* Laptop */
+
+@media (max-width: 1200px) {
+  .content { padding: 32px 28px; }
+  .grid { grid-template-columns: 1fr; }
+}
+
+/* Tablet */
+
+@media (max-width: 992px) {
+  .stats { grid-template-columns: repeat(2,1fr); }
+  .content { padding: 28px 22px; }
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .menu-btn { display: block; }
+
+  .dashboard-body { flex-direction: column; }
+
+  .stats { grid-template-columns: 1fr; }
+
+  .content { padding: 24px 16px; }
+
+  .page-title { font-size: 22px; }
+
+  .stat-value { font-size: 22px; }
+
+  .card { padding: 20px; }
+
+  .chart-placeholder { height: 200px; }
+}
+
+/* Small phones */
+
+@media (max-width: 480px) {
+  .page-header { flex-wrap: wrap; }
+  .content { padding: 18px 12px; }
+  .stat-value { font-size: 20px; }
 }

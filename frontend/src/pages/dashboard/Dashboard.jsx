@@ -22,6 +22,28 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [lowStock, setLowStock] = useState([]);
+  const [expiryAlerts, setExpiryAlerts] = useState([]);
+
+  /* ================= EXPIRY TEXT HELPER ================= */
+  const getExpiryText = (date) => {
+    if (!date) return "";
+
+    const today = new Date();
+    const expiry = new Date(date);
+
+    // Remove time part (important)
+    today.setHours(0, 0, 0, 0);
+    expiry.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((expiry - today) / 86400000);
+
+    if (diffDays < 0) return `Expired ${Math.abs(diffDays)} day(s) ago`;
+    if (diffDays === 0) return "Expires today";
+    if (diffDays <= 7) return `${diffDays} day(s) left`;
+    if (diffDays <= 30) return `${Math.ceil(diffDays / 7)} week(s) left`;
+
+    return expiry.toLocaleDateString();
+  };
 
   /* ================= SAFE FETCH ================= */
   useEffect(() => {
@@ -47,6 +69,11 @@ export default function Dashboard() {
     api
       .get("/inventory/low-stock")
       .then((res) => setLowStock(res.data))
+      .catch(() => {});
+
+    api
+      .get("/inventory/expiry-alerts")
+      .then((res) => setExpiryAlerts(res.data))
       .catch(() => {});
 
     fetchData();
@@ -122,6 +149,29 @@ export default function Dashboard() {
                 <div key={p.id} className="low-stock-item">
                   <span className="low-stock-name">{p.name}</span>
                   <span className="low-stock-badge">{p.stock} left</span>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {expiryAlerts.length > 0 && (
+            <section className="low-stock-card">
+              <h3>⏳ Expiry Alerts</h3>
+
+              {expiryAlerts.map((p) => (
+                <div key={p.id} className="low-stock-item">
+                  <span>{p.name}</span>
+                  <span
+                    className={`low-stock-badge ${
+                      new Date(p.expiry_date) - new Date() < 3 * 86400000
+                        ? "danger"
+                        : new Date(p.expiry_date) - new Date() < 7 * 86400000
+                          ? "warning"
+                          : ""
+                    }`}
+                  >
+                    {getExpiryText(p.expiry_date)}
+                  </span>
                 </div>
               ))}
             </section>

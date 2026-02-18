@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 import api from "../../api/axios";
 import Sidebar from "../../components/Sidebar";
@@ -16,7 +18,7 @@ export default function Billing() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const { format } = useCurrency();
-  const { loading: authLoading, isAuthenticated } = useAuth();
+  const { profile, loading: authLoading, isAuthenticated } = useAuth();
 
   const inputRef = useRef(null);
 
@@ -214,6 +216,119 @@ export default function Billing() {
     setBillItems((prev) => prev.filter((i) => i.product_id !== id));
   };
 
+  /* ================= GENERATE PDF ================= */
+  const generateInvoicePDF = (billId, items, profile) => {
+    const doc = new jsPDF();
+
+    /* STORE NAME */
+    const storeName = profile?.shop_name || settings?.shopName || "My Store";
+
+    /* DATE */
+    const now = new Date();
+    const formattedDate =
+      String(now.getDate()).padStart(2, "0") +
+      "/" +
+      String(now.getMonth() + 1).padStart(2, "0") +
+      "/" +
+      now.getFullYear();
+
+    const formattedTime = now.toLocaleTimeString();
+
+    /* CURRENCY CONVERSION */
+    const convertCurrency = (amountINR) => {
+      const currency = settings?.currency || "INR";
+
+      const rates = {
+        INR: 1,
+        USD: 0.012,
+        EUR: 0.011,
+      };
+
+      return amountINR * rates[currency];
+    };
+
+    /* FORMAT CURRENCY */
+    const formatCurrency = (amountINR) => {
+      const currency = settings?.currency || "INR";
+
+      const symbolMap = {
+        INR: "Rs.",
+        USD: "$",
+        EUR: "€",
+      };
+
+      const localeMap = {
+        INR: "en-IN",
+        USD: "en-US",
+        EUR: "de-DE",
+      };
+
+      const converted = convertCurrency(amountINR);
+
+      return `${symbolMap[currency]} ${converted.toLocaleString(
+        localeMap[currency],
+        { minimumFractionDigits: 2 },
+      )}`;
+    };
+
+    /* TOTAL */
+    const totalINR = items.reduce((sum, i) => sum + i.quantity * i.priceINR, 0);
+
+    /* HEADER */
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text(storeName.toUpperCase(), 14, 18);
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.text("Invoice", 14, 26);
+
+    /* DETAILS */
+    doc.setFontSize(11);
+    doc.text(`Bill ID: ${billId}`, 14, 36);
+    doc.text(`Date: ${formattedDate}`, 14, 42);
+    doc.text(`Time: ${formattedTime}`, 14, 48);
+
+    /* TABLE */
+    autoTable(doc, {
+      startY: 56,
+      head: [["Product", "Qty", "Unit Price", "Total"]],
+      body: items.map((i) => [
+        i.name,
+        i.quantity,
+        formatCurrency(i.priceINR),
+        formatCurrency(i.quantity * i.priceINR),
+      ]),
+      styles: {
+        fontSize: 10,
+        cellPadding: 4,
+      },
+      headStyles: {
+        fontStyle: "bold",
+      },
+    });
+
+    /* GRAND TOTAL */
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(
+      `Grand Total: ${formatCurrency(totalINR)}`,
+      14,
+      doc.lastAutoTable.finalY + 15,
+    );
+
+    /* FOOTER */
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      "Thank you for shopping with us!",
+      14,
+      doc.lastAutoTable.finalY + 25,
+    );
+
+    doc.save(`invoice-${billId}.pdf`);
+  };
+
   /* ================= CONFIRM BILL ================= */
   const confirmBill = async () => {
     if (!billItems.length || loading) return;
@@ -222,15 +337,20 @@ export default function Billing() {
       setLoading(true);
       setError("");
 
-      await api.post("/billing/confirm", {
+      const res = await api.post("/billing/confirm", {
         items: billItems.map((i) => ({
           product_id: i.product_id,
           quantity: i.quantity,
         })),
       });
 
+      const billId = res.data.bill_id;
+
+      generateInvoicePDF(billId, billItems, profile, format);
+
       setSuccess(true);
       setBillItems([]);
+
       setTimeout(() => navigate("/sales"), 1200);
     } catch (err) {
       console.error(err);

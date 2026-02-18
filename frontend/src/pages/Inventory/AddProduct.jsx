@@ -30,6 +30,7 @@ export default function AddProduct() {
     sku: "",
     image_url: "",
     min_stock: 5,
+    expiry_date: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -200,6 +201,16 @@ export default function AddProduct() {
                   name="min_stock"
                   placeholder="Alert threshold (default 5)"
                   value={form.min_stock}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Expiry Date</label>
+                <input
+                  type="date"
+                  name="expiry_date"
+                  value={form.expiry_date}
                   onChange={handleChange}
                 />
               </div>

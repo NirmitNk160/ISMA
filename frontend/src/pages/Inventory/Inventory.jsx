@@ -35,9 +35,7 @@ export default function Inventory() {
         setLoading(true);
         setError("");
 
-        const url = showArchived
-          ? "/inventory/archived/all"
-          : "/inventory";
+        const url = showArchived ? "/inventory/archived/all" : "/inventory";
 
         const res = await api.get(url);
         setProducts(res.data || []);
@@ -56,7 +54,7 @@ export default function Inventory() {
     try {
       setProcessing(true);
       await api.delete(`/inventory/${archiveId}`);
-      setProducts(prev => prev.filter(p => p.id !== archiveId));
+      setProducts((prev) => prev.filter((p) => p.id !== archiveId));
       setArchiveId(null);
     } catch {
       setError("Archive failed");
@@ -70,7 +68,7 @@ export default function Inventory() {
     try {
       setProcessing(true);
       await api.delete(`/inventory/permanent/${deleteId}`);
-      setProducts(prev => prev.filter(p => p.id !== deleteId));
+      setProducts((prev) => prev.filter((p) => p.id !== deleteId));
       setDeleteId(null);
     } catch {
       setError("Delete failed");
@@ -83,7 +81,7 @@ export default function Inventory() {
   const restoreProduct = async (id) => {
     try {
       await api.put(`/inventory/restore/${id}`);
-      setProducts(prev => prev.filter(p => p.id !== id));
+      setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch {
       setError("Restore failed");
     }
@@ -92,9 +90,7 @@ export default function Inventory() {
   /* SEARCH */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      `${p.name} ${p.brand ?? ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
+      `${p.name} ${p.brand ?? ""}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [products, search]);
 
@@ -120,6 +116,21 @@ export default function Inventory() {
       </div>
     );
   }
+
+  /* EXPIRY STATUS */
+  const getExpiryStatus = (expiry) => {
+    if (!expiry) return null;
+
+    const today = new Date();
+    const exp = new Date(expiry);
+
+    const diff = (exp - today) / (1000 * 60 * 60 * 24);
+
+    if (diff < 0) return { label: "Expired", className: "expired" };
+    if (diff <= 7) return { label: "Expiring", className: "expiring" };
+
+    return { label: "Safe", className: "safe" };
+  };
 
   return (
     <div className="inventory-root">
@@ -170,6 +181,7 @@ export default function Inventory() {
                   <th>Size</th>
                   <th>Stock</th>
                   <th>Price</th>
+                  <th>Expiry</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -203,8 +215,18 @@ export default function Inventory() {
                         <td data-label="Category">{p.category}</td>
                         <td data-label="Size">{p.size || "-"}</td>
                         <td data-label="Stock">{p.stock}</td>
-                        <td data-label="Price">
-                          {format(Number(p.price))}
+                        <td data-label="Price">{format(Number(p.price))}</td>
+                        <td data-label="Expiry">
+                          {(() => {
+                            const exp = getExpiryStatus(p.expiry_date);
+                            return exp ? (
+                              <span className={`expiry-badge ${exp.className}`}>
+                                {exp.label}
+                              </span>
+                            ) : (
+                              "-"
+                            );
+                          })()}
                         </td>
 
                         <td
@@ -269,10 +291,7 @@ export default function Inventory() {
             <p>This product will be archived safely.</p>
 
             <div className="modal-actions">
-              <button
-                className="cancel-btn"
-                onClick={() => setArchiveId(null)}
-              >
+              <button className="cancel-btn" onClick={() => setArchiveId(null)}>
                 Cancel
               </button>
 
@@ -292,10 +311,7 @@ export default function Inventory() {
             <p>This cannot be undone.</p>
 
             <div className="modal-actions">
-              <button
-                className="cancel-btn"
-                onClick={() => setDeleteId(null)}
-              >
+              <button className="cancel-btn" onClick={() => setDeleteId(null)}>
                 Cancel
               </button>
 
