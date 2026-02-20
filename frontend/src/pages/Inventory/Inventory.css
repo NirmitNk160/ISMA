@@ -1,6 +1,6 @@
 /* =====================================================
-   INVENTORY — ISMA REBUILT (BASED ON ORIGINAL STYLE)
-   Desktop Clean + Proper Mobile Expand
+   INVENTORY — FINAL FIXED (ISMA)
+   Clean Desktop + Proper Mobile Expand
    ===================================================== */
 
 
@@ -27,6 +27,7 @@
   padding: 40px 48px;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
 
 
@@ -42,7 +43,6 @@
 .inventory-title {
   font-size: 26px;
   font-weight: 800;
-  letter-spacing: 0.3px;
 }
 
 
@@ -94,7 +94,7 @@
 /* ================= SEARCH ================= */
 
 .inventory-search {
-  max-width: 300px;
+  max-width: 320px;
   width: 100%;
   padding: 12px 16px;
   border-radius: 14px;
@@ -126,7 +126,7 @@
 .inventory-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  /* removed big min-width causing mobile break */
 }
 
 .inventory-table th,
@@ -147,10 +147,6 @@
 
 .inventory-table td {
   border-bottom: 1px solid var(--border-soft);
-}
-
-.inventory-table tbody tr {
-  transition: background 0.15s ease;
 }
 
 .inventory-table tbody tr:hover {
@@ -182,9 +178,17 @@
   font-size: 13px;
 }
 
-.status.in { color: var(--success); }
-.status.low { color: var(--warning); }
-.status.out { color: var(--danger); }
+.status.in {
+  color: var(--success);
+}
+
+.status.low {
+  color: var(--warning);
+}
+
+.status.out {
+  color: var(--danger);
+}
 
 
 /* ================= BADGES ================= */
@@ -196,9 +200,20 @@
   font-weight: 700;
 }
 
-.expired { background: rgba(255,80,80,0.2); color: #ff6b6b; }
-.expiring { background: rgba(255,200,80,0.2); color: #facc15; }
-.safe { background: rgba(80,255,150,0.15); color: #4ade80; }
+.expired {
+  background: rgba(255, 80, 80, 0.2);
+  color: #ff6b6b;
+}
+
+.expiring {
+  background: rgba(255, 200, 80, 0.2);
+  color: #facc15;
+}
+
+.safe {
+  background: rgba(80, 255, 150, 0.15);
+  color: #4ade80;
+}
 
 
 /* ================= ACTION BUTTONS ================= */
@@ -220,7 +235,7 @@
 }
 
 .edit-btn {
-  background: rgba(56,189,248,0.15);
+  background: rgba(56, 189, 248, 0.15);
   color: var(--accent);
   border: 1px solid var(--accent-soft);
 }
@@ -231,7 +246,7 @@
 }
 
 .archive-btn {
-  background: rgba(99,102,241,0.15);
+  background: rgba(99, 102, 241, 0.15);
   color: var(--accent);
   border: 1px solid var(--accent-soft);
   margin-left: 8px;
@@ -243,9 +258,9 @@
 }
 
 .restore-btn {
-  background: rgba(34,197,94,0.15);
+  background: rgba(34, 197, 94, 0.15);
   color: var(--success);
-  border: 1px solid rgba(34,197,94,0.35);
+  border: 1px solid rgba(34, 197, 94, 0.35);
 }
 
 .restore-btn:hover {
@@ -254,9 +269,9 @@
 }
 
 .delete-btn {
-  background: rgba(248,113,113,0.15);
+  background: rgba(248, 113, 113, 0.15);
   color: var(--danger);
-  border: 1px solid rgba(248,113,113,0.4);
+  border: 1px solid rgba(248, 113, 113, 0.4);
   margin-left: 8px;
 }
 
@@ -277,71 +292,101 @@
 }
 
 .expand-row td {
-  background: transparent;
   border-bottom: none;
+  padding: 0;
 }
 
 .expand-content {
+  width: 100%;
+  margin: 12px 0;
   padding: 16px 18px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 14px;
-  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 14px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
-.expand-row {
-  animation: expandFade 0.2s ease;
+.expand-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-@keyframes expandFade {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 
-
-/* ================= MOBILE ================= */
+/* ================= TABLET ================= */
 
 @media (max-width: 768px) {
 
   .inventory-content {
-    padding: 20px 16px;
+    padding: 24px 16px;
   }
 
   .inventory-actions {
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
   }
 
+  /* Hide desktop-only columns */
   .desktop-only {
     display: none;
   }
 
-  .inventory-table {
-    min-width: 100%;
-  }
-
-  .inventory-table th:nth-child(3),
-  .inventory-table th:nth-child(4),
-  .inventory-table th:nth-child(5),
-  .inventory-table th:nth-child(6),
-  .inventory-table th:nth-child(9),
-  .inventory-table th:nth-child(10) {
+  /* Hide action column ONLY in main rows */
+  .inventory-main-row td:last-child,
+  .inventory-table thead th:last-child {
     display: none;
   }
 
-  .inventory-main-row td {
-    padding: 14px 10px;
-    font-size: 14px;
+  /* Expand row must remain visible */
+  .expand-cell {
+    display: table-cell !important;
   }
 
-  .inventory-table td:last-child {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+  .expand-row td {
+    padding: 0 !important;
+    border: none;
+  }
+}
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 480px) {
+
+  .inventory-content {
+    padding: 16px 10px;
+  }
+
+  .add-btn,
+  .archive-toggle {
+    width: 100%;
+    padding: 14px;
+  }
+
+  .inventory-search {
+    max-width: 100%;
+  }
+
+  .product-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  .edit-btn,
+  .archive-btn,
+  .restore-btn,
+  .delete-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .expand-content {
+    padding: 12px;
+    font-size: 13px;
   }
 }
 
@@ -358,59 +403,4 @@
   text-align: center;
   padding: 40px 0;
   color: var(--text-muted);
-}
-
-/* ================= SMALL MOBILE (≤480px) ================= */
-
-@media (max-width: 480px) {
-
-  .inventory-content {
-    padding: 16px 10px;
-  }
-
-  /* Buttons full width */
-  .add-btn,
-  .archive-toggle {
-    width: 100%;
-    padding: 14px;
-    font-size: 15px;
-  }
-
-  /* Search full width */
-  .inventory-search {
-    max-width: 100%;
-  }
-
-  /* Reduce table spacing */
-  .inventory-main-row td {
-    padding: 10px 6px;
-    font-size: 13px;
-  }
-
-  /* Product image smaller */
-  .product-thumb {
-    width: 28px;
-    height: 28px;
-  }
-
-  /* Actions stack better */
-  .inventory-table td:last-child {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 6px;
-  }
-
-  .edit-btn,
-  .archive-btn,
-  .restore-btn,
-  .delete-btn {
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-
-  /* Expand content compact */
-  .expand-content {
-    padding: 12px;
-    font-size: 13px;
-  }
 }

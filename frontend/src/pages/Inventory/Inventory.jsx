@@ -36,9 +36,7 @@ export default function Inventory() {
         setLoading(true);
         setError("");
 
-        const url = showArchived
-          ? "/inventory/archived/all"
-          : "/inventory";
+        const url = showArchived ? "/inventory/archived/all" : "/inventory";
 
         const res = await api.get(url);
         setProducts(res.data || []);
@@ -93,9 +91,7 @@ export default function Inventory() {
   /* SEARCH */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      `${p.name} ${p.brand ?? ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
+      `${p.name} ${p.brand ?? ""}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [products, search]);
 
@@ -210,9 +206,7 @@ export default function Inventory() {
                         <tr
                           className="inventory-main-row"
                           onClick={() =>
-                            setExpandedId(
-                              expandedId === p.id ? null : p.id
-                            )
+                            setExpandedId(expandedId === p.id ? null : p.id)
                           }
                         >
                           <td>{i + 1}</td>
@@ -304,14 +298,76 @@ export default function Inventory() {
                         {/* EXPAND MOBILE */}
                         {expandedId === p.id && (
                           <tr className="expand-row">
-                            <td colSpan="11">
+                            <td colSpan="11" className="expand-cell">
                               <div className="expand-content">
-                                <div><strong>Brand:</strong> {p.brand || "-"}</div>
-                                <div><strong>Category:</strong> {p.category}</div>
-                                <div><strong>Supplier:</strong> {p.supplier_name || "-"}</div>
-                                <div><strong>Size:</strong> {p.size || "-"}</div>
-                                <div><strong>Expiry:</strong> {exp ? exp.label : "-"}</div>
-                                <div><strong>Status:</strong> {status.label}</div>
+                                <div>
+                                  <strong>Brand:</strong> {p.brand || "-"}
+                                </div>
+                                <div>
+                                  <strong>Category:</strong> {p.category}
+                                </div>
+                                <div>
+                                  <strong>Supplier:</strong>{" "}
+                                  {p.supplier_name || "-"}
+                                </div>
+                                <div>
+                                  <strong>Size:</strong> {p.size || "-"}
+                                </div>
+                                <div>
+                                  <strong>Expiry:</strong>{" "}
+                                  {exp ? exp.label : "-"}
+                                </div>
+                                <div>
+                                  <strong>Status:</strong> {status.label}
+                                </div>
+
+                                <div className="expand-actions">
+                                  {!showArchived ? (
+                                    <>
+                                      <button
+                                        className="edit-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(`/inventory/edit/${p.id}`);
+                                        }}
+                                      >
+                                        ✏️ Edit
+                                      </button>
+
+                                      <button
+                                        className="archive-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setArchiveId(p.id);
+                                        }}
+                                      >
+                                        🗄️ Archive
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="restore-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          restoreProduct(p.id);
+                                        }}
+                                      >
+                                        ♻️ Restore
+                                      </button>
+
+                                      <button
+                                        className="delete-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setDeleteId(p.id);
+                                        }}
+                                      >
+                                        ❌ Delete
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </td>
                           </tr>
