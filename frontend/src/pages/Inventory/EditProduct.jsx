@@ -29,6 +29,7 @@ export default function EditProduct() {
     size: "",
     stock: "",
     price: "",
+    cost_price: "", // ⭐ ADDED
     description: "",
     barcode: "",
     sku: "",
@@ -45,9 +46,14 @@ export default function EditProduct() {
         const p = res.data;
 
         let displayPrice = Number(p.price);
+        let displayCost = Number(p.cost_price || 0);
+
         if (settings.currency !== "INR") {
           const rate = rates[settings.currency];
-          if (rate) displayPrice *= rate;
+          if (rate) {
+            displayPrice *= rate;
+            displayCost *= rate;
+          }
         }
 
         setForm({
@@ -57,6 +63,7 @@ export default function EditProduct() {
           size: p.size || "",
           stock: p.stock || "",
           price: displayPrice.toFixed(2),
+          cost_price: displayCost.toFixed(2),
           description: p.description || "",
           barcode: p.barcode || "",
           sku: p.sku || "",
@@ -83,8 +90,12 @@ export default function EditProduct() {
     e.preventDefault();
 
     let priceInINR = Number(form.price);
+    let costInINR = Number(form.cost_price);
+
     if (settings.currency !== "INR") {
-      priceInINR /= rates[settings.currency];
+      const rate = rates[settings.currency];
+      priceInINR /= rate;
+      costInINR /= rate;
     }
 
     setSaving(true);
@@ -93,6 +104,7 @@ export default function EditProduct() {
       await api.put(`/inventory/${id}`, {
         ...form,
         price: Math.round(priceInINR),
+        cost_price: Math.round(costInINR),
       });
 
       navigate("/inventory");
@@ -130,20 +142,12 @@ export default function EditProduct() {
 
               <div className="form-group">
                 <label>Brand</label>
-                <input
-                  name="brand"
-                  value={form.brand}
-                  onChange={handleChange}
-                />
+                <input name="brand" value={form.brand} onChange={handleChange} />
               </div>
 
               <div className="form-group">
                 <label>Category</label>
-                <input
-                  name="category"
-                  value={form.category}
-                  onChange={handleChange}
-                />
+                <input name="category" value={form.category} onChange={handleChange} />
               </div>
 
               <div className="form-group">
@@ -153,37 +157,32 @@ export default function EditProduct() {
 
               <div className="form-group">
                 <label>Stock</label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={form.stock}
-                  onChange={handleChange}
-                />
+                <input type="number" name="stock" value={form.stock} onChange={handleChange} />
               </div>
 
               <div className="form-group">
                 <label>Minimum Stock Alert</label>
-                <input
-                  type="number"
-                  name="min_stock"
-                  placeholder="Alert threshold (default 5)"
-                  value={form.min_stock}
-                  onChange={handleChange}
-                />
+                <input type="number" name="min_stock" value={form.min_stock} onChange={handleChange} />
               </div>
 
               <div className="form-group">
                 <label>Expiry Date</label>
+                <input type="date" name="expiry_date" value={form.expiry_date} onChange={handleChange} />
+              </div>
+
+              {/* ⭐ NEW FIELD */}
+              <div className="form-group">
+                <label>Wholesale Price ({settings.currency})</label>
                 <input
-                  type="date"
-                  name="expiry_date"
-                  value={form.expiry_date}
+                  type="number"
+                  name="cost_price"
+                  value={form.cost_price}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="form-group">
-                <label>Price ({settings.currency})</label>
+                <label>Retail Price ({settings.currency})</label>
                 <input
                   type="number"
                   name="price"
@@ -199,11 +198,7 @@ export default function EditProduct() {
 
               <div className="form-group">
                 <label>Image URL</label>
-                <input
-                  name="image_url"
-                  value={form.image_url}
-                  onChange={handleChange}
-                />
+                <input name="image_url" value={form.image_url} onChange={handleChange} />
               </div>
 
               {form.image_url && (
@@ -213,11 +208,7 @@ export default function EditProduct() {
               <div className="form-group">
                 <label>Barcode</label>
                 <div className="barcode-field">
-                  <input
-                    name="barcode"
-                    value={form.barcode}
-                    onChange={handleChange}
-                  />
+                  <input name="barcode" value={form.barcode} onChange={handleChange} />
                   <button
                     type="button"
                     className="scan-btn"
@@ -230,20 +221,12 @@ export default function EditProduct() {
 
               <div className="form-group full">
                 <label>Description</label>
-                <textarea
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                />
+                <textarea name="description" value={form.description} onChange={handleChange} />
               </div>
             </div>
 
             <div className="form-actions">
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={() => navigate("/inventory")}
-              >
+              <button type="button" className="secondary-btn" onClick={() => navigate("/inventory")}>
                 Cancel
               </button>
 
@@ -256,10 +239,7 @@ export default function EditProduct() {
           {showScanner && (
             <div className="scanner-modal">
               <div className="scanner-box">
-                <BarcodeScanner
-                  onScan={handleBarcodeScan}
-                  onClose={() => setShowScanner(false)}
-                />
+                <BarcodeScanner onScan={handleBarcodeScan} onClose={() => setShowScanner(false)} />
               </div>
             </div>
           )}

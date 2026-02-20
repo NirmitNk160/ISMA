@@ -16,6 +16,7 @@ router.post("/", verifyToken, async (req, res) => {
       size,
       stock,
       price,
+      cost_price = 0, // ⭐ ADDED
       description,
       barcode,
       sku,
@@ -30,18 +31,18 @@ router.post("/", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "Required fields missing" });
     }
 
-    if (Number(stock) < 0 || Number(price) < 0) {
+    if (Number(stock) < 0 || Number(price) < 0 || Number(cost_price) < 0) {
       return res.status(400).json({
-        message: "Stock and price must be non-negative",
+        message: "Stock and prices must be non-negative",
       });
     }
 
     await db.query(
       `
       INSERT INTO products
-      (user_id, name, brand, category, size, stock, price,
+      (user_id, name, brand, category, size, stock, price, cost_price,
        description, barcode, sku, image_url, min_stock, expiry_date, is_deleted)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
       `,
       [
         userId,
@@ -51,6 +52,7 @@ router.post("/", verifyToken, async (req, res) => {
         size || null,
         Number(stock),
         Number(price),
+        Number(cost_price),
         description || null,
         barcode || null,
         sku || null,
@@ -94,7 +96,7 @@ router.get("/low-stock", verifyToken, async (req, res) => {
 });
 
 /* =========================================================
-   EXPIRY ALERTS (Next 7 days + expired)
+   EXPIRY ALERTS
 ========================================================= */
 router.get("/expiry-alerts", verifyToken, async (req, res) => {
   try {
@@ -130,7 +132,8 @@ router.get("/barcode/:code", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT id, name, brand, category, size, price, stock, barcode, image_url
+      SELECT id, name, brand, category, size, price, cost_price,
+             stock, barcode, image_url
       FROM products
       WHERE barcode=? AND user_id=? AND is_deleted=FALSE
       LIMIT 1
@@ -143,7 +146,7 @@ router.get("/barcode/:code", verifyToken, async (req, res) => {
     }
 
     res.json(rows[0]);
-  } catch (err) {
+  } catch {
     res.status(500).json({ message: "DB error" });
   }
 });
@@ -158,7 +161,8 @@ router.get("/archived/all", verifyToken, async (req, res) => {
     const [rows] = await db.query(
       `
       SELECT id, name, brand, category, size, stock,
-             price, description, barcode, image_url, sku
+             price, cost_price, description, barcode,
+             image_url, sku
       FROM products
       WHERE user_id = ? AND is_deleted = TRUE
       ORDER BY created_at DESC
@@ -167,8 +171,7 @@ router.get("/archived/all", verifyToken, async (req, res) => {
     );
 
     res.json(rows);
-  } catch (err) {
-    console.error(err);
+  } catch {
     res.status(500).json({ message: "DB error" });
   }
 });
@@ -190,6 +193,7 @@ router.get("/", verifyToken, async (req, res) => {
         p.size,
         p.stock,
         p.price,
+        p.cost_price,
         p.description,
         p.barcode,
         p.image_url,
@@ -211,8 +215,7 @@ router.get("/", verifyToken, async (req, res) => {
     );
 
     res.json(rows);
-  } catch (err) {
-    console.error(err);
+  } catch {
     res.status(500).json({ message: "DB error" });
   }
 });
@@ -227,9 +230,9 @@ router.get("/:id", verifyToken, async (req, res) => {
 
     const [rows] = await db.query(
       `
-      SELECT name, brand, category, size, stock, price,
-             description, barcode, sku, image_url,
-             min_stock, expiry_date
+      SELECT name, brand, category, size, stock,
+             price, cost_price, description, barcode,
+             sku, image_url, min_stock, expiry_date
       FROM products
       WHERE id=? AND user_id=? AND is_deleted=FALSE
       `,
@@ -258,6 +261,7 @@ router.put("/:id", verifyToken, async (req, res) => {
       size,
       stock,
       price,
+      cost_price = 0,
       description,
       barcode,
       sku,
@@ -269,22 +273,13 @@ router.put("/:id", verifyToken, async (req, res) => {
     const userId = req.user.id;
     const productId = req.params.id;
 
-    if (!name || !category || stock === "" || price === "") {
-      return res.status(400).json({ message: "Required fields missing" });
-    }
-
-    if (Number(stock) < 0 || Number(price) < 0) {
-      return res.status(400).json({
-        message: "Stock and price must be non-negative",
-      });
-    }
-
     const [result] = await db.query(
       `
       UPDATE products SET
         name=?, brand=?, category=?, size=?,
-        stock=?, price=?, description=?, barcode=?,
-        sku=?, image_url=?, min_stock=?, expiry_date=?
+        stock=?, price=?, cost_price=?,
+        description=?, barcode=?, sku=?,
+        image_url=?, min_stock=?, expiry_date=?
       WHERE id=? AND user_id=? AND is_deleted=FALSE
       `,
       [
@@ -294,6 +289,7 @@ router.put("/:id", verifyToken, async (req, res) => {
         size || null,
         Number(stock),
         Number(price),
+        Number(cost_price),
         description || null,
         barcode || null,
         sku || null,

@@ -25,6 +25,7 @@ export default function AddProduct() {
     size: "",
     stock: "",
     price: "",
+    cost_price: "",
     description: "",
     barcode: "",
     sku: "",
@@ -88,21 +89,27 @@ export default function AddProduct() {
     setError("");
 
     const priceInput = Number(form.price);
+    const costInput = Number(form.cost_price || 0);
     const stockInput = Number(form.stock);
 
-    if (priceInput < 0 || stockInput < 0) {
-      setError("Stock and price must be non-negative");
+    if (priceInput < 0 || stockInput < 0 || costInput < 0) {
+      setError("Stock and prices must be non-negative");
       return;
     }
 
     let priceInINR = priceInput;
+    let costInINR = costInput;
+
     if (settings.currency !== "INR") {
       const rate = rates[settings.currency];
+
       if (!rate) {
         setError("Currency rate unavailable");
         return;
       }
+
       priceInINR = priceInput / rate;
+      costInINR = costInput / rate;
     }
 
     setLoading(true);
@@ -111,7 +118,8 @@ export default function AddProduct() {
       await api.post("/inventory", {
         ...form,
         stock: stockInput,
-        price: Math.round(priceInINR),
+        price: Number(priceInINR.toFixed(2)),
+        cost_price: Number(costInINR.toFixed(2)), // ⭐ IMPORTANT
       });
 
       navigate("/inventory");
@@ -216,10 +224,21 @@ export default function AddProduct() {
               </div>
 
               <div className="form-group">
-                <label>Price ({settings.currency})</label>
+                <label>Wholesale Price ({settings.currency})</label>
                 <input
                   type="number"
-                  placeholder={`Enter price in ${settings.currency}`}
+                  name="cost_price"
+                  placeholder={`Enter buying price in ${settings.currency}`}
+                  value={form.cost_price}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Retail Price ({settings.currency})</label>
+                <input
+                  type="number"
+                  placeholder={`Enter selling price in ${settings.currency}`}
                   name="price"
                   value={form.price}
                   onChange={handleChange}

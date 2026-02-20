@@ -17,7 +17,7 @@ router.get("/", verifyToken, async (req, res) => {
       FROM sales
       WHERE user_id = ?
       `,
-      [userId]
+      [userId],
     );
 
     /* ================= PRODUCTS ================= */
@@ -27,7 +27,7 @@ router.get("/", verifyToken, async (req, res) => {
       FROM products
       WHERE user_id = ?
       `,
-      [userId]
+      [userId],
     );
 
     /* ================= TOP PRODUCTS ================= */
@@ -42,7 +42,41 @@ router.get("/", verifyToken, async (req, res) => {
       ORDER BY sold DESC
       LIMIT 5
       `,
-      [userId]
+      [userId],
+    );
+
+    /* ================= IMPROVED SALES TREND ================= */
+    const [salesTrend] = await db.query(
+      `
+  SELECT
+    DATE(s.created_at) AS date,
+    SUM(s.total_price) AS revenue,
+    COUNT(DISTINCT s.bill_id) AS orders,
+    SUM(s.total_price - (COALESCE(p.cost_price,0) * s.quantity)) AS profit,
+    SUM(COALESCE(p.cost_price,0) * s.quantity) AS expenses
+  FROM sales s
+  JOIN products p ON p.id = s.product_id
+  WHERE s.user_id = ?
+  AND s.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+  GROUP BY DATE(s.created_at)
+  ORDER BY date ASC
+
+  `,
+      [userId],
+    );
+
+    /* ================= EXPENSE + PROFIT ================= */
+    const [[finance]] = await db.query(
+      `
+  SELECT
+    COALESCE(SUM(p.cost_price * s.quantity), 0) AS totalExpenses,
+    COALESCE(SUM(s.total_price), 0) -
+    COALESCE(SUM(p.cost_price * s.quantity), 0) AS totalProfit
+  FROM sales s
+  JOIN products p ON p.id = s.product_id
+  WHERE s.user_id = ?
+  `,
+      [userId],
     );
 
     res.json({
@@ -50,6 +84,9 @@ router.get("/", verifyToken, async (req, res) => {
       itemsSold: Number(sales.itemsSold),
       activeProducts: Number(products.activeProducts),
       topProducts,
+      salesTrend,
+      totalProfit: Number(finance.totalProfit),
+      totalExpenses: Number(finance.totalExpenses),
     });
   } catch (err) {
     console.error("Dashboard error:", err);

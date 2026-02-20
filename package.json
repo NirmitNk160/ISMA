@@ -8,7 +8,8 @@
     "jsonwebtoken": "^9.0.3",
     "jspdf": "^4.1.0",
     "jspdf-autotable": "^5.0.7",
-    "mysql2": "^3.17.2"
+    "mysql2": "^3.17.2",
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "eslint": "^10.0.0",

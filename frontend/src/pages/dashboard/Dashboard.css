@@ -187,14 +187,12 @@
   padding: 26px 28px;
   border-radius: 22px;
 
-  background: linear-gradient(
-    145deg,
-    rgba(255,120,120,0.08),
-    rgba(255,80,80,0.03)
-  );
+  background: linear-gradient(145deg,
+      rgba(255, 120, 120, 0.08),
+      rgba(255, 80, 80, 0.03));
 
-  border: 1px solid rgba(255,90,90,.25);
-  box-shadow: 0 8px 28px rgba(255,80,80,.08);
+  border: 1px solid rgba(255, 90, 90, .25);
+  box-shadow: 0 8px 28px rgba(255, 80, 80, .08);
 }
 
 .low-stock-card h3 {
@@ -214,7 +212,7 @@
   margin-bottom: 10px;
 
   border-radius: 12px;
-  background: rgba(255,255,255,.02);
+  background: rgba(255, 255, 255, .02);
   border: 1px solid var(--border-soft);
 }
 
@@ -228,7 +226,7 @@
   font-size: 12px;
   font-weight: 700;
 
-  background: rgba(255,80,80,.15);
+  background: rgba(255, 80, 80, .15);
   color: #ff6b6b;
 }
 
@@ -238,7 +236,7 @@
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.5);
+  background: rgba(0, 0, 0, .5);
   z-index: 900;
 }
 
@@ -250,41 +248,75 @@
 /* Laptop */
 
 @media (max-width: 1200px) {
-  .content { padding: 32px 28px; }
-  .grid { grid-template-columns: 1fr; }
+  .content {
+    padding: 32px 28px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Tablet */
 
 @media (max-width: 992px) {
-  .stats { grid-template-columns: repeat(2,1fr); }
-  .content { padding: 28px 22px; }
+  .stats {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .content {
+    padding: 28px 22px;
+  }
 }
 
 /* Mobile */
 
 @media (max-width: 768px) {
-  .menu-btn { display: block; }
+  .menu-btn {
+    display: block;
+  }
 
-  .dashboard-body { flex-direction: column; }
+  .dashboard-body {
+    flex-direction: column;
+  }
 
-  .stats { grid-template-columns: 1fr; }
+  .stats {
+    grid-template-columns: 1fr;
+  }
 
-  .content { padding: 24px 16px; }
+  .content {
+    padding: 24px 16px;
+  }
 
-  .page-title { font-size: 22px; }
+  .page-title {
+    font-size: 22px;
+  }
 
-  .stat-value { font-size: 22px; }
+  .stat-value {
+    font-size: 22px;
+  }
 
-  .card { padding: 20px; }
+  .card {
+    padding: 20px;
+  }
 
-  .chart-placeholder { height: 200px; }
+  .chart-placeholder {
+    height: 200px;
+  }
 }
 
 /* Small phones */
 
 @media (max-width: 480px) {
-  .page-header { flex-wrap: wrap; }
-  .content { padding: 18px 12px; }
-  .stat-value { font-size: 20px; }
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .content {
+    padding: 18px 12px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
 }

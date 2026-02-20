@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+} from "recharts";
+
 import "./Dashboard.css";
 
 import api from "../../api/axios";
@@ -132,6 +143,14 @@ export default function Dashboard() {
               value={format(Number(stats?.totalRevenue ?? 0))}
             />
             <StatCard
+              title="Total Profit"
+              value={format(Number(stats?.totalProfit ?? 0))}
+            />
+            <StatCard
+              title="Total Expenses"
+              value={format(Number(stats?.totalExpenses ?? 0))}
+            />
+            <StatCard
               title="Items Sold"
               value={Number(stats?.itemsSold ?? 0)}
             />
@@ -179,8 +198,85 @@ export default function Dashboard() {
 
           <section className="grid">
             <div className="card chart">
-              <h3>Monthly Recap</h3>
-              <div className="chart-placeholder">📊 Chart coming soon</div>
+              <h3>Sales Trend (Last 30 Days)</h3>
+
+              {stats?.salesTrend?.length ? (
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={stats.salesTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+
+                    {/* LEGEND */}
+                    <Legend />
+
+                    {/* DATE FORMAT */}
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(d) =>
+                        new Date(d).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                        })
+                      }
+                    />
+
+                    {/* CURRENCY AXIS */}
+                    <YAxis tickFormatter={(v) => format(v)} />
+
+                    {/* TOOLTIP */}
+                    <Tooltip
+                      formatter={(value, name) => {
+                        if (name === "Orders" || name === "orders") {
+                          return [`${value} orders`, "Orders"];
+                        }
+                        return [format(value), name];
+                      }}
+                    />
+
+                    {/* REVENUE */}
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#4f46e5"
+                      strokeWidth={3}
+                      name="Revenue"
+                      dot={false}
+                      activeDot={{ r: 6 }}
+                    />
+
+                    {/* PROFIT */}
+                    <Line
+                      type="monotone"
+                      dataKey="profit"
+                      stroke="#16a34a"
+                      strokeWidth={2}
+                      name="Profit"
+                      dot={false}
+                    />
+
+                    {/* EXPENSES */}
+                    <Line
+                      type="monotone"
+                      dataKey="expenses"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      name="Expenses"
+                      dot={false}
+                    />
+
+                    {/* ORDERS */}
+                    <Line
+                      type="monotone"
+                      dataKey="orders"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      name="Orders"
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <p>No recent sales</p>
+              )}
             </div>
 
             <div className="card">
