@@ -8,7 +8,8 @@ const router = express.Router();
 router.post("/", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, company_name, phone, email, address, gst_number, notes } = req.body;
+    const { name, company_name, phone, email, address, gst_number, notes } =
+      req.body;
 
     if (!name) {
       return res.status(400).json({ message: "Supplier name required" });
@@ -18,7 +19,7 @@ router.post("/", verifyToken, async (req, res) => {
       `INSERT INTO suppliers
        (user_id, name, company_name, phone, email, address, gst_number, notes)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, name, company_name, phone, email, address, gst_number, notes]
+      [userId, name, company_name, phone, email, address, gst_number, notes],
     );
 
     res.status(201).json({ message: "Supplier added" });
@@ -37,10 +38,32 @@ router.get("/", verifyToken, async (req, res) => {
       `SELECT * FROM suppliers
        WHERE user_id = ?
        ORDER BY created_at DESC`,
-      [userId]
+      [userId],
     );
 
     res.json(rows);
+  } catch {
+    res.status(500).json({ message: "DB error" });
+  }
+});
+
+/* ================= GET SINGLE SUPPLIER ================= */
+router.get("/:id", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const [rows] = await db.query(
+      `SELECT *
+       FROM suppliers
+       WHERE id=? AND user_id=?`,
+      [req.params.id, userId],
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "Supplier not found" });
+    }
+
+    res.json(rows[0]);
   } catch {
     res.status(500).json({ message: "DB error" });
   }
@@ -50,14 +73,25 @@ router.get("/", verifyToken, async (req, res) => {
 router.put("/:id", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, company_name, phone, email, address, gst_number, notes } = req.body;
+    const { name, company_name, phone, email, address, gst_number, notes } =
+      req.body;
 
     await db.query(
       `UPDATE suppliers SET
         name=?, company_name=?, phone=?, email=?,
         address=?, gst_number=?, notes=?
        WHERE id=? AND user_id=?`,
-      [name, company_name, phone, email, address, gst_number, notes, req.params.id, userId]
+      [
+        name,
+        company_name,
+        phone,
+        email,
+        address,
+        gst_number,
+        notes,
+        req.params.id,
+        userId,
+      ],
     );
 
     res.json({ message: "Supplier updated" });
@@ -71,10 +105,10 @@ router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    await db.query(
-      "DELETE FROM suppliers WHERE id=? AND user_id=?",
-      [req.params.id, userId]
-    );
+    await db.query("DELETE FROM suppliers WHERE id=? AND user_id=?", [
+      req.params.id,
+      userId,
+    ]);
 
     res.json({ message: "Supplier deleted" });
   } catch {

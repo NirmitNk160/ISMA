@@ -1,6 +1,14 @@
+/* =====================================================
+   ISMA — SUPPLIERS MODULE FINAL CLEAN RESPONSIVE
+   Desktop table + mobile expandable rows
+   ===================================================== */
+
+/* ROOT */
+
 .suppliers-root {
   min-height: 100vh;
   background: var(--app-bg);
+  color: var(--text-primary);
 }
 
 .suppliers-body {
@@ -9,14 +17,67 @@
 
 .suppliers-content {
   flex: 1;
-  padding: 20px;
+  padding: 40px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
+
+/* HEADER */
 
 .suppliers-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 26px;
 }
+
+.suppliers-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+/* ACTION BAR */
+
+.suppliers-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.add-supplier-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  padding: 12px 26px;
+  border-radius: 16px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.suppliers-search {
+  max-width: 300px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+}
+
+/* TABLE CARD */
+
+.suppliers-card {
+  background: var(--card-bg);
+  border-radius: 24px;
+  border: 1px solid var(--border-soft);
+  padding: 24px;
+  overflow-x: auto;
+}
+
+/* TABLE */
 
 .suppliers-table {
   width: 100%;
@@ -25,18 +86,137 @@
 
 .suppliers-table th,
 .suppliers-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  padding: 16px 18px;
+  text-align: left;
 }
 
-.supplier-form {
+.suppliers-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.suppliers-table td {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.supplier-main-row {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.supplier-main-row:hover {
+  background: var(--row-hover);
+}
+
+/* ACTION BUTTONS */
+
+.edit-btn {
+  background: rgba(56,189,248,.15);
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: rgba(248,113,113,.15);
+  color: var(--danger);
+  border: 1px solid rgba(248,113,113,.4);
+  padding: 8px 14px;
+  border-radius: 12px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+/* EXPAND ROW */
+
+.expand-row td {
+  background: var(--card-bg);
+  border-bottom: none;
+}
+
+.expand-content {
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-width: 500px;
+  gap: 8px;
 }
 
-.supplier-form input,
-.supplier-form textarea {
-  padding: 8px;
+.expand-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 6px;
+}
+
+.expand-item:last-child {
+  border-bottom: none;
+}
+
+.expand-item span:first-child {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* =========================================
+   MOBILE RESPONSIVE (REAL FIX)
+========================================= */
+
+@media (max-width: 768px) {
+
+  /* Hide extra columns only */
+  .desktop-only,
+  .suppliers-table th:nth-child(3),
+  .suppliers-table th:nth-child(4),
+  .suppliers-table th:nth-child(5) {
+    display: none;
+  }
+
+  .suppliers-content {
+    padding: 24px 16px;
+  }
+
+  .suppliers-actions {
+    flex-direction: column;
+  }
+
+  .suppliers-search {
+    max-width: 100%;
+  }
+}
+
+/* ================= MOBILE NAME SINGLE LINE FIX ================= */
+
+@media (max-width: 480px) {
+
+  .suppliers-table th,
+  .suppliers-table td {
+    font-size: 13px; /* slightly smaller */
+  }
+
+  .clickable-name {
+    font-size: 13px;       /* prevent wrapping */
+    overflow: hidden;           /* hide overflow */
+    text-overflow: ellipsis;    /* show ... if too long */
+    max-width: 140px;           /* adjust if needed */
+    display: block;
+  }
+
+  .suppliers-table td:first-child {
+    width: 40px; /* tighten # column */
+  }
+
+  .suppliers-table td:last-child {
+    white-space: nowrap; /* keep buttons inline */
+  }
+
+  .edit-btn,
+  .delete-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
 }

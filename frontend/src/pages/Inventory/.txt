@@ -1,0 +1,905 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import api from "../../api/axios";
+import Navbar from "../../components/Navbar";
+import Sidebar from "../../components/Sidebar";
+import BackButton from "../../components/BackButton";
+import { useCurrency } from "../../context/CurrencyContext";
+import { useSettings } from "../../context/SettingsContext";
+import { useAuth } from "../../context/AuthContext";
+
+import "./Inventory.css";
+
+export default function Inventory() {
+  const navigate = useNavigate();
+  const { format } = useCurrency();
+  const { settings } = useSettings();
+  const { loading: authLoading, isAuthenticated } = useAuth();
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [archiveId, setArchiveId] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [search, setSearch] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+
+  /* FETCH PRODUCTS */
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
+
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const url = showArchived ? "/inventory/archived/all" : "/inventory";
+
+        const res = await api.get(url);
+        setProducts(res.data || []);
+      } catch {
+        setError("Failed to load inventory");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [showArchived, authLoading, isAuthenticated]);
+
+  /* ARCHIVE */
+  const confirmArchive = async () => {
+    try {
+      setProcessing(true);
+      await api.delete(`/inventory/${archiveId}`);
+      setProducts((prev) => prev.filter((p) => p.id !== archiveId));
+      setArchiveId(null);
+    } catch {
+      setError("Archive failed");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  /* PERMANENT DELETE */
+  const confirmDelete = async () => {
+    try {
+      setProcessing(true);
+      await api.delete(`/inventory/permanent/${deleteId}`);
+      setProducts((prev) => prev.filter((p) => p.id !== deleteId));
+      setDeleteId(null);
+    } catch {
+      setError("Delete failed");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  /* RESTORE */
+  const restoreProduct = async (id) => {
+    try {
+      await api.put(`/inventory/restore/${id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch {
+      setError("Restore failed");
+    }
+  };
+
+  /* SEARCH */
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) =>
+      `${p.name} ${p.brand ?? ""}`.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [products, search]);
+
+  /* STATUS */
+  const getStatus = (stock) => {
+    if (stock === 0) return { label: "Out", className: "out" };
+    if (stock <= settings.lowStockThreshold)
+      return { label: "Low", className: "low" };
+    return { label: "In", className: "in" };
+  };
+
+  /* LOADING SCREEN */
+  if (authLoading || loading) {
+    return (
+      <div className="inventory-root">
+        <Navbar />
+        <div className="inventory-body">
+          <Sidebar />
+          <main className="inventory-content loading-state">
+            Loading inventory…
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  /* EXPIRY STATUS */
+  const getExpiryStatus = (expiry) => {
+    if (!expiry) return null;
+
+    const today = new Date();
+    const exp = new Date(expiry);
+
+    const diff = (exp - today) / (1000 * 60 * 60 * 24);
+
+    if (diff < 0) return { label: "Expired", className: "expired" };
+    if (diff <= 7) return { label: "Expiring", className: "expiring" };
+
+    return { label: "Safe", className: "safe" };
+  };
+
+  return (
+    <div className="inventory-root">
+      <Navbar />
+
+      <div className="inventory-body">
+        <Sidebar />
+
+        <main className="inventory-content">
+          <div className="inventory-header">
+            <BackButton />
+            <h2 className="inventory-title">Inventory</h2>
+          </div>
+
+          <div className="inventory-actions">
+            <button
+              className="add-btn"
+              onClick={() => navigate("/inventory/add")}
+            >
+              + Add Product
+            </button>
+
+            <button
+              className="archive-toggle"
+              onClick={() => setShowArchived(!showArchived)}
+            >
+              {showArchived ? "Active Products" : "Archived Products"}
+            </button>
+
+            <input
+              className="inventory-search"
+              placeholder="Search name or brand..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          {error && <div className="error-msg">❌ {error}</div>}
+
+          <div className="inventory-card">
+            <table className="inventory-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Product</th>
+                  <th>Brand</th>
+                  <th>Category</th>
+                  <th>Supplier</th>
+                  <th>Size</th>
+                  <th>Stock</th>
+                  <th>Price</th>
+                  <th>Expiry</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan="9" className="no-data">
+                      No products found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredProducts.map((p, i) => {
+                    const status = getStatus(Number(p.stock));
+
+                    return (
+                      <tr key={p.id}>
+                        <td data-label="#">{i + 1}</td>
+
+                        <td data-label="Product" className="product-cell">
+                          <img
+                            src={p.image_url || "/placeholder.png"}
+                            alt=""
+                            className="product-thumb"
+                          />
+                          {p.name}
+                        </td>
+
+                        <td data-label="Brand">{p.brand || "-"}</td>
+                        <td data-label="Category">{p.category}</td>
+                        <td data-label="Supplier">{p.supplier_name || "-"}</td>
+                        <td data-label="Size">{p.size || "-"}</td>
+                        <td data-label="Stock">{p.stock}</td>
+                        <td data-label="Price">{format(Number(p.price))}</td>
+                        <td data-label="Expiry">
+                          {(() => {
+                            const exp = getExpiryStatus(p.expiry_date);
+                            return exp ? (
+                              <span className={`expiry-badge ${exp.className}`}>
+                                {exp.label}
+                              </span>
+                            ) : (
+                              "-"
+                            );
+                          })()}
+                        </td>
+
+                        <td
+                          data-label="Status"
+                          className={`status ${status.className}`}
+                        >
+                          {status.label}
+                        </td>
+
+                        <td data-label="Action">
+                          {!showArchived ? (
+                            <>
+                              <button
+                                className="edit-btn"
+                                onClick={() =>
+                                  navigate(`/inventory/edit/${p.id}`)
+                                }
+                              >
+                                ✏️ Edit
+                              </button>
+
+                              <button
+                                className="archive-btn"
+                                onClick={() => setArchiveId(p.id)}
+                              >
+                                🗄️ Archive
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                className="restore-btn"
+                                onClick={() => restoreProduct(p.id)}
+                              >
+                                ♻️ Restore
+                              </button>
+
+                              <button
+                                className="delete-btn"
+                                onClick={() => setDeleteId(p.id)}
+                              >
+                                ❌ Delete
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+
+      {/* ARCHIVE MODAL */}
+      {archiveId && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Archive Product</h3>
+            <p>This product will be archived safely.</p>
+
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setArchiveId(null)}>
+                Cancel
+              </button>
+
+              <button className="archive-btn" onClick={confirmArchive}>
+                {processing ? "Archiving…" : "Archive"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE MODAL */}
+      {deleteId && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Delete Permanently</h3>
+            <p>This cannot be undone.</p>
+
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={() => setDeleteId(null)}>
+                Cancel
+              </button>
+
+              <button className="delete-btn" onClick={confirmDelete}>
+                {processing ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =====================================================
+   INVENTORY — ISMA (DARK + LIGHT OPTIMIZED)
+   ===================================================== */
+
+/* ================= ROOT ================= */
+
+.inventory-root {
+  min-height: 100vh;
+  background: var(--app-bg);
+  color: var(--text-primary);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ================= LAYOUT ================= */
+
+.inventory-body {
+  display: flex;
+  width: 100%;
+}
+
+.inventory-content {
+  flex: 1;
+  padding: 40px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ================= HEADER ================= */
+
+.inventory-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.inventory-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+/* ================= ACTION BAR ================= */
+
+.inventory-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* ================= ADD BUTTON ================= */
+
+.add-btn {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+
+  border: none;
+  padding: 12px 26px;
+  border-radius: 16px;
+
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+
+  cursor: pointer;
+  box-shadow: var(--btn-primary-shadow);
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ================= SEARCH ================= */
+
+.inventory-search {
+  max-width: 300px;
+  width: 100%;
+
+  padding: 12px 16px;
+  border-radius: 14px;
+
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+
+  color: var(--text-primary);
+  font-size: 14px;
+
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inventory-search::placeholder {
+  color: var(--text-muted);
+}
+
+.inventory-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ================= CARD ================= */
+
+.inventory-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+
+  padding: 24px;
+  overflow-x: auto;
+
+  box-shadow: var(--card-shadow);
+}
+
+/* ================= TABLE ================= */
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 16px 18px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.inventory-table th {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.inventory-table td {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+/* ================= ROW HOVER ================= */
+
+.inventory-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.inventory-table tbody tr:hover {
+  background: var(--row-hover);
+}
+
+/* ================= STATUS ================= */
+
+.status {
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.status.in {
+  color: var(--success);
+}
+
+.status.low {
+  color: var(--warning);
+}
+
+.status.out {
+  color: var(--danger);
+}
+
+/* ================= ACTION BUTTONS ================= */
+
+.inventory-table td:last-child {
+  white-space: nowrap;
+}
+
+/* EDIT */
+.edit-btn {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent);
+
+  border: 1px solid var(--accent-soft);
+  padding: 8px 14px;
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.edit-btn:hover {
+  background: var(--btn-primary-bg);
+  color: var(--text-invert);
+  transform: translateY(-1px);
+}
+
+/* DELETE */
+.delete-btn {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--danger);
+
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  padding: 8px 14px;
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-left: 8px;
+
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.delete-btn:hover {
+  background: var(--danger);
+  color: var(--text-invert);
+  transform: translateY(-1px);
+}
+
+/* ================= MOBILE & TABLET ================= */
+
+@media (max-width: 1024px) {
+  .inventory-content {
+    padding: 20px 16px;
+  }
+
+  .inventory-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .add-btn {
+    width: 100%;
+    font-size: 15px;
+    padding: 14px;
+  }
+
+  .inventory-search {
+    max-width: 100%;
+  }
+
+  .inventory-table {
+    display: block;
+    min-width: 100%;
+  }
+
+  .inventory-table thead {
+    display: none;
+  }
+
+  .inventory-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .inventory-table tr {
+    background: var(--card-bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .inventory-table td {
+    display: flex;
+    justify-content: space-between;
+    border: none;
+    padding: 6px 0;
+  }
+
+  .inventory-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .inventory-table td[data-label="Product"] {
+    font-weight: 900;
+  }
+
+  .inventory-table td[data-label="Action"] {
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+  }
+}
+
+/* ================= DELETE MODAL ================= */
+
+.delete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.delete-modal {
+  background: var(--card-bg);
+  border-radius: 18px;
+  padding: 26px;
+  width: 360px;
+
+  text-align: center;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+}
+
+.delete-modal h3 {
+  margin-bottom: 8px;
+}
+
+.delete-modal p {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.delete-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.cancel-btn {
+  flex: 1;
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--btn-secondary-border);
+  color: var(--btn-secondary-text);
+
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 700;
+}
+
+.cancel-btn:hover {
+  background: var(--accent-soft);
+}
+
+.delete-actions .delete-btn {
+  flex: 1;
+}
+
+/* ================= ARCHIVE TOGGLE BUTTON ================= */
+
+.archive-toggle {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+
+  border: 1px solid var(--btn-secondary-border);
+  padding: 12px 22px;
+  border-radius: 16px;
+
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.archive-toggle:hover {
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+
+/* ================= RESTORE BUTTON ================= */
+
+.restore-btn {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
+
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  padding: 8px 14px;
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.restore-btn:hover {
+  background: var(--success);
+  color: var(--text-invert);
+  transform: translateY(-1px);
+}
+
+
+/* ================= ARCHIVE MODAL IMPROVEMENT ================= */
+
+.delete-modal h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.delete-modal p {
+  line-height: 1.5;
+}
+
+
+/* ================= SMALL MOBILE FIX ================= */
+
+@media (max-width: 600px) {
+  .archive-toggle {
+    width: 100%;
+  }
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-thumb {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #ddd;
+}
+
+/* ================= LOADING ================= */
+
+.loading-state {
+  padding: 40px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ================= NO DATA ================= */
+
+.no-data {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ================= ARCHIVE BUTTON ================= */
+
+.archive-btn {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent);
+  border: 1px solid var(--accent-soft);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.archive-btn:hover {
+  background: var(--accent);
+  color: var(--text-invert);
+}
+
+/* ================= MODAL ================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: var(--card-bg);
+  border-radius: 18px;
+  padding: 28px;
+  width: 380px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+
+.modal h3 {
+  margin-bottom: 10px;
+}
+
+.modal p {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-actions button {
+  flex: 1;
+}
+
+/* ================= MOBILE TABLE FIX ================= */
+
+@media (max-width: 1024px) {
+
+  .inventory-table thead {
+    display: none;
+  }
+
+  .inventory-table tbody tr {
+    display: block;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border-soft);
+  }
+
+  .inventory-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border: none;
+  }
+
+  .inventory-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+}
+
+.expiry-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.expired {
+  background: rgba(255,80,80,0.2);
+  color: #ff6b6b;
+}
+
+.expiring {
+  background: rgba(255,200,80,0.2);
+  color: #facc15;
+}
+
+.safe {
+  background: rgba(80,255,150,0.15);
+  color: #4ade80;
+}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
@@ -25,6 +25,7 @@ export default function Inventory() {
   const [processing, setProcessing] = useState(false);
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
 
   /* FETCH PRODUCTS */
   useEffect(() => {
@@ -35,7 +36,9 @@ export default function Inventory() {
         setLoading(true);
         setError("");
 
-        const url = showArchived ? "/inventory/archived/all" : "/inventory";
+        const url = showArchived
+          ? "/inventory/archived/all"
+          : "/inventory";
 
         const res = await api.get(url);
         setProducts(res.data || []);
@@ -90,7 +93,9 @@ export default function Inventory() {
   /* SEARCH */
   const filteredProducts = useMemo(() => {
     return products.filter((p) =>
-      `${p.name} ${p.brand ?? ""}`.toLowerCase().includes(search.toLowerCase()),
+      `${p.name} ${p.brand ?? ""}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
     );
   }, [products, search]);
 
@@ -100,6 +105,20 @@ export default function Inventory() {
     if (stock <= settings.lowStockThreshold)
       return { label: "Low", className: "low" };
     return { label: "In", className: "in" };
+  };
+
+  /* EXPIRY STATUS */
+  const getExpiryStatus = (expiry) => {
+    if (!expiry) return null;
+
+    const today = new Date();
+    const exp = new Date(expiry);
+    const diff = (exp - today) / (1000 * 60 * 60 * 24);
+
+    if (diff < 0) return { label: "Expired", className: "expired" };
+    if (diff <= 7) return { label: "Expiring", className: "expiring" };
+
+    return { label: "Safe", className: "safe" };
   };
 
   /* LOADING SCREEN */
@@ -116,21 +135,6 @@ export default function Inventory() {
       </div>
     );
   }
-
-  /* EXPIRY STATUS */
-  const getExpiryStatus = (expiry) => {
-    if (!expiry) return null;
-
-    const today = new Date();
-    const exp = new Date(expiry);
-
-    const diff = (exp - today) / (1000 * 60 * 60 * 24);
-
-    if (diff < 0) return { label: "Expired", className: "expired" };
-    if (diff <= 7) return { label: "Expiring", className: "expiring" };
-
-    return { label: "Safe", className: "safe" };
-  };
 
   return (
     <div className="inventory-root">
@@ -176,14 +180,14 @@ export default function Inventory() {
                 <tr>
                   <th>#</th>
                   <th>Product</th>
-                  <th>Brand</th>
-                  <th>Category</th>
-                  <th>Supplier</th>
-                  <th>Size</th>
+                  <th className="desktop-only">Brand</th>
+                  <th className="desktop-only">Category</th>
+                  <th className="desktop-only">Supplier</th>
+                  <th className="desktop-only">Size</th>
                   <th>Stock</th>
                   <th>Price</th>
-                  <th>Expiry</th>
-                  <th>Status</th>
+                  <th className="desktop-only">Expiry</th>
+                  <th className="desktop-only">Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -191,91 +195,128 @@ export default function Inventory() {
               <tbody>
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="no-data">
+                    <td colSpan="11" className="no-data">
                       No products found
                     </td>
                   </tr>
                 ) : (
                   filteredProducts.map((p, i) => {
                     const status = getStatus(Number(p.stock));
+                    const exp = getExpiryStatus(p.expiry_date);
 
                     return (
-                      <tr key={p.id}>
-                        <td data-label="#">{i + 1}</td>
+                      <Fragment key={p.id}>
+                        {/* MAIN ROW */}
+                        <tr
+                          className="inventory-main-row"
+                          onClick={() =>
+                            setExpandedId(
+                              expandedId === p.id ? null : p.id
+                            )
+                          }
+                        >
+                          <td>{i + 1}</td>
 
-                        <td data-label="Product" className="product-cell">
-                          <img
-                            src={p.image_url || "/placeholder.png"}
-                            alt=""
-                            className="product-thumb"
-                          />
-                          {p.name}
-                        </td>
+                          <td className="product-cell">
+                            <img
+                              src={p.image_url || "/placeholder.png"}
+                              alt=""
+                              className="product-thumb"
+                            />
+                            {p.name}
+                          </td>
 
-                        <td data-label="Brand">{p.brand || "-"}</td>
-                        <td data-label="Category">{p.category}</td>
-                        <td data-label="Supplier">{p.supplier_name || "-"}</td>
-                        <td data-label="Size">{p.size || "-"}</td>
-                        <td data-label="Stock">{p.stock}</td>
-                        <td data-label="Price">{format(Number(p.price))}</td>
-                        <td data-label="Expiry">
-                          {(() => {
-                            const exp = getExpiryStatus(p.expiry_date);
-                            return exp ? (
+                          <td className="desktop-only">{p.brand || "-"}</td>
+                          <td className="desktop-only">{p.category}</td>
+                          <td className="desktop-only">
+                            {p.supplier_name || "-"}
+                          </td>
+                          <td className="desktop-only">{p.size || "-"}</td>
+
+                          <td>{p.stock}</td>
+                          <td>{format(Number(p.price))}</td>
+
+                          <td className="desktop-only">
+                            {exp ? (
                               <span className={`expiry-badge ${exp.className}`}>
                                 {exp.label}
                               </span>
                             ) : (
                               "-"
-                            );
-                          })()}
-                        </td>
+                            )}
+                          </td>
 
-                        <td
-                          data-label="Status"
-                          className={`status ${status.className}`}
-                        >
-                          {status.label}
-                        </td>
+                          <td
+                            className={`desktop-only status ${status.className}`}
+                          >
+                            {status.label}
+                          </td>
 
-                        <td data-label="Action">
-                          {!showArchived ? (
-                            <>
-                              <button
-                                className="edit-btn"
-                                onClick={() =>
-                                  navigate(`/inventory/edit/${p.id}`)
-                                }
-                              >
-                                ✏️ Edit
-                              </button>
+                          <td>
+                            {!showArchived ? (
+                              <>
+                                <button
+                                  className="edit-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/inventory/edit/${p.id}`);
+                                  }}
+                                >
+                                  ✏️ Edit
+                                </button>
 
-                              <button
-                                className="archive-btn"
-                                onClick={() => setArchiveId(p.id)}
-                              >
-                                🗄️ Archive
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                className="restore-btn"
-                                onClick={() => restoreProduct(p.id)}
-                              >
-                                ♻️ Restore
-                              </button>
+                                <button
+                                  className="archive-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setArchiveId(p.id);
+                                  }}
+                                >
+                                  🗄️ Archive
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  className="restore-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    restoreProduct(p.id);
+                                  }}
+                                >
+                                  ♻️ Restore
+                                </button>
 
-                              <button
-                                className="delete-btn"
-                                onClick={() => setDeleteId(p.id)}
-                              >
-                                ❌ Delete
-                              </button>
-                            </>
-                          )}
-                        </td>
-                      </tr>
+                                <button
+                                  className="delete-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteId(p.id);
+                                  }}
+                                >
+                                  ❌ Delete
+                                </button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+
+                        {/* EXPAND MOBILE */}
+                        {expandedId === p.id && (
+                          <tr className="expand-row">
+                            <td colSpan="11">
+                              <div className="expand-content">
+                                <div><strong>Brand:</strong> {p.brand || "-"}</div>
+                                <div><strong>Category:</strong> {p.category}</div>
+                                <div><strong>Supplier:</strong> {p.supplier_name || "-"}</div>
+                                <div><strong>Size:</strong> {p.size || "-"}</div>
+                                <div><strong>Expiry:</strong> {exp ? exp.label : "-"}</div>
+                                <div><strong>Status:</strong> {status.label}</div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     );
                   })
                 )}
