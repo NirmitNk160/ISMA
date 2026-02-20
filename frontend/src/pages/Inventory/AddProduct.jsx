@@ -32,12 +32,21 @@ export default function AddProduct() {
     image_url: "",
     min_stock: 5,
     expiry_date: "",
+    supplier_id: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [infoMsg, setInfoMsg] = useState(""); // ⭐ new
   const [showScanner, setShowScanner] = useState(false);
+  const [suppliers, setSuppliers] = useState([]);
+
+  useEffect(() => {
+    api
+      .get("/suppliers")
+      .then((res) => setSuppliers(res.data))
+      .catch(() => console.log("Supplier fetch failed"));
+  }, []);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -178,6 +187,23 @@ export default function AddProduct() {
                   onChange={handleChange}
                   required
                 />
+              </div>
+
+              <div className="form-group">
+                <label>Supplier</label>
+                <select
+                  name="supplier_id"
+                  value={form.supplier_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Select Supplier</option>
+
+                  {suppliers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group">

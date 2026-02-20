@@ -178,6 +178,7 @@ export default function Inventory() {
                   <th>Product</th>
                   <th>Brand</th>
                   <th>Category</th>
+                  <th>Supplier</th>
                   <th>Size</th>
                   <th>Stock</th>
                   <th>Price</th>
@@ -213,6 +214,7 @@ export default function Inventory() {
 
                         <td data-label="Brand">{p.brand || "-"}</td>
                         <td data-label="Category">{p.category}</td>
+                        <td data-label="Supplier">{p.supplier_name || "-"}</td>
                         <td data-label="Size">{p.size || "-"}</td>
                         <td data-label="Stock">{p.stock}</td>
                         <td data-label="Price">{format(Number(p.price))}</td>

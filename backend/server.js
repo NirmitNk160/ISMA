@@ -9,6 +9,7 @@ import inventoryRoutes from "./routes/inventory.js";
 import billingRoutes from "./routes/billing.js";
 import salesRoutes from "./routes/sales.js";
 import dashboardRoutes from "./routes/dashboard.js";
+import supplierRoutes from "./routes/suppliers.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 /* ================= ROUTES ================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/inventory", inventoryRoutes);
+app.use("/api/suppliers", supplierRoutes);
 app.use("/api/billing", billingRoutes);
 app.use("/api/sales", salesRoutes);
 app.use("/api/dashboard", dashboardRoutes);

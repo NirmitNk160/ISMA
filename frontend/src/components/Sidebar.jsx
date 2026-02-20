@@ -32,6 +32,10 @@ export default function Sidebar({ isOpen, onClose }) {
             Dashboard
           </NavLink>
 
+          <NavLink to="/suppliers" className={linkClass}>
+            Suppliers
+          </NavLink>
+
           <NavLink to="/inventory" className={linkClass}>
             Inventory
           </NavLink>

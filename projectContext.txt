@@ -19,10 +19,7 @@
         📄 eslint.config.js
         📄 index.html
         📂 node_modules
-            📂 .vite
-                📂 deps
-                    More than 30 items...
-            📂 .vite-temp
+            More than 30 items...
         📄 package-lock.json
         📄 package.json
         📂 public
@@ -97,4 +94,7 @@
         📄 vite.config.js
     📂 node_modules
         More than 30 items...
+    📄 package-lock.json
+    📄 package.json
+    📄 projectContext.txt
     

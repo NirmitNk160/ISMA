@@ -13,6 +13,10 @@ import Billing from "./pages/billing/Billing";
 import Sales from "./pages/sales/Sales";
 import Reports from "./pages/reports/Reports";
 import Settings from "./pages/setting/Settings";
+import Suppliers from "./pages/suppliers/Suppliers";
+import AddSupplier from "./pages/suppliers/AddSupplier";
+import EditSupplier from "./pages/suppliers/EditSupplier";
+
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -122,6 +126,33 @@ export default function App() {
         element={
           <ProtectedRoute>
             <BarcodeScanner />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/suppliers"
+        element={
+          <ProtectedRoute>
+            <Suppliers />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/suppliers/add"
+        element={
+          <ProtectedRoute>
+            <AddSupplier />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/suppliers/edit/:id"
+        element={
+          <ProtectedRoute>
+            <EditSupplier />
           </ProtectedRoute>
         }
       />

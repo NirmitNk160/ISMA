@@ -16,13 +16,14 @@ router.post("/", verifyToken, async (req, res) => {
       size,
       stock,
       price,
-      cost_price = 0, // ⭐ ADDED
+      cost_price = 0,
       description,
       barcode,
       sku,
       image_url,
       min_stock = 5,
       expiry_date = null,
+      supplier_id = null, // ⭐ SUPPLIER SUPPORT
     } = req.body;
 
     const userId = req.user.id;
@@ -41,8 +42,9 @@ router.post("/", verifyToken, async (req, res) => {
       `
       INSERT INTO products
       (user_id, name, brand, category, size, stock, price, cost_price,
-       description, barcode, sku, image_url, min_stock, expiry_date, is_deleted)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
+       description, barcode, sku, image_url, min_stock,
+       expiry_date, supplier_id, is_deleted)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
       `,
       [
         userId,
@@ -59,7 +61,8 @@ router.post("/", verifyToken, async (req, res) => {
         image_url || null,
         Number(min_stock),
         expiry_date || null,
-      ]
+        supplier_id || null,
+      ],
     );
 
     res.status(201).json({ message: "Product added" });
@@ -85,7 +88,7 @@ router.get("/low-stock", verifyToken, async (req, res) => {
         AND stock <= min_stock
       ORDER BY stock ASC
       `,
-      [userId]
+      [userId],
     );
 
     res.json(rows);
@@ -112,7 +115,7 @@ router.get("/expiry-alerts", verifyToken, async (req, res) => {
         AND is_deleted = FALSE
       ORDER BY expiry_date ASC
       `,
-      [userId]
+      [userId],
     );
 
     res.json(rows);
@@ -133,12 +136,12 @@ router.get("/barcode/:code", verifyToken, async (req, res) => {
     const [rows] = await db.query(
       `
       SELECT id, name, brand, category, size, price, cost_price,
-             stock, barcode, image_url
+             stock, barcode, image_url, supplier_id
       FROM products
       WHERE barcode=? AND user_id=? AND is_deleted=FALSE
       LIMIT 1
       `,
-      [code, userId]
+      [code, userId],
     );
 
     if (!rows.length) {
@@ -162,12 +165,12 @@ router.get("/archived/all", verifyToken, async (req, res) => {
       `
       SELECT id, name, brand, category, size, stock,
              price, cost_price, description, barcode,
-             image_url, sku
+             image_url, sku, supplier_id
       FROM products
       WHERE user_id = ? AND is_deleted = TRUE
       ORDER BY created_at DESC
       `,
-      [userId]
+      [userId],
     );
 
     res.json(rows);
@@ -177,7 +180,7 @@ router.get("/archived/all", verifyToken, async (req, res) => {
 });
 
 /* =========================================================
-   GET ALL PRODUCTS
+   GET ALL PRODUCTS (SUPPLIER JOIN)
 ========================================================= */
 router.get("/", verifyToken, async (req, res) => {
   try {
@@ -199,19 +202,23 @@ router.get("/", verifyToken, async (req, res) => {
         p.image_url,
         p.sku,
         p.expiry_date,
+        p.supplier_id,
+        s.name AS supplier_name,
+        s.company_name AS supplier_company,
         CASE
           WHEN p.stock = 0 THEN 'Out'
           WHEN p.stock < 15 THEN 'Low'
           ELSE 'In Stock'
         END AS status,
         EXISTS(
-          SELECT 1 FROM sales s WHERE s.product_id = p.id
+          SELECT 1 FROM sales s2 WHERE s2.product_id = p.id
         ) AS hasSales
       FROM products p
+      LEFT JOIN suppliers s ON p.supplier_id = s.id
       WHERE p.user_id = ? AND p.is_deleted = FALSE
       ORDER BY p.created_at DESC
       `,
-      [userId]
+      [userId],
     );
 
     res.json(rows);
@@ -232,11 +239,12 @@ router.get("/:id", verifyToken, async (req, res) => {
       `
       SELECT name, brand, category, size, stock,
              price, cost_price, description, barcode,
-             sku, image_url, min_stock, expiry_date
+             sku, image_url, min_stock, expiry_date,
+             supplier_id
       FROM products
       WHERE id=? AND user_id=? AND is_deleted=FALSE
       `,
-      [productId, userId]
+      [productId, userId],
     );
 
     if (!rows.length) {
@@ -268,6 +276,7 @@ router.put("/:id", verifyToken, async (req, res) => {
       image_url,
       min_stock = 5,
       expiry_date = null,
+      supplier_id = null,
     } = req.body;
 
     const userId = req.user.id;
@@ -279,7 +288,8 @@ router.put("/:id", verifyToken, async (req, res) => {
         name=?, brand=?, category=?, size=?,
         stock=?, price=?, cost_price=?,
         description=?, barcode=?, sku=?,
-        image_url=?, min_stock=?, expiry_date=?
+        image_url=?, min_stock=?, expiry_date=?,
+        supplier_id=?
       WHERE id=? AND user_id=? AND is_deleted=FALSE
       `,
       [
@@ -296,9 +306,10 @@ router.put("/:id", verifyToken, async (req, res) => {
         image_url || null,
         Number(min_stock),
         expiry_date || null,
+        supplier_id || null,
         productId,
         userId,
-      ]
+      ],
     );
 
     if (!result.affectedRows) {
@@ -306,8 +317,7 @@ router.put("/:id", verifyToken, async (req, res) => {
     }
 
     res.json({ message: "Product updated" });
-  } catch (err) {
-    console.error("Update error:", err);
+  } catch {
     res.status(500).json({ message: "DB error" });
   }
 });
@@ -320,14 +330,10 @@ router.delete("/:id", verifyToken, async (req, res) => {
     const userId = req.user.id;
     const productId = req.params.id;
 
-    const [result] = await db.query(
+    await db.query(
       `UPDATE products SET is_deleted=TRUE WHERE id=? AND user_id=?`,
-      [productId, userId]
+      [productId, userId],
     );
-
-    if (!result.affectedRows) {
-      return res.status(404).json({ message: "Product not found" });
-    }
 
     res.json({ message: "Product archived successfully" });
   } catch {
@@ -343,14 +349,10 @@ router.put("/restore/:id", verifyToken, async (req, res) => {
     const userId = req.user.id;
     const productId = req.params.id;
 
-    const [result] = await db.query(
+    await db.query(
       `UPDATE products SET is_deleted=FALSE WHERE id=? AND user_id=?`,
-      [productId, userId]
+      [productId, userId],
     );
-
-    if (!result.affectedRows) {
-      return res.status(404).json({ message: "Product not found" });
-    }
 
     res.json({ message: "Product restored" });
   } catch {
