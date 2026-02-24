@@ -13,6 +13,7 @@
             📄 dashboard.js
             📄 inventory.js
             📄 sales.js
+            📄 suppliers.js
         📄 server.js
     📂 frontend
         📄 .gitignore
@@ -64,6 +65,7 @@
                     📄 StatCard.jsx
                 📄 Home.jsx
                 📂 Inventory
+                    📄 .txt
                     📄 AddProduct.css
                     📄 AddProduct.jsx
                     📄 EditProduct.jsx
@@ -83,6 +85,11 @@
                 📂 setting
                     📄 Settings.css
                     📄 Settings.jsx
+                📂 suppliers
+                    📄 AddSupplier.jsx
+                    📄 EditSupplier.jsx
+                    📄 Suppliers.css
+                    📄 Suppliers.jsx
             📂 styles
                 📄 auth.css
                 📄 home.css
