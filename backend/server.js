@@ -10,6 +10,7 @@ import billingRoutes from "./routes/billing.js";
 import salesRoutes from "./routes/sales.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import supplierRoutes from "./routes/suppliers.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -37,10 +38,7 @@ app.use("/api/sales", salesRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 /* ================= ERROR HANDLER ================= */
-app.use((err, req, res, next) => {
-  console.error("🔥 Server Error:", err);
-  res.status(500).json({ message: "Internal server error" });
-});
+app.use(errorHandler);
 
 /* ================= START SERVER ================= */
 const PORT = process.env.PORT || 5000;

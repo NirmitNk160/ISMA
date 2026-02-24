@@ -52,12 +52,15 @@ export default function Inventory() {
 
   /* ARCHIVE */
   const confirmArchive = async () => {
+    console.log("Archive clicked:", archiveId);
+
     try {
       setProcessing(true);
       await api.delete(`/inventory/${archiveId}`);
       setProducts((prev) => prev.filter((p) => p.id !== archiveId));
       setArchiveId(null);
-    } catch {
+    } catch (err) {
+      console.log("Archive error:", err);
       setError("Archive failed");
     } finally {
       setProcessing(false);
@@ -263,6 +266,8 @@ export default function Inventory() {
                                   className="archive-btn"
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    console.log("Archive button clicked");
+                                    console.log("Product ID:", p.id);
                                     setArchiveId(p.id);
                                   }}
                                 >
@@ -383,7 +388,7 @@ export default function Inventory() {
       </div>
 
       {/* ARCHIVE MODAL */}
-      {archiveId && (
+      {archiveId !== null && (
         <div className="modal-overlay">
           <div className="modal">
             <h3>Archive Product</h3>
@@ -403,7 +408,7 @@ export default function Inventory() {
       )}
 
       {/* DELETE MODAL */}
-      {deleteId && (
+      {deleteId !== null && (
         <div className="modal-overlay">
           <div className="modal">
             <h3>Delete Permanently</h3>
