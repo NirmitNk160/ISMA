@@ -1,8 +1,9 @@
 import db from "../config/db.js";
+import { sendInvoiceEmail } from "../services/emailService.js";
 
 export const confirmBill = async (req, res) => {
   const userId = req.user.id;
-  const { items } = req.body;
+  const { items, customerEmail } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: "No items provided" });
@@ -14,6 +15,9 @@ export const confirmBill = async (req, res) => {
   try {
     await conn.beginTransaction();
 
+    let totalAmount = 0;
+    let soldItems = [];
+
     for (const item of items) {
       const qty = Number(item.quantity);
 
@@ -21,7 +25,6 @@ export const confirmBill = async (req, res) => {
         throw new Error("Invalid item data");
       }
 
-      // 🔒 LOCK PRODUCT
       const [rows] = await conn.query(
         `SELECT id, name, price, stock
          FROM products
@@ -42,14 +45,20 @@ export const confirmBill = async (req, res) => {
 
       const unitPrice = Number(product.price);
       const totalPrice = unitPrice * qty;
+      totalAmount += totalPrice;
 
-      // UPDATE STOCK
+      soldItems.push({
+        name: product.name,
+        quantity: qty,
+        unitPrice,
+        totalPrice,
+      });
+
       await conn.query(
         `UPDATE products SET stock = stock - ? WHERE id = ?`,
         [qty, product.id]
       );
 
-      // INSERT SALE
       await conn.query(
         `INSERT INTO sales
         (user_id, product_id, product_name, quantity, unit_price, total_price, status, bill_id)
@@ -67,6 +76,22 @@ export const confirmBill = async (req, res) => {
     }
 
     await conn.commit();
+
+    /* ================= EMAIL SENDING (AFTER COMMIT) ================= */
+    if (customerEmail) {
+      try {
+        await sendInvoiceEmail({
+          to: customerEmail,
+          billId,
+          items: soldItems,
+          totalAmount,
+        });
+      } catch (emailError) {
+        console.error("Email failed:", emailError);
+        // Do NOT fail billing if email fails
+      }
+    }
+
     res.json({ message: "Bill confirmed", bill_id: billId });
 
   } catch (err) {

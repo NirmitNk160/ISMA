@@ -26,6 +26,7 @@ export default function Billing() {
   const [billItems, setBillItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [customerEmail, setCustomerEmail] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -342,6 +343,7 @@ export default function Billing() {
           product_id: i.product_id,
           quantity: i.quantity,
         })),
+        customerEmail: customerEmail || null,
       });
 
       const billId = res.data.bill_id;
@@ -350,6 +352,7 @@ export default function Billing() {
 
       setSuccess(true);
       setBillItems([]);
+      setCustomerEmail("");
 
       setTimeout(() => navigate("/sales"), 1200);
     } catch (err) {
@@ -489,6 +492,13 @@ export default function Billing() {
 
             <div className="billing-footer">
               <div className="total">Total: {format(totalINR)}</div>
+
+              <input
+                type="email"
+                placeholder="Customer Email"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+              />
 
               <button
                 className="confirm-btn"
