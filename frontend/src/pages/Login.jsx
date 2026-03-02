@@ -6,21 +6,22 @@ import "../styles/auth.css";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ correct usage
+  const { login } = useAuth();
 
   const passwordRef = useRef(null);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setMessage("");
+
+    setError("");
 
     if (!email || !password) {
-      setMessage("❌ Email and password are required");
+      setError("Email and password are required");
       return;
     }
 
@@ -33,12 +34,13 @@ export default function Login() {
         password,
       });
 
-      // ✅ centralized auth handling
+      // Save token using context
       login(res.data.token);
 
       navigate("/", { replace: true });
+
     } catch (err) {
-      setMessage(err.response?.data?.message || "❌ Backend not reachable");
+      setError(err.response?.data?.message || "Server error");
     } finally {
       setLoading(false);
     }
@@ -52,7 +54,7 @@ export default function Login() {
         <form onSubmit={handleLogin}>
           <input
             type="email"
-            placeholder="Gmail"
+            placeholder="Email Address"
             value={email}
             autoFocus
             onChange={(e) => setEmail(e.target.value)}
@@ -77,13 +79,16 @@ export default function Login() {
           </button>
         </form>
 
-        {message && <p className="indicator">{message}</p>}
+        {error && <div className="error-msg">⚠ {error}</div>}
 
         <p>
           New shop?
-          <span onClick={() => navigate("/register")}> Register your shop</span>
+          <span onClick={() => navigate("/register")}>
+            {" "}
+            Register your shop
+          </span>
         </p>
       </div>
     </div>
   );
-}
+} 

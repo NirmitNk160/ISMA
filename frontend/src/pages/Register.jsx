@@ -1,12 +1,11 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import "../styles/auth.css";
+import "../styles/register.css";
 
 export default function Register() {
   const navigate = useNavigate();
 
-  // 🔥 refs for keyboard navigation
   const ownerRef = useRef(null);
   const usernameRef = useRef(null);
   const mobileRef = useRef(null);
@@ -24,16 +23,32 @@ export default function Register() {
     confirmPassword: "",
   });
 
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 🔥 Password strength logic
+  const getPasswordStrength = (password) => {
+    if (password.length < 6) return "Weak";
+    if (
+      password.match(/[A-Z]/) &&
+      password.match(/[0-9]/) &&
+      password.length >= 8
+    )
+      return "Strong";
+    return "Medium";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
+
+    setError("");
+    setSuccess("");
 
     if (
       !form.shop_name ||
@@ -44,12 +59,12 @@ export default function Register() {
       !form.password ||
       !form.confirmPassword
     ) {
-      setMessage("❌ All fields are required");
+      setError("All fields are required");
       return;
     }
 
     if (form.password !== form.confirmPassword) {
-      setMessage("❌ Passwords do not match");
+      setError("Passwords do not match");
       return;
     }
 
@@ -66,22 +81,25 @@ export default function Register() {
         password: form.password,
       });
 
-      setMessage("✅ Registration successful");
+      setSuccess("Registration successful ✓ Redirecting...");
 
       setTimeout(() => {
         navigate("/login", { replace: true });
-      }, 1200);
+      }, 1500);
     } catch (err) {
-      setMessage(err.response?.data?.message || "❌ Backend not reachable");
+      setError(err.response?.data?.message || "Server error");
     } finally {
       setLoading(false);
     }
   };
 
+  const strength = getPasswordStrength(form.password);
+
   return (
     <div className="auth-page">
       <div className="auth-container">
         <h2>Register Your Shop</h2>
+        <p>Create your store in seconds</p>
 
         <form onSubmit={handleSubmit}>
           <input
@@ -144,7 +162,7 @@ export default function Register() {
             ref={emailRef}
             type="email"
             name="email"
-            placeholder="Gmail"
+            placeholder="Email Address"
             value={form.email}
             onChange={handleChange}
             onKeyDown={(e) => {
@@ -155,24 +173,40 @@ export default function Register() {
             }}
           />
 
-          <input
-            ref={passwordRef}
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                confirmRef.current?.focus();
-              }
-            }}
-          />
+          {/* PASSWORD FIELD */}
+          <div className="password-wrapper">
+            <input
+              ref={passwordRef}
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  confirmRef.current?.focus();
+                }
+              }}
+            />
+            <span
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "🙈" : "👁"}
+            </span>
+          </div>
+
+          {/* PASSWORD STRENGTH */}
+          {form.password && (
+            <p className={`strength ${strength.toLowerCase()}`}>
+              Password strength: {strength}
+            </p>
+          )}
 
           <input
             ref={confirmRef}
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="confirmPassword"
             placeholder="Confirm Password"
             value={form.confirmPassword}
@@ -184,7 +218,8 @@ export default function Register() {
           </button>
         </form>
 
-        {message && <p className="indicator">{message}</p>}
+        {error && <div className="error-msg">⚠ {error}</div>}
+        {success && <div className="success-msg">{success}</div>}
 
         <p>
           Already have an account?

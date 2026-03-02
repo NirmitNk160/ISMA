@@ -214,3 +214,57 @@ body {
     padding: 13px;
   }
 }
+
+.error-msg {
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.35);
+  color: #ff6b6b;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 14px;
+  text-align: center;
+}
+
+.success-msg {
+  background: rgba(80, 255, 150, 0.15);
+  border: 1px solid rgba(80, 255, 150, 0.35);
+  color: #4ade80;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 14px;
+  text-align: center;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.strength {
+  font-size: 13px;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.strength.weak {
+  color: #ff6b6b;
+}
+
+.strength.medium {
+  color: #facc15;
+}
+
+.strength.strong {
+  color: #4ade80;
+}

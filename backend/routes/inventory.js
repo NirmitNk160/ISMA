@@ -11,18 +11,21 @@ import {
   updateProduct,
   archivedProducts,
   restoreProduct,
+  permanentDelete,
 } from "../controllers/inventoryController.js";
 
 const router = express.Router();
 
-/* SPECIFIC ROUTES FIRST */
+/* ===== SPECIFIC ROUTES FIRST ===== */
 router.get("/low-stock", verifyToken, lowStock);
 router.get("/expiry-alerts", verifyToken, expiryAlerts);
 router.get("/barcode/:code", verifyToken, barcodeSearch);
+
 router.get("/archived/all", verifyToken, archivedProducts);
 router.put("/restore/:id", verifyToken, restoreProduct);
+router.delete("/permanent/:id", verifyToken, permanentDelete);
 
-/* GENERAL ROUTES LAST */
+/* ===== GENERAL ROUTES LAST ===== */
 router.post("/", verifyToken, addProduct);
 router.get("/", verifyToken, getAllProducts);
 router.get("/:id", verifyToken, getSingleProduct);

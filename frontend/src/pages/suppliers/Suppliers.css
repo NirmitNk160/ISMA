@@ -9,6 +9,8 @@
   min-height: 100vh;
   background: var(--app-bg);
   color: var(--text-primary);
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 .suppliers-body {
@@ -114,7 +116,7 @@
 /* ACTION BUTTONS */
 
 .edit-btn {
-  background: rgba(56,189,248,.15);
+  background: rgba(56, 189, 248, .15);
   color: var(--accent);
   border: 1px solid var(--accent-soft);
   padding: 8px 14px;
@@ -123,9 +125,9 @@
 }
 
 .delete-btn {
-  background: rgba(248,113,113,.15);
+  background: rgba(248, 113, 113, .15);
   color: var(--danger);
-  border: 1px solid rgba(248,113,113,.4);
+  border: 1px solid rgba(248, 113, 113, .4);
   padding: 8px 14px;
   border-radius: 12px;
   margin-left: 8px;
@@ -195,23 +197,30 @@
 
   .suppliers-table th,
   .suppliers-table td {
-    font-size: 13px; /* slightly smaller */
+    font-size: 13px;
+    /* slightly smaller */
   }
 
   .clickable-name {
-    font-size: 13px;       /* prevent wrapping */
-    overflow: hidden;           /* hide overflow */
-    text-overflow: ellipsis;    /* show ... if too long */
-    max-width: 140px;           /* adjust if needed */
+    font-size: 13px;
+    /* prevent wrapping */
+    overflow: hidden;
+    /* hide overflow */
+    text-overflow: ellipsis;
+    /* show ... if too long */
+    max-width: 140px;
+    /* adjust if needed */
     display: block;
   }
 
   .suppliers-table td:first-child {
-    width: 40px; /* tighten # column */
+    width: 40px;
+    /* tighten # column */
   }
 
   .suppliers-table td:last-child {
-    white-space: nowrap; /* keep buttons inline */
+    white-space: nowrap;
+    /* keep buttons inline */
   }
 
   .edit-btn,

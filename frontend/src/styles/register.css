@@ -1,0 +1,168 @@
+/* =========================================================
+   REGISTER PAGE — FINAL FIXED PROFESSIONAL VERSION
+   Stable layout • Clean password field • No overflow
+   ========================================================= */
+
+/* ===== Page Aura Background ===== */
+.auth-page {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page::before {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.18),
+    transparent 70%
+  );
+  top: -160px;
+  right: -160px;
+  pointer-events: none;
+}
+
+/* ===== Container Fix ===== */
+.auth-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Subtitle under heading */
+.auth-container h2 + p {
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   PASSWORD FIELD FIX
+   ========================================================= */
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Prevent overflow */
+.password-wrapper input {
+  width: 100%;
+  padding-right: 44px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Eye icon alignment */
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.75;
+  transition: 0.2s;
+}
+
+.toggle-password:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* =========================================================
+   PASSWORD STRENGTH TEXT FIX
+   ========================================================= */
+
+.strength {
+  margin: 6px 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Colors */
+.strength.weak { color: #ff6b6b; }
+.strength.medium { color: #facc15; }
+.strength.strong { color: #4ade80; }
+
+/* =========================================================
+   SUCCESS + ERROR MESSAGES
+   ========================================================= */
+
+.error-msg,
+.success-msg {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.error-msg {
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.35);
+  color: #ff6b6b;
+  animation: shake 0.3s ease;
+}
+
+.success-msg {
+  background: rgba(80, 255, 150, 0.12);
+  border: 1px solid rgba(80, 255, 150, 0.35);
+  color: #4ade80;
+  animation: fadeSuccess 0.3s ease;
+}
+
+/* Animations */
+@keyframes shake {
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+
+@keyframes fadeSuccess {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   BUTTON SHINE EFFECT
+   ========================================================= */
+
+.primary-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-btn::after {
+  content: "";
+  position: absolute;
+  left: -120%;
+  top: 0;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.25),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.primary-btn:hover::after {
+  left: 100%;
+}
+
+/* =========================================================
+   MOBILE FIX
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .strength {
+    font-size: 12px;
+  }
+}
