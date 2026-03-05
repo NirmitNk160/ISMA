@@ -2,8 +2,11 @@
 
 📂 ISMA_2
     📄 .gitignore
+    📄 .txt
     📂 backend
         📄 .env
+        📂 backend
+            📂 invoices
         📂 config
             📄 db.js
         📂 controllers
@@ -13,6 +16,8 @@
             📄 inventoryController.js
             📄 salesController.js
             📄 supplierController.js
+        📂 invoices
+            📄 invoice-BILL-1772699190177.pdf
         📂 middleware
             📄 errorHandler.js
             📄 verifyToken.js
@@ -25,6 +30,8 @@
             📄 suppliers.js
         📄 server.js
         📂 services
+            📄 emailService.js
+            📄 generateInvoicePDF.js
         📂 utils
         📂 validators
             📄 authValidator.js

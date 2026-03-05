@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS = {
   lowStockThreshold: 10,
   blockOutOfStock: true,
   darkMode: true,
+  currency: "INR",
 };
 
 export function SettingsProvider({ children }) {

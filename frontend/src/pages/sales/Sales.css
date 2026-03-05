@@ -508,3 +508,17 @@
   transform: translateY(-2px);
   box-shadow: 0 14px 30px rgba(56, 189, 248, 0.45);
 }
+
+.download-btn{
+  margin-left:15px;
+  padding:6px 12px;
+  border:none;
+  background:#2563eb;
+  color:white;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.download-btn:hover{
+  background:#1e4ed8;
+}

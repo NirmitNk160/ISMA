@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import nodemailer from "nodemailer";
 import { generateInvoicePDF } from "./generateInvoicePDF.js";
 
@@ -9,6 +11,28 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+/* ================= CURRENCY DATA ================= */
+
+const rates = {
+  INR: 1,
+  USD: 0.012,
+  EUR: 0.011,
+};
+
+const symbolMap = {
+  INR: "Rs.",
+  USD: "$",
+  EUR: "€",
+};
+
+const localeMap = {
+  INR: "en-IN",
+  USD: "en-US",
+  EUR: "de-DE",
+};
+
+/* ================= SEND EMAIL ================= */
+
 export const sendInvoiceEmail = async ({
   to,
   billId,
@@ -19,11 +43,31 @@ export const sendInvoiceEmail = async ({
   shopPhone,
   customerName,
   paymentMethod,
+  currency = "INR",
 }) => {
   try {
     const date = new Date().toLocaleDateString("en-IN");
 
-    /* FORMAT ITEMS FOR EMAIL + PDF */
+    /* ================= CONVERT ================= */
+
+    const convertCurrency = (amountINR) => {
+      const rate = rates[currency] ?? 1;
+      return amountINR * rate;
+    };
+
+    /* ================= FORMAT ================= */
+
+    const formatCurrency = (amountINR) => {
+      const converted = convertCurrency(amountINR);
+
+      return `${symbolMap[currency]} ${converted.toLocaleString(
+        localeMap[currency],
+        { minimumFractionDigits: 2 },
+      )}`;
+    };
+
+    /* ================= FORMAT ITEMS ================= */
+
     const formattedItems = items.map((i) => {
       const price = i.priceINR ?? i.unitPrice ?? i.price ?? 0;
 
@@ -35,16 +79,18 @@ export const sendInvoiceEmail = async ({
       };
     });
 
+    /* ================= HTML TABLE ================= */
+
     const itemRows = formattedItems
       .map(
         (i) => `
         <tr>
           <td>${i.name}</td>
           <td>${i.quantity}</td>
-          <td>₹${i.unitPrice}</td>
-          <td>₹${i.totalPrice}</td>
+          <td>${formatCurrency(i.unitPrice)}</td>
+          <td>${formatCurrency(i.totalPrice)}</td>
         </tr>
-      `
+      `,
       )
       .join("");
 
@@ -74,14 +120,15 @@ export const sendInvoiceEmail = async ({
 
     </table>
 
-    <h3 style="text-align:right">Total: ₹${totalAmount}</h3>
+    <h3 style="text-align:right">Total: ${formatCurrency(totalAmount)}</h3>
 
     <p>Thank you for shopping with us.</p>
 
     </div>
     `;
 
-    /* GENERATE PDF */
+    /* ================= GENERATE PDF ================= */
+
     const pdfBuffer = await generateInvoicePDF({
       billId,
       shopName,
@@ -90,10 +137,27 @@ export const sendInvoiceEmail = async ({
       customerName,
       customerEmail: to,
       paymentMethod,
+      currency,
       items: formattedItems,
       totalAmount,
       date,
     });
+
+    /* ================= SAVE PDF ================= */
+
+    const invoicesDir = path.join(process.cwd(), "invoices");
+
+    if (!fs.existsSync(invoicesDir)) {
+      fs.mkdirSync(invoicesDir, { recursive: true });
+    }
+
+    const filePath = path.join(invoicesDir, `invoice-${billId}.pdf`);
+
+    fs.writeFileSync(filePath, pdfBuffer);
+
+    console.log("📄 Invoice saved:", filePath);
+
+    /* ================= EMAIL ================= */
 
     const mailOptions = {
       from: `"${shopName}" <${process.env.EMAIL_USER}>`,

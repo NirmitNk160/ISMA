@@ -1,4 +1,6 @@
 import db from "../config/db.js";
+import fs from "fs";
+import path from "path";
 
 /* ================= GET SALES ================= */
 export const getSales = async (req, res) => {
@@ -17,13 +19,36 @@ export const getSales = async (req, res) => {
       FROM sales s
       WHERE s.user_id = ?
       ORDER BY s.created_at DESC`,
-      [userId]
+      [userId],
     );
 
     res.json(rows);
-
   } catch (err) {
     console.error("Sales fetch error:", err);
     res.status(500).json({ message: "Failed to fetch sales" });
+  }
+};
+
+/* ================= DOWNLOAD INVOICE ================= */
+export const downloadInvoice = async (req, res) => {
+  try {
+    const { billId } = req.params;
+
+    const invoicePath = path.join(
+      process.cwd(),
+      "invoices",
+      `invoice-${billId}.pdf`
+    );
+
+    console.log("Looking for invoice at:", invoicePath);
+
+    if (!fs.existsSync(invoicePath)) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+
+    res.download(invoicePath, `invoice-${billId}.pdf`);
+  } catch (err) {
+    console.error("Invoice download error:", err);
+    res.status(500).json({ message: "Failed to download invoice" });
   }
 };

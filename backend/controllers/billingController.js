@@ -3,7 +3,7 @@ import { sendInvoiceEmail } from "../services/emailService.js";
 
 export const confirmBill = async (req, res) => {
   const userId = req.user.id;
-  const { items, customerEmail, customerName, paymentMethod } = req.body;
+  const { items, customerEmail, customerName, paymentMethod, currency } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: "No items provided" });
@@ -54,11 +54,13 @@ export const confirmBill = async (req, res) => {
         totalPrice,
       });
 
+      /* UPDATE STOCK */
       await conn.query(
         `UPDATE products SET stock = stock - ? WHERE id = ?`,
         [qty, product.id]
       );
 
+      /* SAVE SALE */
       await conn.query(
         `INSERT INTO sales
         (user_id, product_id, product_name, quantity, unit_price, total_price, status, bill_id)
@@ -78,17 +80,17 @@ export const confirmBill = async (req, res) => {
     /* ================= GET SHOP PROFILE ================= */
 
     const [profileRows] = await conn.query(
-      `SELECT shop_name, shop_address, phone 
-       FROM users 
-       WHERE id = ?`,
+      `SELECT shop_name, mobile FROM users WHERE id = ?`,
       [userId]
     );
 
-    const shopProfile = profileRows[0] || {};
+    const shop = profileRows[0] || {};
+
+    /* ================= COMMIT BILL ================= */
 
     await conn.commit();
 
-    /* ================= EMAIL SENDING ================= */
+    /* ================= SEND EMAIL (AFTER COMMIT) ================= */
 
     if (customerEmail) {
       try {
@@ -97,14 +99,15 @@ export const confirmBill = async (req, res) => {
           billId,
           items: soldItems,
           totalAmount,
-          shopName: shopProfile.shop_name,
-          shopAddress: shopProfile.shop_address,
-          shopPhone: shopProfile.phone,
+          shopName: shop.shop_name,
+          shopPhone: shop.mobile,
           customerName,
           paymentMethod,
+          currency,
         });
       } catch (emailError) {
         console.error("Email failed:", emailError);
+        // Do not break billing if email fails
       }
     }
 
@@ -116,7 +119,6 @@ export const confirmBill = async (req, res) => {
   } catch (err) {
     await conn.rollback();
     res.status(400).json({ message: err.message });
-
   } finally {
     conn.release();
   }
