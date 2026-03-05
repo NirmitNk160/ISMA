@@ -3,7 +3,7 @@ import { sendInvoiceEmail } from "../services/emailService.js";
 
 export const confirmBill = async (req, res) => {
   const userId = req.user.id;
-  const { items, customerEmail } = req.body;
+  const { items, customerEmail, customerName, paymentMethod } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: "No items provided" });
@@ -75,9 +75,21 @@ export const confirmBill = async (req, res) => {
       );
     }
 
+    /* ================= GET SHOP PROFILE ================= */
+
+    const [profileRows] = await conn.query(
+      `SELECT shop_name, shop_address, phone 
+       FROM users 
+       WHERE id = ?`,
+      [userId]
+    );
+
+    const shopProfile = profileRows[0] || {};
+
     await conn.commit();
 
-    /* ================= EMAIL SENDING (AFTER COMMIT) ================= */
+    /* ================= EMAIL SENDING ================= */
+
     if (customerEmail) {
       try {
         await sendInvoiceEmail({
@@ -85,14 +97,21 @@ export const confirmBill = async (req, res) => {
           billId,
           items: soldItems,
           totalAmount,
+          shopName: shopProfile.shop_name,
+          shopAddress: shopProfile.shop_address,
+          shopPhone: shopProfile.phone,
+          customerName,
+          paymentMethod,
         });
       } catch (emailError) {
         console.error("Email failed:", emailError);
-        // Do NOT fail billing if email fails
       }
     }
 
-    res.json({ message: "Bill confirmed", bill_id: billId });
+    res.json({
+      message: "Bill confirmed",
+      bill_id: billId,
+    });
 
   } catch (err) {
     await conn.rollback();
