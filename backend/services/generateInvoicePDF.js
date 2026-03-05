@@ -203,14 +203,19 @@ export const generateInvoicePDF = ({
 
       const finalTotal = totalAmount || calculatedTotal;
 
+      doc.moveDown();
+
       doc
         .font("Helvetica-Bold")
         .fontSize(14)
-        .text(`Grand Total: ${formatCurrency(finalTotal)}`, {
-          align: "right",
-        });
+        .text(
+          `Grand Total: ${formatCurrency(finalTotal)}`,
+          350,
+          y + 15,
+          { width: 200, align: "right" }
+        );
 
-      doc.moveDown(2);
+      doc.moveDown(3);
 
       /* ================= FOOTER ================= */
 

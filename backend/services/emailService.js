@@ -143,20 +143,6 @@ export const sendInvoiceEmail = async ({
       date,
     });
 
-    /* ================= SAVE PDF ================= */
-
-    const invoicesDir = path.join(process.cwd(), "invoices");
-
-    if (!fs.existsSync(invoicesDir)) {
-      fs.mkdirSync(invoicesDir, { recursive: true });
-    }
-
-    const filePath = path.join(invoicesDir, `invoice-${billId}.pdf`);
-
-    fs.writeFileSync(filePath, pdfBuffer);
-
-    console.log("📄 Invoice saved:", filePath);
-
     /* ================= EMAIL ================= */
 
     const mailOptions = {

@@ -1,6 +1,10 @@
 import db from "../config/db.js";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /* ================= GET SALES ================= */
 export const getSales = async (req, res) => {
@@ -35,12 +39,13 @@ export const downloadInvoice = async (req, res) => {
     const { billId } = req.params;
 
     const invoicePath = path.join(
-      process.cwd(),
+      __dirname,
+      "..",
       "invoices",
-      `invoice-${billId}.pdf`
+      `invoice-${billId}.pdf`,
     );
 
-    console.log("Looking for invoice at:", invoicePath);
+    console.log("Looking for:", invoicePath);
 
     if (!fs.existsSync(invoicePath)) {
       return res.status(404).json({ message: "Invoice not found" });

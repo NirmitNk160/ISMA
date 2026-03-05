@@ -17,7 +17,7 @@ const app = express();
 /* ================= CORS FIX ================= */
 app.use(
   cors({
-    origin: true, // allow any origin (safe for dev)
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );

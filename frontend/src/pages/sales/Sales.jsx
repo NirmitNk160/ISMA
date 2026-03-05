@@ -97,13 +97,9 @@ export default function Sales() {
 
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
-
       link.href = url;
-      link.setAttribute("download", `invoice-${billId}.pdf`);
-
-      document.body.appendChild(link);
+      link.download = `invoice-${billId}.pdf`;
       link.click();
-      link.remove();
     } catch (err) {
       console.error(err);
       alert("Failed to download invoice");

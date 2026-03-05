@@ -1,9 +1,13 @@
 import db from "../config/db.js";
+import fs from "fs";
+import path from "path";
 import { sendInvoiceEmail } from "../services/emailService.js";
+import { generateInvoicePDF } from "../services/generateInvoicePDF.js";
 
 export const confirmBill = async (req, res) => {
   const userId = req.user.id;
-  const { items, customerEmail, customerName, paymentMethod, currency } = req.body;
+  const { items, customerEmail, customerName, paymentMethod, currency } =
+    req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: "No items provided" });
@@ -54,30 +58,18 @@ export const confirmBill = async (req, res) => {
         totalPrice,
       });
 
-      /* UPDATE STOCK */
-      await conn.query(
-        `UPDATE products SET stock = stock - ? WHERE id = ?`,
-        [qty, product.id]
-      );
+      await conn.query(`UPDATE products SET stock = stock - ? WHERE id = ?`, [
+        qty,
+        product.id,
+      ]);
 
-      /* SAVE SALE */
       await conn.query(
         `INSERT INTO sales
         (user_id, product_id, product_name, quantity, unit_price, total_price, status, bill_id)
         VALUES (?, ?, ?, ?, ?, ?, 'PAID', ?)`,
-        [
-          userId,
-          product.id,
-          product.name,
-          qty,
-          unitPrice,
-          totalPrice,
-          billId,
-        ]
+        [userId, product.id, product.name, qty, unitPrice, totalPrice, billId]
       );
     }
-
-    /* ================= GET SHOP PROFILE ================= */
 
     const [profileRows] = await conn.query(
       `SELECT shop_name, mobile FROM users WHERE id = ?`,
@@ -86,11 +78,36 @@ export const confirmBill = async (req, res) => {
 
     const shop = profileRows[0] || {};
 
-    /* ================= COMMIT BILL ================= */
-
     await conn.commit();
 
-    /* ================= SEND EMAIL (AFTER COMMIT) ================= */
+    /* ================= GENERATE PDF ================= */
+
+    const pdfBuffer = await generateInvoicePDF({
+      billId,
+      shopName: shop.shop_name,
+      shopPhone: shop.mobile,
+      customerName,
+      paymentMethod,
+      currency,
+      items: soldItems,
+      totalAmount,
+    });
+
+    /* ================= SAVE PDF ================= */
+
+    const invoicesDir = path.join(process.cwd(), "invoices");
+
+    if (!fs.existsSync(invoicesDir)) {
+      fs.mkdirSync(invoicesDir, { recursive: true });
+    }
+
+    const filePath = path.join(invoicesDir, `invoice-${billId}.pdf`);
+
+    fs.writeFileSync(filePath, pdfBuffer);
+
+    console.log("📄 Invoice saved:", filePath);
+
+    /* ================= SEND EMAIL ================= */
 
     if (customerEmail) {
       try {
@@ -107,7 +124,6 @@ export const confirmBill = async (req, res) => {
         });
       } catch (emailError) {
         console.error("Email failed:", emailError);
-        // Do not break billing if email fails
       }
     }
 

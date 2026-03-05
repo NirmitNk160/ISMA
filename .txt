@@ -1,0 +1,381 @@
+import db from "../config/db.js";
+import fs from "fs";
+import path from "path";
+
+/* ================= GET SALES ================= */
+export const getSales = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const [rows] = await db.query(
+      `SELECT
+        s.bill_id,
+        s.product_id,
+        s.product_name,
+        s.quantity,
+        s.unit_price,
+        s.total_price,
+        s.created_at
+      FROM sales s
+      WHERE s.user_id = ?
+      ORDER BY s.created_at DESC`,
+      [userId],
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Sales fetch error:", err);
+    res.status(500).json({ message: "Failed to fetch sales" });
+  }
+};
+
+/* ================= DOWNLOAD INVOICE ================= */
+export const downloadInvoice = async (req, res) => {
+  try {
+    const { billId } = req.params;
+
+    const invoicePath = path.join(
+      process.cwd(),
+      "invoices",
+      `invoice-${billId}.pdf`,
+    );
+
+    if (!fs.existsSync(invoicePath)) {
+      console.log("Invoice not found:", invoicePath);
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+
+    res.download(invoicePath);
+  } catch (err) {
+    console.error("Invoice download error:", err);
+    res.status(500).json({ message: "Failed to download invoice" });
+  }
+};
+
+
+
+import express from "express";
+import verifyToken from "../middleware/verifyToken.js";
+import { getSales, downloadInvoice  } from "../controllers/salesController.js";
+
+const router = express.Router();
+
+router.get("/", verifyToken, getSales);
+router.get("/invoice/:billId", verifyToken, downloadInvoice);
+
+export default router;
+
+
+import fs from "fs";
+import path from "path";
+import nodemailer from "nodemailer";
+import { generateInvoicePDF } from "./generateInvoicePDF.js";
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+/* ================= CURRENCY DATA ================= */
+
+const rates = {
+  INR: 1,
+  USD: 0.012,
+  EUR: 0.011,
+};
+
+const symbolMap = {
+  INR: "Rs.",
+  USD: "$",
+  EUR: "€",
+};
+
+const localeMap = {
+  INR: "en-IN",
+  USD: "en-US",
+  EUR: "de-DE",
+};
+
+/* ================= SEND EMAIL ================= */
+
+export const sendInvoiceEmail = async ({
+  to,
+  billId,
+  items,
+  totalAmount,
+  shopName,
+  shopAddress,
+  shopPhone,
+  customerName,
+  paymentMethod,
+  currency = "INR",
+}) => {
+  try {
+    const date = new Date().toLocaleDateString("en-IN");
+
+    /* ================= CONVERT ================= */
+
+    const convertCurrency = (amountINR) => {
+      const rate = rates[currency] ?? 1;
+      return amountINR * rate;
+    };
+
+    /* ================= FORMAT ================= */
+
+    const formatCurrency = (amountINR) => {
+      const converted = convertCurrency(amountINR);
+
+      return `${symbolMap[currency]} ${converted.toLocaleString(
+        localeMap[currency],
+        { minimumFractionDigits: 2 },
+      )}`;
+    };
+
+    /* ================= FORMAT ITEMS ================= */
+
+    const formattedItems = items.map((i) => {
+      const price = i.priceINR ?? i.unitPrice ?? i.price ?? 0;
+
+      return {
+        name: i.name,
+        quantity: i.quantity,
+        unitPrice: price,
+        totalPrice: price * i.quantity,
+      };
+    });
+
+    /* ================= HTML TABLE ================= */
+
+    const itemRows = formattedItems
+      .map(
+        (i) => `
+        <tr>
+          <td>${i.name}</td>
+          <td>${i.quantity}</td>
+          <td>${formatCurrency(i.unitPrice)}</td>
+          <td>${formatCurrency(i.totalPrice)}</td>
+        </tr>
+      `,
+      )
+      .join("");
+
+    const htmlContent = `
+    <div style="font-family:Arial;padding:20px">
+
+    <h2 style="text-align:center">${shopName}</h2>
+
+    <p><b>Invoice ID:</b> ${billId}</p>
+    <p><b>Date:</b> ${date}</p>
+    <p><b>Customer:</b> ${customerName || "Walk-in Customer"}</p>
+
+    <table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse">
+    
+    <thead>
+    <tr style="background:#f3f3f3">
+    <th>Product</th>
+    <th>Qty</th>
+    <th>Unit Price</th>
+    <th>Total</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    ${itemRows}
+    </tbody>
+
+    </table>
+
+    <h3 style="text-align:right">Total: ${formatCurrency(totalAmount)}</h3>
+
+    <p>Thank you for shopping with us.</p>
+
+    </div>
+    `;
+
+    /* ================= GENERATE PDF ================= */
+
+    const pdfBuffer = await generateInvoicePDF({
+      billId,
+      shopName,
+      shopAddress,
+      shopPhone,
+      customerName,
+      customerEmail: to,
+      paymentMethod,
+      currency,
+      items: formattedItems,
+      totalAmount,
+      date,
+    });
+
+    /* ================= SAVE PDF ================= */
+
+    const invoicesDir = path.join(process.cwd(), "invoices");
+
+    if (!fs.existsSync(invoicesDir)) {
+      fs.mkdirSync(invoicesDir, { recursive: true });
+    }
+
+    const filePath = path.join(invoicesDir, `invoice-${billId}.pdf`);
+
+    fs.writeFileSync(filePath, pdfBuffer);
+
+    console.log("📄 Invoice saved:", filePath);
+
+    /* ================= EMAIL ================= */
+
+    const mailOptions = {
+      from: `"${shopName}" <${process.env.EMAIL_USER}>`,
+      to,
+      subject: `Invoice #${billId}`,
+      html: htmlContent,
+      attachments: [
+        {
+          filename: `Invoice-${billId}.pdf`,
+          content: pdfBuffer,
+        },
+      ],
+    };
+
+    console.log("📧 Sending invoice email to:", to);
+
+    await transporter.sendMail(mailOptions);
+
+    console.log("✅ Email sent with PDF!");
+  } catch (error) {
+    console.error("❌ Email error:", error);
+  }
+};
+
+
+
+--- Workspace: ISMA_2 ---
+
+📂 ISMA_2
+    📄 .gitignore
+    📄 .txt
+    📂 backend
+        📄 .env
+        📂 backend
+            📂 invoices
+        📂 config
+            📄 db.js
+        📂 controllers
+            📄 authController.js
+            📄 billingController.js
+            📄 dashboardController.js
+            📄 inventoryController.js
+            📄 salesController.js
+            📄 supplierController.js
+        📂 invoices
+            📄 invoice-BILL-1772699190177.pdf
+        📂 middleware
+            📄 errorHandler.js
+            📄 verifyToken.js
+        📂 routes
+            📄 auth.js
+            📄 billing.js
+            📄 dashboard.js
+            📄 inventory.js
+            📄 sales.js
+            📄 suppliers.js
+        📄 server.js
+        📂 services
+            📄 emailService.js
+            📄 generateInvoicePDF.js
+        📂 utils
+        📂 validators
+            📄 authValidator.js
+    📂 frontend
+        📄 .gitignore
+        📄 eslint.config.js
+        📄 index.html
+        📂 node_modules
+            More than 30 items...
+        📄 package-lock.json
+        📄 package.json
+        📂 public
+            📄 vite.svg
+        📄 README.md
+        📂 src
+            📄 .env
+            📂 api
+                📄 axios.js
+            📄 App.css
+            📄 App.jsx
+            📂 assets
+                📄 react.svg
+            📂 components
+                📄 BackButton.css
+                📄 BackButton.jsx
+                📂 BarcodeScanner
+                    📄 BarcodeScanner.css
+                    📄 BarcodeScanner.jsx
+                    📄 CodeDisplay.css
+                    📄 CodeDisplay.jsx
+                📄 navbar.css
+                📄 Navbar.jsx
+                📄 ProtectedRoute.jsx
+                📄 Sidebar.css
+                📄 Sidebar.jsx
+            📂 context
+                📄 AuthContext.jsx
+                📄 CurrencyContext.jsx
+                📄 SettingsContext.jsx
+            📄 css.txt
+            📄 index.css
+            📄 main.jsx
+            📂 pages
+                📂 billing
+                    📄 Billing.css
+                    📄 Billing.jsx
+                📂 dashboard
+                    📄 Dashboard.css
+                    📄 Dashboard.jsx
+                    📄 Progress.jsx
+                    📄 StatCard.jsx
+                📄 Home.jsx
+                📂 Inventory
+                    📄 AddProduct.css
+                    📄 AddProduct.jsx
+                    📄 EditProduct.jsx
+                    📄 Inventory.css
+                    📄 Inventory.jsx
+                📄 Login.jsx
+                📂 Profile
+                    📄 profile.css
+                    📄 Profile.jsx
+                📄 Register.jsx
+                📂 reports
+                    📄 Reports.css
+                    📄 Reports.jsx
+                📂 sales
+                    📄 Sales.css
+                    📄 Sales.jsx
+                📂 setting
+                    📄 Settings.css
+                    📄 Settings.jsx
+                📂 suppliers
+                    📄 AddSupplier.jsx
+                    📄 EditSupplier.jsx
+                    📄 Suppliers.css
+                    📄 Suppliers.jsx
+            📂 styles
+                📄 auth.css
+                📄 home.css
+                📄 register.css
+                📄 theme.css
+            📂 utils
+                📄 barcodeLookup.js
+                📄 currency.js
+                📄 Navigation.jsx
+        📄 vite.config.js
+    📂 node_modules
+        More than 30 items...
+    📄 package-lock.json
+    📄 package.json
+    📄 projectContext.txt
+    
