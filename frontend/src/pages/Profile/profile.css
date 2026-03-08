@@ -172,3 +172,197 @@
     width: 100%;
   }
 }
+
+/* ================= EDIT MODE INPUTS ================= */
+
+.profile-grid input {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg-glass);
+  color: var(--text-primary);
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.profile-grid input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+/* ================= SECONDARY BUTTON ================= */
+
+.profile-actions .secondary {
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-actions .secondary:hover {
+  background: var(--card-bg-glass);
+}
+
+/* ================= BUTTON DISABLED ================= */
+
+.profile-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= SAVE BUTTON STATE ================= */
+
+.profile-actions .primary:disabled {
+  background: linear-gradient(
+    135deg,
+    var(--accent-soft),
+    var(--accent)
+  );
+}
+
+/* ================= INPUT ANIMATION ================= */
+
+.profile-grid input {
+  transform: scale(1);
+}
+
+.profile-grid input:focus {
+  transform: scale(1.02);
+}
+
+/* ================= CARD HOVER ================= */
+
+.profile-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+}
+
+/* ================= AVATAR GLOW ================= */
+
+.profile-avatar {
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+}
+
+/* ================= PREMIUM CARD BORDER ================= */
+
+.profile-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 22px;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    var(--accent),
+    transparent
+  );
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* ================= GLASS LIGHT EFFECT ================= */
+
+.profile-card::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -40%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255,255,255,0.08) 0%,
+    transparent 60%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+
+/* ================= AVATAR HOVER ================= */
+
+.profile-avatar {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 28px rgba(99,102,241,0.45);
+}
+
+/* ================= BUTTON HOVER GLOW ================= */
+
+.profile-actions .primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-actions .primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(99,102,241,0.35);
+}
+
+/* ================= SOFT BUTTON PRESS ================= */
+
+.profile-actions button:active {
+  transform: scale(0.97);
+}
+
+/* ================= INPUT FOCUS PREMIUM ================= */
+
+.profile-grid input:focus {
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.04);
+  box-shadow: 
+    0 0 0 2px rgba(99,102,241,0.18),
+    0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ================= TOPBAR SHINE ================= */
+
+.profile-topbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent),
+    transparent
+  );
+  opacity: 0.35;
+}
+
+/* ================= SMOOTH PAGE ENTRY ================= */
+
+.profile-page {
+  animation: profileFade 0.45s ease;
+}
+
+@keyframes profileFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

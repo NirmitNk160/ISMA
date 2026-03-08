@@ -114,3 +114,40 @@ export const profile = async (req, res) => {
     res.status(500).json({ message: "DB error" });
   }
 };
+
+/* ================= UPDATE PROFILE ================= */
+export const updateProfile = async (req, res) => {
+  try {
+    const { shop_name, owner_name, username, mobile } = req.body;
+
+    await pool.query(
+      `UPDATE users 
+       SET shop_name = ?, owner_name = ?, username = ?, mobile = ?
+       WHERE id = ?`,
+      [shop_name, owner_name, username, mobile, req.user.id],
+    );
+
+    const [rows] = await pool.query(
+      `SELECT shop_name, owner_name, username, email, mobile
+       FROM users WHERE id = ?`,
+      [req.user.id],
+    );
+
+    res.json({
+      message: "Profile updated",
+      user: rows[0],
+    });
+  } catch (err) {
+    console.error("UPDATE PROFILE ERROR:", err);
+
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({
+        message: "Username already exists",
+      });
+    }
+
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
