@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -9,6 +8,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
+  BarChart,
+  Bar,
 } from "recharts";
 
 import "./Dashboard.css";
@@ -23,26 +24,53 @@ import { useCurrency } from "../../context/CurrencyContext";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const { format } = useCurrency();
-
   const { loading: authLoading, isAuthenticated } = useAuth();
 
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [lowStock, setLowStock] = useState([]);
   const [expiryAlerts, setExpiryAlerts] = useState([]);
 
-  /* ================= EXPIRY TEXT HELPER ================= */
+  /* ================= STAT OPTIONS ================= */
+
+  const statOptions = [
+    { key: "totalRevenue", label: "Total Revenue", currency: true },
+    { key: "totalProfit", label: "Total Profit", currency: true },
+    { key: "totalExpenses", label: "Total Expenses", currency: true },
+    { key: "todaySales", label: "Today's Sales", currency: true },
+    { key: "inventoryValue", label: "Inventory Value", currency: true },
+    { key: "monthlyRevenue", label: "Monthly Revenue", currency: true },
+    { key: "itemsSold", label: "Items Sold" },
+    { key: "activeProducts", label: "Active Products" },
+    { key: "outOfStock", label: "Out of Stock" },
+  ];
+
+  const [selectedStats, setSelectedStats] = useState(() => {
+    const saved = localStorage.getItem("dashboardStats");
+    return saved ? JSON.parse(saved) : statOptions.map((s) => s.key);
+  });
+
+  const toggleStat = (key) => {
+    const updated = selectedStats.includes(key)
+      ? selectedStats.filter((s) => s !== key)
+      : [...selectedStats, key];
+
+    setSelectedStats(updated);
+    localStorage.setItem("dashboardStats", JSON.stringify(updated));
+  };
+
+  /* ================= EXPIRY TEXT ================= */
+
   const getExpiryText = (date) => {
     if (!date) return "";
 
     const today = new Date();
     const expiry = new Date(date);
 
-    // Remove time part (important)
     today.setHours(0, 0, 0, 0);
     expiry.setHours(0, 0, 0, 0);
 
@@ -56,19 +84,26 @@ export default function Dashboard() {
     return expiry.toLocaleDateString();
   };
 
-  /* ================= SAFE FETCH ================= */
+  /* ================= DATA FETCH ================= */
+
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
 
     let mounted = true;
 
-    const fetchData = async () => {
+    const fetchAll = async () => {
       try {
-        const res = await api.get("/dashboard");
+        const [dashboardRes, lowStockRes, expiryRes] = await Promise.all([
+          api.get("/dashboard"),
+          api.get("/inventory/low-stock"),
+          api.get("/inventory/expiry-alerts"),
+        ]);
 
-        if (mounted) {
-          setStats(res.data || {});
-        }
+        if (!mounted) return;
+
+        setStats(dashboardRes.data || {});
+        setLowStock(lowStockRes.data || []);
+        setExpiryAlerts(expiryRes.data || []);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
         if (mounted) setError("Failed to load dashboard data");
@@ -77,31 +112,24 @@ export default function Dashboard() {
       }
     };
 
-    api
-      .get("/inventory/low-stock")
-      .then((res) => setLowStock(res.data))
-      .catch(() => {});
-
-    api
-      .get("/inventory/expiry-alerts")
-      .then((res) => setExpiryAlerts(res.data))
-      .catch(() => {});
-
-    fetchData();
+    fetchAll();
 
     return () => {
       mounted = false;
     };
   }, [authLoading, isAuthenticated]);
 
-  /* ================= LOADING GUARD ================= */
+  /* ================= LOADING ================= */
+
   if (authLoading || loading) {
     return (
       <div className="dashboard-root">
         <Navbar />
         <div className="dashboard-body">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-          <main className="content dashboard-loading">Loading dashboard…</main>
+          <main className="content dashboard-loading">
+            Loading dashboard…
+          </main>
         </div>
       </div>
     );
@@ -122,12 +150,11 @@ export default function Dashboard() {
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className="content">
+
+          {/* HEADER */}
+
           <div className="page-header">
-            <button
-              className="menu-btn"
-              aria-label="Open menu"
-              onClick={() => setSidebarOpen(true)}
-            >
+            <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
               ☰
             </button>
 
@@ -137,28 +164,48 @@ export default function Dashboard() {
 
           {error && <div className="error-msg">❌ {error}</div>}
 
+          {/* ================= STAT CUSTOMIZER ================= */}
+
+          <div className="stats-filter">
+            <details>
+              <summary>Customize Stats ⚙️</summary>
+
+              <div className="stats-dropdown">
+                {statOptions.map((s) => (
+                  <label key={s.key}>
+                    <input
+                      type="checkbox"
+                      checked={selectedStats.includes(s.key)}
+                      onChange={() => toggleStat(s.key)}
+                    />
+                    {s.label}
+                  </label>
+                ))}
+              </div>
+            </details>
+          </div>
+
+          {/* ================= STATS ================= */}
+
           <section className="stats">
-            <StatCard
-              title="Total Revenue"
-              value={format(Number(stats?.totalRevenue ?? 0))}
-            />
-            <StatCard
-              title="Total Profit"
-              value={format(Number(stats?.totalProfit ?? 0))}
-            />
-            <StatCard
-              title="Total Expenses"
-              value={format(Number(stats?.totalExpenses ?? 0))}
-            />
-            <StatCard
-              title="Items Sold"
-              value={Number(stats?.itemsSold ?? 0)}
-            />
-            <StatCard
-              title="Active Products"
-              value={Number(stats?.activeProducts ?? 0)}
-            />
+
+            {statOptions
+              .filter((s) => selectedStats.includes(s.key))
+              .map((s) => (
+                <StatCard
+                  key={s.key}
+                  title={s.label}
+                  value={
+                    s.currency
+                      ? format(Number(stats[s.key] ?? 0))
+                      : Number(stats[s.key] ?? 0)
+                  }
+                />
+              ))}
+
           </section>
+
+          {/* ================= LOW STOCK ================= */}
 
           {lowStock.length > 0 && (
             <section className="low-stock-card">
@@ -173,6 +220,8 @@ export default function Dashboard() {
             </section>
           )}
 
+          {/* ================= EXPIRY ALERT ================= */}
+
           {expiryAlerts.length > 0 && (
             <section className="low-stock-card">
               <h3>⏳ Expiry Alerts</h3>
@@ -180,13 +229,14 @@ export default function Dashboard() {
               {expiryAlerts.map((p) => (
                 <div key={p.id} className="low-stock-item">
                   <span>{p.name}</span>
+
                   <span
                     className={`low-stock-badge ${
                       new Date(p.expiry_date) - new Date() < 3 * 86400000
                         ? "danger"
                         : new Date(p.expiry_date) - new Date() < 7 * 86400000
-                          ? "warning"
-                          : ""
+                        ? "warning"
+                        : ""
                     }`}
                   >
                     {getExpiryText(p.expiry_date)}
@@ -196,7 +246,68 @@ export default function Dashboard() {
             </section>
           )}
 
+          {/* ================= DEAD STOCK ================= */}
+
+          {stats?.deadStock?.length > 0 && (
+            <section className="low-stock-card">
+              <h3>📦 Dead Stock (30+ days)</h3>
+
+              {stats.deadStock.map((p, i) => (
+                <div key={i} className="low-stock-item">
+                  <span>{p.name}</span>
+
+                  <span className="low-stock-badge danger">
+                    {p.daysWithoutSale
+                      ? `${p.daysWithoutSale} days`
+                      : "Never sold"}
+                  </span>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* ================= LOW PROFIT PRODUCTS ================= */}
+
+          {stats?.lowProfitProducts?.length > 0 && (
+            <section className="low-stock-card">
+              <h3>📉 Low Profit Products</h3>
+
+              {stats.lowProfitProducts.map((p, i) => (
+                <div key={i} className="low-stock-item">
+                  <span>{p.name}</span>
+
+                  <span className="low-stock-badge warning">
+                    {format(Number(p.profit ?? 0))}
+                  </span>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* ================= SALES BY CATEGORY ================= */}
+
+          <div className="card">
+            <h3>Sales by Category</h3>
+
+            {stats?.salesByCategory?.length ? (
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={stats.salesByCategory}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="category" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="sold" fill="#6366f1" radius={[6,6,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p>No category sales yet</p>
+            )}
+          </div>
+
+          {/* ================= SALES TREND + TOP PRODUCTS ================= */}
+
           <section className="grid">
+
             <div className="card chart">
               <h3>Sales Trend (Last 30 Days)</h3>
 
@@ -204,11 +315,8 @@ export default function Dashboard() {
                 <ResponsiveContainer width="100%" height={260}>
                   <LineChart data={stats.salesTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
-
-                    {/* LEGEND */}
                     <Legend />
 
-                    {/* DATE FORMAT */}
                     <XAxis
                       dataKey="date"
                       tickFormatter={(d) =>
@@ -219,59 +327,22 @@ export default function Dashboard() {
                       }
                     />
 
-                    {/* CURRENCY AXIS */}
                     <YAxis tickFormatter={(v) => format(v)} />
 
-                    {/* TOOLTIP */}
                     <Tooltip
                       formatter={(value, name) => {
-                        if (name === "Orders" || name === "orders") {
+                        if (name === "Orders") {
                           return [`${value} orders`, "Orders"];
                         }
                         return [format(value), name];
                       }}
                     />
 
-                    {/* REVENUE */}
-                    <Line
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#4f46e5"
-                      strokeWidth={3}
-                      name="Revenue"
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                    />
+                    <Line type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} dot={false} />
+                    <Line type="monotone" dataKey="profit" stroke="#16a34a" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="orders" stroke="#f59e0b" strokeWidth={2} dot={false} />
 
-                    {/* PROFIT */}
-                    <Line
-                      type="monotone"
-                      dataKey="profit"
-                      stroke="#16a34a"
-                      strokeWidth={2}
-                      name="Profit"
-                      dot={false}
-                    />
-
-                    {/* EXPENSES */}
-                    <Line
-                      type="monotone"
-                      dataKey="expenses"
-                      stroke="#ef4444"
-                      strokeWidth={2}
-                      name="Expenses"
-                      dot={false}
-                    />
-
-                    {/* ORDERS */}
-                    <Line
-                      type="monotone"
-                      dataKey="orders"
-                      stroke="#f59e0b"
-                      strokeWidth={2}
-                      name="Orders"
-                      dot={false}
-                    />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
@@ -293,8 +364,11 @@ export default function Dashboard() {
               ) : (
                 <p>No sales yet</p>
               )}
+
             </div>
+
           </section>
+
         </main>
       </div>
     </div>
