@@ -188,21 +188,16 @@ export default function Dashboard() {
           {/* ================= STATS ================= */}
 
           <section className="stats">
-
             {statOptions
               .filter((s) => selectedStats.includes(s.key))
               .map((s) => (
                 <StatCard
                   key={s.key}
                   title={s.label}
-                  value={
-                    s.currency
-                      ? format(Number(stats[s.key] ?? 0))
-                      : Number(stats[s.key] ?? 0)
-                  }
+                  value={Number(stats[s.key] ?? 0)}
+                  currency={s.currency}
                 />
               ))}
-
           </section>
 
           {/* ================= LOW STOCK ================= */}

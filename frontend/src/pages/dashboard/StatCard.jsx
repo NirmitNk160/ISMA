@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCurrency } from "../../context/CurrencyContext";
 
-export default function StatCard({ title, value = 0, isCurrency = false }) {
+export default function StatCard({ title, value = 0, currency = false }) {
   const { format } = useCurrency();
 
   const numericValue =
@@ -30,7 +30,7 @@ export default function StatCard({ title, value = 0, isCurrency = false }) {
         clearInterval(timer);
       }
 
-      setDisplayValue(Math.floor(start));
+      setDisplayValue(start);
     }, duration / steps);
 
     return () => clearInterval(timer);
@@ -41,9 +41,9 @@ export default function StatCard({ title, value = 0, isCurrency = false }) {
       <p className="stat-title">{title}</p>
 
       <h2 className="stat-value">
-        {isCurrency
-          ? format(displayValue)
-          : displayValue.toLocaleString()}
+        {currency
+          ? format(displayValue)     // currency formatting
+          : Math.floor(displayValue).toLocaleString()}
       </h2>
     </div>
   );
