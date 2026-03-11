@@ -16,6 +16,7 @@ import Settings from "./pages/setting/Settings";
 import Suppliers from "./pages/suppliers/Suppliers";
 import AddSupplier from "./pages/suppliers/AddSupplier";
 import EditSupplier from "./pages/suppliers/EditSupplier";
+import VerifyOTP from "./pages/VerifyOTP";
 
 
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -37,6 +38,7 @@ export default function App() {
         element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
       />
       <Route path="/register" element={<Register />} />
+      <Route path="/verify-otp" element={<VerifyOTP />} />
 
       {/* Protected */}
       <Route

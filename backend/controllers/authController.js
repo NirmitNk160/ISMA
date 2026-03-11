@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../config/db.js";
 import { registerSchema, loginSchema } from "../validators/authValidator.js";
+import { sendOTPEmail } from "../services/emailService.js";
 
 /* ================= REGISTER ================= */
 export const register = async (req, res) => {
@@ -13,22 +14,35 @@ export const register = async (req, res) => {
       validatedData;
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
 
     await pool.query(
       `INSERT INTO users 
-       (shop_name, owner_name, username, email, mobile, password)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [shop_name, owner_name, username, email, mobile, hashedPassword],
+   (shop_name, owner_name, username, email, mobile, password, otp, otp_expires)
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        shop_name,
+        owner_name,
+        username,
+        email,
+        mobile,
+        hashedPassword,
+        otp,
+        otpExpires,
+      ],
     );
 
+    await sendOTPEmail(email, otp);
+
     res.status(201).json({
-      message: "Registration successful",
+      message: "OTP sent to your email",
     });
   } catch (err) {
     // Zod validation error → clean message
     if (err.name === "ZodError") {
       return res.status(400).json({
-        message: "Please enter valid details",
+        message: err.errors[0].message,
       });
     }
 
@@ -47,6 +61,44 @@ export const register = async (req, res) => {
   }
 };
 
+/* ================= VERIFY OTP ================= */
+export const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const [rows] = await pool.query(
+      "SELECT otp, otp_expires FROM users WHERE email = ?",
+      [email],
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const user = rows[0];
+
+    if (user.otp !== otp) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (new Date(user.otp_expires) < new Date()) {
+      return res.status(400).json({ message: "OTP expired" });
+    }
+
+    await pool.query(
+      `UPDATE users
+       SET is_verified = TRUE, otp = NULL, otp_expires = NULL
+       WHERE email = ?`,
+      [email],
+    );
+
+    res.json({ message: "Email verified successfully" });
+  } catch (err) {
+    console.error("VERIFY OTP ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 /* ================= LOGIN ================= */
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -60,7 +112,7 @@ export const login = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      "SELECT id, username, password FROM users WHERE email = ?",
+      "SELECT id, username, password, is_verified, role FROM users WHERE email = ?",
       [email],
     );
 
@@ -82,8 +134,14 @@ export const login = async (req, res) => {
       });
     }
 
+    if (!user.is_verified) {
+      return res.status(403).json({
+        message: "Please verify your email first",
+      });
+    }
+
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" },
     );

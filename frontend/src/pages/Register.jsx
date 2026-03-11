@@ -81,11 +81,13 @@ export default function Register() {
         password: form.password,
       });
 
-      setSuccess("Registration successful ✓ Redirecting...");
+      setSuccess("OTP sent to your email");
 
       setTimeout(() => {
-        navigate("/login", { replace: true });
-      }, 1500);
+        navigate("/verify-otp", {
+          state: { email: form.email },
+        });
+      }, 1000);
     } catch (err) {
       setError(err.response?.data?.message || "Server error");
     } finally {

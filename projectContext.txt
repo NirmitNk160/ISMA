@@ -5,8 +5,6 @@
     📄 .txt
     📂 backend
         📄 .env
-        📂 backend
-            📂 invoices
         📂 config
             📄 db.js
         📂 controllers
@@ -17,7 +15,8 @@
             📄 salesController.js
             📄 supplierController.js
         📂 invoices
-            📄 invoice-BILL-1772699190177.pdf
+            📄 invoice-BILL-1772725502935.pdf
+            📄 invoice-BILL-1772956365737.pdf
         📂 middleware
             📄 errorHandler.js
             📄 verifyToken.js

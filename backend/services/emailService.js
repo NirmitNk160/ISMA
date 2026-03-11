@@ -167,3 +167,29 @@ export const sendInvoiceEmail = async ({
     console.error("❌ Email error:", error);
   }
 };
+
+/* ================= SEND OTP EMAIL ================= */
+
+export const sendOTPEmail = async (email, otp) => {
+  try {
+    const htmlContent = `
+    <div style="font-family:Arial;padding:20px">
+      <h2>Email Verification</h2>
+      <p>Your verification code for ISMA is:</p>
+      <h1 style="letter-spacing:4px">${otp}</h1>
+      <p>This OTP expires in 5 minutes.</p>
+    </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"ISMA Security" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify your email",
+      html: htmlContent,
+    });
+
+    console.log("✅ OTP email sent");
+  } catch (error) {
+    console.error("OTP Email error:", error);
+  }
+};
