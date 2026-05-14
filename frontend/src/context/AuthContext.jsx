@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { useSettings } from "./SettingsContext";
 
 const AuthContext = createContext(null);
 
@@ -9,7 +8,6 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { settings } = useSettings();
   const logoutTimerRef = useRef(null);
 
   /* ================= TOKEN VALIDATION ================= */
@@ -58,7 +56,7 @@ export function AuthProvider({ children }) {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
 
         if (!res.ok) return;
@@ -73,12 +71,30 @@ export function AuthProvider({ children }) {
     if (user) fetchProfile();
   }, [user]);
 
-  /* ================= AUTO LOGOUT ================= */
+  /* ================= AUTO LOGOUT (SAFE VERSION) ================= */
+
+  const getAutoLogoutTime = () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return 0;
+
+      const decoded = jwtDecode(token);
+      const userId = decoded.id;
+
+      const saved = localStorage.getItem(`isma_settings_${userId}`);
+      if (!saved) return 0;
+
+      const parsed = JSON.parse(saved);
+      return Number(parsed.autoLogout ?? 0);
+    } catch {
+      return 0;
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
 
-    const autoLogoutMinutes = Number(settings?.autoLogout ?? 0);
+    const autoLogoutMinutes = getAutoLogoutTime();
     if (!autoLogoutMinutes) return;
 
     const resetTimer = () => {
@@ -86,13 +102,10 @@ export function AuthProvider({ children }) {
         clearTimeout(logoutTimerRef.current);
       }
 
-      logoutTimerRef.current = setTimeout(
-        () => {
-          console.warn("Auto logout due to inactivity");
-          logout();
-        },
-        autoLogoutMinutes * 60 * 1000,
-      );
+      logoutTimerRef.current = setTimeout(() => {
+        console.warn("Auto logout due to inactivity");
+        logout();
+      }, autoLogoutMinutes * 60 * 1000);
     };
 
     const events = [
@@ -114,9 +127,11 @@ export function AuthProvider({ children }) {
         clearTimeout(logoutTimerRef.current);
       }
 
-      events.forEach((event) => window.removeEventListener(event, resetTimer));
+      events.forEach((event) =>
+        window.removeEventListener(event, resetTimer)
+      );
     };
-  }, [user, settings?.autoLogout]);
+  }, [user]);
 
   /* ================= LOGIN ================= */
 
@@ -148,7 +163,6 @@ export function AuthProvider({ children }) {
 
     setUser(null);
 
-    // Prevent redirect loop
     if (!window.location.pathname.includes("login")) {
       window.location.href = "/login";
     }

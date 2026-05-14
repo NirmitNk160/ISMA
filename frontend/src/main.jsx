@@ -13,14 +13,14 @@ import { CurrencyProvider } from "./context/CurrencyContext";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      <SettingsProvider>
-        <CurrencyProvider>
-          <AuthProvider>
+      <AuthProvider> {/* ✅ FIRST */}
+        <SettingsProvider> {/* ✅ AFTER Auth */}
+          <CurrencyProvider> {/* ✅ AFTER Settings */}
             <Toaster position="top-right" />
             <App />
-          </AuthProvider>
-        </CurrencyProvider>
-      </SettingsProvider>
+          </CurrencyProvider>
+        </SettingsProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

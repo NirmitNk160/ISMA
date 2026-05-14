@@ -15,43 +15,41 @@ const DEFAULT_SETTINGS = {
 };
 
 export function SettingsProvider({ children }) {
-  const auth = useAuth?.();
-  const user = auth?.user || null;
+  const { user } = useAuth(); // ✅ fixed
 
-  const [settings, setSettings] = useState(() => {
-    // fallback for initial load
-    const savedGlobal = localStorage.getItem("isma_settings");
-    return savedGlobal ? JSON.parse(savedGlobal) : DEFAULT_SETTINGS;
-  });
+  // ✅ start with default only (NO global storage)
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   /* ================= LOAD SETTINGS PER USER ================= */
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      // ✅ reset on logout / no user
+      setSettings(DEFAULT_SETTINGS);
+      return;
+    }
 
     const savedUser = localStorage.getItem(`isma_settings_${user.id}`);
 
     if (savedUser) {
       setSettings(JSON.parse(savedUser));
+    } else {
+      setSettings(DEFAULT_SETTINGS);
     }
   }, [user]);
 
   /* ================= SAVE SETTINGS ================= */
 
   useEffect(() => {
-    if (!settings) return;
+    if (!settings || !user) return;
 
-    // save per user if logged in
-    if (user) {
-      localStorage.setItem(
-        `isma_settings_${user.id}`,
-        JSON.stringify(settings)
-      );
-    }
+    // ✅ ONLY per-user storage (NO global)
+    localStorage.setItem(
+      `isma_settings_${user.id}`,
+      JSON.stringify(settings)
+    );
 
-    // keep global fallback for first load
-    localStorage.setItem("isma_settings", JSON.stringify(settings));
-
+    // theme apply (unchanged)
     document.body.classList.toggle("light-mode", !settings.darkMode);
   }, [settings, user]);
 
@@ -68,9 +66,7 @@ export function useSettings() {
   const ctx = useContext(SettingsContext);
 
   if (!ctx) {
-    throw new Error(
-      "useSettings must be used inside SettingsProvider"
-    );
+    throw new Error("useSettings must be used inside SettingsProvider");
   }
 
   return ctx;
