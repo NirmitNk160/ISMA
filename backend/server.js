@@ -15,9 +15,20 @@ import errorHandler from "./middleware/errorHandler.js";
 const app = express();
 
 /* ================= CORS FIX ================= */
+const allowedOrigins = [
+  "https://isma-mu.vercel.app",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: "https://isma-mu.vercel.app",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
