@@ -17,7 +17,10 @@ const app = express();
 /* ================= CORS FIX ================= */
 app.use(
   cors({
-    origin: "https://isma-mu.vercel.app",
+    origin: [
+      "https://isma-mu.vercel.app",
+      "http://localhost:5173"
+    ],
     credentials: true,
   })
 );
