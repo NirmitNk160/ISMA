@@ -16,7 +16,7 @@ IMPORTANT:
 */
 
 const BASE_URL =
-  import.meta.env.VITE_API_URL || "const API_URL = \"https://your-render-url.onrender.com\";";
+  import.meta.env.VITE_API_URL || "https://isma-i26z.onrender.com/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
