@@ -268,3 +268,7 @@ body {
 .strength.strong {
   color: #4ade80;
 }
+
+.auth-with-navbar {
+  padding-top: 0px; /* Adjust this value based on your navbar height */
+}

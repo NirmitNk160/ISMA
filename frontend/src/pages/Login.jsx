@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Navbar from "../components/Navbar";
 import api from "../api/axios";
 import "../styles/auth.css";
 
@@ -38,7 +39,6 @@ export default function Login() {
       login(res.data.token);
 
       navigate("/", { replace: true });
-
     } catch (err) {
       setError(err.response?.data?.message || "Server error");
     } finally {
@@ -47,48 +47,51 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <h2>ISMA Login</h2>
+    <>
+      <Navbar />
+      <div className="auth-page auth-with-navbar">
+        <div className="auth-container">
+          <h2>ISMA Login</h2>
 
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            autoFocus
-            onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                passwordRef.current?.focus();
-              }
-            }}
-          />
+          <form onSubmit={handleLogin}>
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              autoFocus
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  passwordRef.current?.focus();
+                }
+              }}
+            />
 
-          <input
-            ref={passwordRef}
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+            <input
+              ref={passwordRef}
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-          <button className="primary-btn" type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+            <button className="primary-btn" type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
 
-        {error && <div className="error-msg">⚠ {error}</div>}
+          {error && <div className="error-msg">⚠ {error}</div>}
 
-        <p>
-          New shop?
-          <span onClick={() => navigate("/register")}>
-            {" "}
-            Register your shop
-          </span>
-        </p>
+          <p>
+            New shop?
+            <span onClick={() => navigate("/register")}>
+              {" "}
+              Register your shop
+            </span>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
-} 
+}

@@ -49,9 +49,10 @@
 /* ================= PAGE ================= */
 
 .profile-page {
-  max-width: 1200px;
+  max-width: 950px;
   margin: 40px auto;
-  padding: 0 24px;
+  padding: 0 24px 80px;
+  animation: profileFade 0.45s ease;
 }
 
 /* ================= HEADER ================= */
@@ -59,21 +60,37 @@
 .profile-header {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin-bottom: 32px;
+  gap: 24px;
+  margin-bottom: 40px;
 }
 
 .profile-avatar {
-  width: 72px;
-  height: 72px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+
+  background: linear-gradient(135deg,
+      var(--accent),
+      var(--accent-strong));
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   color: var(--text-invert);
-  font-size: 26px;
+  font-size: 34px;
   font-weight: 800;
+
+  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.35);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 14px 36px rgba(99, 102, 241, 0.45);
 }
 
 .profile-header-text h2 {
@@ -90,17 +107,76 @@
 /* ================= CARD ================= */
 
 .profile-card {
-  background: var(--card-bg-solid);
-  border-radius: 22px;
-  padding: 32px;
-  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+
+  background: var(--card-bg);
+
+  border: 1px solid var(--border-soft);
+  border-radius: 28px;
+
+  padding: 40px;
+
   box-shadow: var(--card-shadow);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.profile-card:hover {
+  transform: translateY(-2px);
+}
+
+.profile-card::before {
+  content: "";
+
+  position: absolute;
+  inset: -1px;
+
+  border-radius: 28px;
+
+  padding: 1px;
+
+  background: linear-gradient(120deg,
+      transparent,
+      var(--accent),
+      transparent);
+
+  opacity: 0.2;
+
+  pointer-events: none;
+}
+
+.profile-card::after {
+  content: "";
+
+  position: absolute;
+  top: -60%;
+  left: -40%;
+
+  width: 200%;
+  height: 200%;
+
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 60%);
+
+  transform: rotate(25deg);
+
+  pointer-events: none;
 }
 
 .profile-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+}
+
+.profile-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .profile-grid span {
@@ -111,16 +187,16 @@
 }
 
 .profile-grid strong {
-  display: block;
-  margin-top: 6px;
-  font-size: 16px;
+  font-size: 20px;
   color: var(--text-primary);
+  font-weight: 700;
 }
 
 /* ================= ACTIONS ================= */
 
 .profile-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin-top: 36px;
 }
@@ -176,20 +252,39 @@
 /* ================= EDIT MODE INPUTS ================= */
 
 .profile-grid input {
-  margin-top: 6px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg-glass);
+  width: 100%;
+  max-width: 320px;
+
+  padding: 12px 14px;
+
+  border-radius: 14px;
+
+  border: 1px solid var(--input-border);
+
+  background: var(--input-bg);
+
   color: var(--text-primary);
-  font-size: 15px;
+
+  font-size: 16px;
+
   outline: none;
-  transition: all 0.2s ease;
+
+  transition:
+    border var(--ease),
+    box-shadow var(--ease),
+    transform 0.2s ease;
 }
 
 .profile-grid input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+
+  background: var(--input-bg-focus);
+
+  transform: scale(1.01);
+
+  box-shadow:
+    0 0 0 3px var(--accent-soft),
+    0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ================= SECONDARY BUTTON ================= */
@@ -219,89 +314,9 @@
 /* ================= SAVE BUTTON STATE ================= */
 
 .profile-actions .primary:disabled {
-  background: linear-gradient(
-    135deg,
-    var(--accent-soft),
-    var(--accent)
-  );
-}
-
-/* ================= INPUT ANIMATION ================= */
-
-.profile-grid input {
-  transform: scale(1);
-}
-
-.profile-grid input:focus {
-  transform: scale(1.02);
-}
-
-/* ================= CARD HOVER ================= */
-
-.profile-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.profile-card:hover {
-  transform: translateY(-2px);
-}
-
-/* ================= AVATAR GLOW ================= */
-
-.profile-avatar {
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
-}
-
-/* ================= PREMIUM CARD BORDER ================= */
-
-.profile-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.profile-card::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: 22px;
-  padding: 1px;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    var(--accent),
-    transparent
-  );
-  opacity: 0.25;
-  pointer-events: none;
-}
-
-/* ================= GLASS LIGHT EFFECT ================= */
-
-.profile-card::after {
-  content: "";
-  position: absolute;
-  top: -60%;
-  left: -40%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255,255,255,0.08) 0%,
-    transparent 60%
-  );
-  transform: rotate(25deg);
-  pointer-events: none;
-}
-
-/* ================= AVATAR HOVER ================= */
-
-.profile-avatar {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.profile-avatar:hover {
-  transform: scale(1.08);
-  box-shadow: 0 10px 28px rgba(99,102,241,0.45);
+  background: linear-gradient(135deg,
+      var(--accent-soft),
+      var(--accent));
 }
 
 /* ================= BUTTON HOVER GLOW ================= */
@@ -313,7 +328,7 @@
 
 .profile-actions .primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(99,102,241,0.35);
+  box-shadow: 0 8px 22px rgba(99, 102, 241, 0.35);
 }
 
 /* ================= SOFT BUTTON PRESS ================= */
@@ -322,15 +337,6 @@
   transform: scale(0.97);
 }
 
-/* ================= INPUT FOCUS PREMIUM ================= */
-
-.profile-grid input:focus {
-  border-color: var(--accent);
-  background: rgba(255,255,255,0.04);
-  box-shadow: 
-    0 0 0 2px rgba(99,102,241,0.18),
-    0 4px 12px rgba(0,0,0,0.15);
-}
 
 /* ================= TOPBAR SHINE ================= */
 
@@ -341,12 +347,10 @@
   bottom: -1px;
   width: 100%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--accent),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      var(--accent),
+      transparent);
   opacity: 0.35;
 }
 
@@ -361,6 +365,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

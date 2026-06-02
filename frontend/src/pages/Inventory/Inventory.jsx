@@ -214,13 +214,16 @@ export default function Inventory() {
                         >
                           <td>{i + 1}</td>
 
-                          <td className="product-cell">
-                            <img
-                              src={p.image_url || "/placeholder.png"}
-                              alt=""
-                              className="product-thumb"
-                            />
-                            {p.name}
+                          <td>
+                            <div className="product-cell">
+                              <img
+                                src={p.image_url || "/placeholder.png"}
+                                alt=""
+                                className="product-thumb"
+                              />
+
+                              <span className="product-name">{p.name}</span>
+                            </div>
                           </td>
 
                           <td className="desktop-only">{p.brand || "-"}</td>

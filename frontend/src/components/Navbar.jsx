@@ -27,7 +27,6 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-
       {/* LOGO */}
       <div className="navbar-left">
         <h1 className="logo" onClick={() => navigate("/")}>
@@ -39,26 +38,17 @@ export default function Navbar() {
       <div className="navbar-right">
         {!isAuthenticated ? (
           <>
-            <button onClick={() => navigate("/about")}>
-              About
-            </button>
+            <button onClick={() => navigate("/about")}>About</button>
 
-            <button onClick={() => navigate("/login")}>
-              Login
-            </button>
+            <button onClick={() => navigate("/login")}>Login</button>
 
-            <button
-              className="nav-btn"
-              onClick={() => navigate("/register")}
-            >
+            <button className="nav-btn" onClick={() => navigate("/register")}>
               Create Store
             </button>
           </>
         ) : (
           <>
-            <span className="welcome-text">
-              👋 {username}
-            </span>
+            <span className="welcome-text">👋 {username}</span>
 
             <div
               className="avatar"
@@ -68,10 +58,9 @@ export default function Navbar() {
               {initials}
             </div>
 
-            <button
-              className="logout-btn"
-              onClick={logout}
-            >
+            <button onClick={() => navigate("/about")}>About</button>
+
+            <button className="logout-btn" onClick={logout}>
               Logout
             </button>
           </>

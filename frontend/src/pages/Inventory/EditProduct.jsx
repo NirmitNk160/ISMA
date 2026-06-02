@@ -252,7 +252,13 @@ export default function EditProduct() {
               </div>
 
               {form.image_url && (
-                <img src={form.image_url} className="product-preview" />
+                <div className="product-preview-wrapper">
+                  <img
+                    src={form.image_url}
+                    alt="Preview"
+                    className="product-preview"
+                  />
+                </div>
               )}
 
               <div className="form-group">

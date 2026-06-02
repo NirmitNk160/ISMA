@@ -4,6 +4,7 @@ import { useAuth } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import About from "./pages/About";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Profile from "./pages/Profile/Profile";
 import Inventory from "./pages/Inventory/Inventory";
@@ -57,6 +58,11 @@ export default function App() {
             <Profile />
           </ProtectedRoute>
         }
+      />
+
+      <Route
+        path="/about"
+        element={<About />}
       />
 
       <Route

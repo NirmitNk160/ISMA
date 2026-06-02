@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
@@ -293,7 +293,13 @@ export default function AddProduct() {
               </div>
 
               {form.image_url && (
-                <img src={form.image_url} className="product-preview" />
+                <div className="product-preview-wrapper">
+                  <img
+                    src={form.image_url}
+                    alt="Preview"
+                    className="product-preview"
+                  />
+                </div>
               )}
 
               <div className="form-group">
