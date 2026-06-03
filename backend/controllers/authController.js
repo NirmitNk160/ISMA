@@ -42,7 +42,7 @@ export const register = async (req, res) => {
     // Zod validation error → clean message
     if (err.name === "ZodError") {
       return res.status(400).json({
-        message: err.issues?.[0]?.message || "Validation failed",,
+        message: err.issues?.[0]?.message || "Validation failed",
       });
     }
 
