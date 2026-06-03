@@ -6,7 +6,8 @@ import { generateInvoicePDF } from "./generateInvoicePDF.js";
 const transporter = nodemailer.createTransport({
   host: "74.125.24.108",
   port: 587,
-  secure: true,
+  secure: false,
+  requireTLS: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
