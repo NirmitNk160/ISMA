@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 import { generateInvoicePDF } from "./generateInvoicePDF.js";
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: "74.125.24.108",
   port: 587,
   secure: true,
   auth: {
