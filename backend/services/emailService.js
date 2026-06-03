@@ -3,6 +3,12 @@ import path from "path";
 import nodemailer from "nodemailer";
 import { generateInvoicePDF } from "./generateInvoicePDF.js";
 
+
+console.log("SMTP_HOST =", process.env.SMTP_HOST);
+console.log("SMTP_PORT =", process.env.SMTP_PORT);
+console.log("SMTP_USER =", process.env.SMTP_USER);
+console.log("SMTP_PASS exists =", !!process.env.SMTP_PASS);
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
@@ -157,7 +163,7 @@ export const sendInvoiceEmail = async ({
     /* ================= EMAIL ================= */
 
     const mailOptions = {
-      from: `"${shopName}" <${process.env.EMAIL_USER}>`,
+      from: `"${shopName}" <isma.billin@gmail.com>`,
       to,
       subject: `Invoice #${billId}`,
       html: htmlContent,
@@ -193,7 +199,7 @@ export const sendOTPEmail = async (email, otp) => {
     `;
 
     await transporter.sendMail({
-      from: `"ISMA Security" <${process.env.EMAIL_USER}>`,
+      from: `"ISMA Security" <isma.billin@gmail.com>`,
       to: email,
       subject: "Verify your email",
       html: htmlContent,
