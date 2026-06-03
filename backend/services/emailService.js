@@ -4,11 +4,22 @@ import nodemailer from "nodemailer";
 import { generateInvoicePDF } from "./generateInvoicePDF.js";
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+});
+
+/* ================= VERIFY SMTP ================= */
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("SMTP ERROR:", error);
+  } else {
+    console.log("SMTP READY");
+  }
 });
 
 /* ================= CURRENCY DATA ================= */
