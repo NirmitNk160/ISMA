@@ -195,8 +195,14 @@
 
 @media (max-width: 480px) {
 
+    .suppliers-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
   .suppliers-table th,
   .suppliers-table td {
+    padding: 12px 8px;
     font-size: 13px;
     /* slightly smaller */
   }
@@ -204,13 +210,10 @@
   .clickable-name {
     font-size: 13px;
     /* prevent wrapping */
-    overflow: hidden;
-    /* hide overflow */
-    text-overflow: ellipsis;
-    /* show ... if too long */
-    max-width: 140px;
-    /* adjust if needed */
-    display: block;
+    word-break: break-word;
+    /* allow breaking long names if needed */
+    white-space: normal;
+    /* allow wrapping if it exceeds container width */
   }
 
   .suppliers-table td:first-child {
