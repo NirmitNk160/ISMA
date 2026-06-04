@@ -25,7 +25,7 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function Dashboard() {
   const { format } = useCurrency();
-  const { loading: authLoading, isAuthenticated } = useAuth();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
 
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
@@ -49,10 +49,14 @@ export default function Dashboard() {
     { key: "outOfStock", label: "Out of Stock" },
   ];
 
-  const [selectedStats, setSelectedStats] = useState(() => {
-    const saved = localStorage.getItem("dashboardStats");
-    return saved ? JSON.parse(saved) : statOptions.map((s) => s.key);
-  });
+  const [selectedStats, setSelectedStats] = useState([]);
+  useEffect(() => {
+    if (!user) return;
+
+    const saved = localStorage.getItem(`dashboardStats_${user.id}`);
+
+    setSelectedStats(saved ? JSON.parse(saved) : statOptions.map((s) => s.key));
+  }, [user]);
 
   const toggleStat = (key) => {
     const updated = selectedStats.includes(key)
@@ -60,7 +64,7 @@ export default function Dashboard() {
       : [...selectedStats, key];
 
     setSelectedStats(updated);
-    localStorage.setItem("dashboardStats", JSON.stringify(updated));
+    localStorage.setItem(`dashboardStats_${user.id}`, JSON.stringify(updated));
   };
 
   /* ================= EXPIRY TEXT ================= */
@@ -127,9 +131,7 @@ export default function Dashboard() {
         <Navbar />
         <div className="dashboard-body">
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-          <main className="content dashboard-loading">
-            Loading dashboard…
-          </main>
+          <main className="content dashboard-loading">Loading dashboard…</main>
         </div>
       </div>
     );
@@ -150,7 +152,6 @@ export default function Dashboard() {
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className="content">
-
           {/* HEADER */}
 
           <div className="page-header">
@@ -230,8 +231,8 @@ export default function Dashboard() {
                       new Date(p.expiry_date) - new Date() < 3 * 86400000
                         ? "danger"
                         : new Date(p.expiry_date) - new Date() < 7 * 86400000
-                        ? "warning"
-                        : ""
+                          ? "warning"
+                          : ""
                     }`}
                   >
                     {getExpiryText(p.expiry_date)}
@@ -291,7 +292,7 @@ export default function Dashboard() {
                   <XAxis dataKey="category" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="sold" fill="#6366f1" radius={[6,6,0,0]} />
+                  <Bar dataKey="sold" fill="#6366f1" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -302,7 +303,6 @@ export default function Dashboard() {
           {/* ================= SALES TREND + TOP PRODUCTS ================= */}
 
           <section className="grid">
-
             <div className="card chart">
               <h3>Sales Trend (Last 30 Days)</h3>
 
@@ -333,11 +333,34 @@ export default function Dashboard() {
                       }}
                     />
 
-                    <Line type="monotone" dataKey="revenue" stroke="#4f46e5" strokeWidth={3} dot={false} />
-                    <Line type="monotone" dataKey="profit" stroke="#16a34a" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="orders" stroke="#f59e0b" strokeWidth={2} dot={false} />
-
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="#4f46e5"
+                      strokeWidth={3}
+                      dot={false}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="profit"
+                      stroke="#16a34a"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="expenses"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="orders"
+                      stroke="#f59e0b"
+                      strokeWidth={2}
+                      dot={false}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
@@ -359,11 +382,8 @@ export default function Dashboard() {
               ) : (
                 <p>No sales yet</p>
               )}
-
             </div>
-
           </section>
-
         </main>
       </div>
     </div>
