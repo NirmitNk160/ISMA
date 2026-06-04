@@ -576,3 +576,15 @@
     0 8px 22px rgba(0,0,0,.08),
     0 4px 10px rgba(0,0,0,.05);
 }
+
+.stat-card.small {
+  grid-column: span 1;
+}
+
+.stat-card.medium {
+  grid-column: span 2;
+}
+
+.stat-card.large {
+  grid-column: span 3;
+}
